@@ -1,102 +1,278 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MEGACRYPTO Lottery</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
   <style>
-    :root {
-      --bg: #0b0e14;
-      --card-bg: #151a23;
-      --primary: #00d26a;
-      --primary-hover: #00b058;
-      --accent: #f59e0b;
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --border: #232d3f;
+    body {
+      background-color: #0b0e14;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
-    .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
-    
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-    .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-    .title { font-size: 24px; font-weight: 800; color: #fff; }
-    .title span { color: var(--primary); }
-    
-    .btn { background: var(--primary); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-    .btn:hover { background: var(--primary-hover); }
-    .btn-secondary { background: var(--border); color: #fff; }
-    .btn-secondary:hover { background: #2f3e58; }
-    .btn-tg { background: #229ED9; color: #fff; }
-    .btn-tg:hover { background: #1b87ba; }
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background-color: #151a23;
+      border: 1px solid #232d3f;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #232d3f;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: bold;
+      color: #00d26a;
+      letter-spacing: 1px;
+    }
+    .logo span {
+      color: #ffffff;
+    }
+    .btn-connect {
+      background-color: #00d26a;
+      color: #000000;
+      border: none;
+      padding: 10px 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-connect:hover {
+      background-color: #00b058;
+    }
+    .banner-potes {
+      display: flex;
+      justify-content: space-around;
+      background-color: #0f131a;
+      border: 1px solid #232d3f;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .pote-item h4 {
+      margin: 0 0 5px 0;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+    .pote-item span {
+      font-size: 22px;
+      font-weight: bold;
+      color: #f59e0b;
+    }
 
-    /* Timer */
-    .timer-box { text-align: center; border: 1px solid var(--border); background: #0f131a; border-radius: 10px; padding: 15px; }
-    .timer-val { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: 2px; }
+    /* Contagem Regressiva */
+    .timer-container {
+      background-color: #0f131a;
+      border: 1px solid #232d3f;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .timer-container h4 {
+      margin: 0 0 5px 0;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    .timer-val {
+      font-size: 24px;
+      font-weight: bold;
+      color: #00d26a;
+      letter-spacing: 2px;
+    }
 
-    /* Number Grid */
-    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
-    .num-btn { background: #1c2331; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; }
-    .num-btn.selected { background: var(--primary); color: #000; border-color: var(--primary); }
+    /* Cartela */
+    .cartela-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .contador {
+      font-size: 14px;
+      color: #9ca3af;
+    }
+    .grid-numeros {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    .num-btn {
+      background-color: #1c2331;
+      border: 1px solid #232d3f;
+      color: #ffffff;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .num-btn:hover {
+      border-color: #00d26a;
+    }
+    .num-btn.selected {
+      background-color: #00d26a;
+      color: #000000;
+      border-color: #00d26a;
+    }
+    .acoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-action {
+      background-color: #232d3f;
+      color: #ffffff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-action:hover {
+      background-color: #2f3e58;
+    }
+    .btn-comprar {
+      background-color: #00d26a;
+      color: #000000;
+      flex-grow: 1;
+      font-size: 16px;
+    }
+    .btn-comprar:hover {
+      background-color: #00b058;
+    }
+    .btn-telegram {
+      background-color: #229ed9;
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-telegram:hover {
+      background-color: #1b87ba;
+    }
 
-    /* Lists */
-    .ticket-list, .history-list { display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; margin-top: 15px; }
-    .item-row { background: #0f131a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-    .badge { background: #222c3d; padding: 4px 8px; border-radius: 4px; font-family: monospace; }
+    /* Caixas de Listagem (Minhas Apostas e Histórico) */
+    .secao-lista {
+      margin-top: 25px;
+      border-top: 1px solid #232d3f;
+      padding-top: 20px;
+    }
+    .secao-lista h3 {
+      margin-bottom: 12px;
+      font-size: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .lista-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .linha-item {
+      background-color: #0f131a;
+      border: 1px solid #232d3f;
+      border-radius: 6px;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+    .badge-numeros {
+      background-color: #232d3f;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: #00d26a;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Header -->
-  <div class="card header">
-    <div class="title">MEGA<span>CRYPTO</span></div>
+  <!-- Topo -->
+  <div class="header">
+    <div class="logo">MEGA<span>CRYPTO</span></div>
     <div>
-      <button id="btnConnect" class="btn" onclick="conectarCarteira()">Conectar Carteira</button>
-      <span id="walletAddress" class="badge" style="display: none;"></span>
+      <button id="btnConnect" class="btn-connect" onclick="conectarCarteira()">Conectar Carteira</button>
+      <span id="walletAddress" style="display: none; font-size: 14px; color: #00d26a; font-family: monospace;"></span>
     </div>
   </div>
 
-  <!-- Countdown Timer -->
-  <div class="card timer-box">
-    <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 5px;">PRÓXIMO SORTEIO (DOMINGO)</div>
+  <!-- Potes de Prêmios -->
+  <div class="banner-potes">
+    <div class="pote-item">
+      <h4>JACKPOT ACUMULADO</h4>
+      <span id="txtJackpot">Carregando...</span>
+    </div>
+    <div class="pote-item">
+      <h4>PRÊMIO SEMANAL</h4>
+      <span id="txtSemanal">Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Contagem Regressiva -->
+  <div class="timer-container">
+    <h4>PRÓXIMO SORTEIO (DOMINGO ÀS 20:00 UTC)</h4>
     <div id="countdown" class="timer-val">00d 00h 00m 00s</div>
   </div>
 
-  <!-- Cartela de Apostas -->
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3>Escolha 15 Números (ou Surpresinha)</h3>
-      <div id="counter">Selecionados: 0/15</div>
-    </div>
+  <!-- Cartela -->
+  <div class="cartela-header">
+    <h3 style="margin: 0;">Selecione seus 15 números</h3>
+    <div class="contador" id="txtContador">Selecionados: 0 / 15</div>
+  </div>
 
-    <div class="grid" id="gridNumeros"></div>
+  <div class="grid-numeros" id="gridCartela"></div>
 
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <button class="btn-secondary btn" onclick="gerarSurpresinha()">Surpresinha (Aleatório)</button>
-      <button class="btn-secondary btn" onclick="limparSelecao()">Limpar</button>
-      <button id="btnComprar" class="btn" style="flex-grow: 1;" onclick="comprarBilhete()">Comprar Bilhete ($5 USDT)</button>
+  <div class="acoes">
+    <button class="btn-action" onclick="gerarSurpresinha()">Surpresinha</button>
+    <button class="btn-action" onclick="limparCartela()">Limpar</button>
+    <button class="btn-action btn-comprar" onclick="comprarBilhete()">Comprar Bilhete ($5 USDT)</button>
+  </div>
+
+  <!-- Minhas Apostas -->
+  <div class="secao-lista">
+    <h3>
+      <span>Minhas Apostas da Semana</span>
+      <button class="btn-telegram" onclick="compartilharTelegram()">Compartilhar no Telegram</button>
+    </h3>
+    <div id="listaMinhasApostas" class="lista-container">
+      <div style="color: #9ca3af; font-size: 14px;">Conecte sua carteira para ver seus bilhetes.</div>
     </div>
   </div>
 
-  <!-- Meus Bilhetes & Compartilhar -->
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3>Minhas Apostas da Semana</h3>
-      <button class="btn btn-tg" onclick="compartilharTelegram()">Compartilhar no Telegram</button>
-    </div>
-    <div id="meusBilhetes" class="ticket-list">
-      <div style="color: var(--text-muted);">Conecte sua carteira para carregar suas apostas.</div>
-    </div>
-  </div>
-
-  <!-- Últimos Resultados -->
-  <div class="card">
+  <!-- Histórico de Sorteios Anteriores -->
+  <div class="secao-lista">
     <h3>Últimos Sorteios</h3>
-    <div id="historicoSorteios" class="history-list">
-      <div style="color: var(--text-muted);">Nenhum histórico carregado ainda.</div>
+    <div id="listaHistorico" class="lista-container">
+      <div style="color: #9ca3af; font-size: 14px;">Nenhum sorteio registrado até o momento.</div>
     </div>
   </div>
 </div>
@@ -109,185 +285,205 @@
     "function apostar(uint32 mask) external",
     "function getApostasCount() external view returns (uint256)",
     "function apostasDaSemana(uint256) external view returns (address jogador, uint32 numerosMask)",
+    "function totalJackpot() external view returns (uint256)",
+    "function totalSemanal() external view returns (uint256)",
     "function getHistoricoCount() external view returns (uint256)",
     "function historicoSorteios(uint256) external view returns (uint256 idConcurso, uint256 dataSorteio, uint32 numerosSorteadosMask, uint256 totalJackpot, uint256 totalSemanal, uint256 ganhadoresJackpot, uint256 ganhadoresSemanal, bool acumulouJackpot)"
   ];
+
   const ERC20_ABI = [
     "function approve(address spender, uint256 amount) external returns (bool)",
     "function allowance(address owner, address spender) external view returns (uint256)"
   ];
 
-  let provider, signer, lotteryContract, usdtContract, userAddress;
-  let selectedNumbers = new Set();
+  let provider, signer, lotteryContract, usdtContract, userAccount;
+  let selecionados = new Set();
 
-  // 1. Grid Generator
-  const grid = document.getElementById("gridNumeros");
+  // 1. Renderizar Grade Original (1 a 25)
+  const grid = document.getElementById("gridCartela");
   for (let i = 1; i <= 25; i++) {
     const btn = document.createElement("button");
     btn.className = "num-btn";
     btn.innerText = i < 10 ? "0" + i : i;
-    btn.onclick = () => alternarNumero(i, btn);
     btn.id = `num-${i}`;
+    btn.onclick = () => alternarNumero(i, btn);
     grid.appendChild(btn);
   }
 
-  function alternarNumero(num, btn) {
-    if (selectedNumbers.has(num)) {
-      selectedNumbers.delete(num);
-      btn.classList.remove("selected");
+  function alternarNumero(num, elem) {
+    if (selecionados.has(num)) {
+      selecionados.delete(num);
+      elem.classList.remove("selected");
     } else {
-      if (selectedNumbers.size >= 15) return alert("Você já selecionou o limite de 15 números!");
-      selectedNumbers.add(num);
-      btn.classList.add("selected");
+      if (selecionados.size >= 15) return alert("Você já marcou 15 números!");
+      selecionados.add(num);
+      elem.classList.add("selected");
     }
     atualizarContador();
   }
 
   function atualizarContador() {
-    document.getElementById("counter").innerText = `Selecionados: ${selectedNumbers.size}/15`;
+    document.getElementById("txtContador").innerText = `Selecionados: ${selecionados.size} / 15`;
   }
 
-  function limparSelecao() {
-    selectedNumbers.clear();
+  function limparCartela() {
+    selecionados.clear();
     document.querySelectorAll(".num-btn").forEach(b => b.classList.remove("selected"));
     atualizarContador();
   }
 
   function gerarSurpresinha() {
-    limparSelecao();
-    while (selectedNumbers.size < 15) {
-      const r = Math.floor(Math.random() * 25) + 1;
-      selectedNumbers.add(r);
+    limparCartela();
+    while (selecionados.size < 15) {
+      const n = Math.floor(Math.random() * 25) + 1;
+      selecionados.add(n);
     }
-    selectedNumbers.forEach(n => document.getElementById(`num-${n}`).classList.add("selected"));
+    selecionados.forEach(n => document.getElementById(`num-${n}`).classList.add("selected"));
     atualizarContador();
   }
 
   // 2. Conectar Carteira
   async function conectarCarteira() {
-    if (!window.ethereum) return alert("Instale a MetaMask!");
+    if (!window.ethereum) return alert("MetaMask não encontrada!");
     provider = new ethers.BrowserProvider(window.ethereum);
     signer = await provider.getSigner();
-    userAddress = await signer.getAddress();
-    
+    userAccount = await signer.getAddress();
+
     lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
     usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
 
     document.getElementById("btnConnect").style.display = "none";
     const wSpan = document.getElementById("walletAddress");
     wSpan.style.display = "inline-block";
-    wSpan.innerText = `${userAddress.substring(0,6)}...${userAddress.substring(38)}`;
+    wSpan.innerText = `${userAccount.slice(0, 6)}...${userAccount.slice(-4)}`;
 
+    atualizarPotes();
     carregarMinhasApostas();
     carregarHistorico();
   }
 
-  // 3. Comprar Bilhete
+  // 3. Atualizar Potes na Tela
+  async function atualizarPotes() {
+    try {
+      const jp = await lotteryContract.totalJackpot();
+      const sm = await lotteryContract.totalSemanal();
+      document.getElementById("txtJackpot").innerText = `$${Number(ethers.formatUnits(jp, 6)).toFixed(2)} USDT`;
+      document.getElementById("txtSemanal").innerText = `$${Number(ethers.formatUnits(sm, 6)).toFixed(2)} USDT`;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // 4. Comprar Bilhete
   async function comprarBilhete() {
     if (!signer) return alert("Conecte sua carteira primeiro!");
-    if (selectedNumbers.size !== 15) return alert("Selecione exatamente 15 números!");
+    if (selecionados.size !== 15) return alert("Marque exatamente 15 números!");
 
     let mask = 0;
-    selectedNumbers.forEach(n => { mask |= (1 << (n - 1)); });
+    selecionados.forEach(n => { mask |= (1 << (n - 1)); });
 
     try {
       const preco = ethers.parseUnits("5", 6);
-      const allowance = await usdtContract.allowance(userAddress, CONTRACT_ADDRESS);
+      const allowance = await usdtContract.allowance(userAccount, CONTRACT_ADDRESS);
       if (allowance < preco) {
         const txApprove = await usdtContract.approve(CONTRACT_ADDRESS, preco);
         await txApprove.wait();
       }
 
       const tx = await lotteryContract.apostar(mask, { gasLimit: 800000 });
-      alert("Transação enviada! Aguardando confirmação...");
+      alert("Aposta enviada! Aguardando mineração...");
       await tx.wait();
-      alert("Aposta confirmada com sucesso!");
+      alert("Bilhete registrado com sucesso!");
+      limparCartela();
+      atualizarPotes();
       carregarMinhasApostas();
     } catch (err) {
       console.error(err);
-      alert("Erro ao enviar aposta: " + (err.reason || err.message));
+      alert("Erro ao comprar: " + (err.reason || err.message));
     }
   }
 
-  // 4. Carregar Apostas da Carteira
+  // 5. Minhas Apostas
   async function carregarMinhasApostas() {
-    if (!lotteryContract) return;
-    const container = document.getElementById("meusBilhetes");
-    container.innerHTML = "Carregando...";
+    if (!lotteryContract || !userAccount) return;
+    const box = document.getElementById("listaMinhasApostas");
+    box.innerHTML = "Carregando...";
 
     try {
-      const count = await lotteryContract.getApostasCount();
-      let apostasUser = [];
+      const total = await lotteryContract.getApostasCount();
+      let apostasDoUser = [];
 
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < total; i++) {
         const aposta = await lotteryContract.apostasDaSemana(i);
-        if (aposta.jogador.toLowerCase() === userAddress.toLowerCase()) {
-          apostasUser.push(descompactarMascara(Number(aposta.numerosMask)));
+        if (aposta.jogador.toLowerCase() === userAccount.toLowerCase()) {
+          apostasDoUser.push(descompactar(Number(aposta.numerosMask)));
         }
       }
 
-      if (apostasUser.length === 0) {
-        container.innerHTML = "<div style='color: var(--text-muted);'>Nenhuma aposta encontrada para esta rodada.</div>";
+      if (apostasDoUser.length === 0) {
+        box.innerHTML = "<div style='color: #9ca3af; font-size: 14px;'>Nenhuma aposta ativa nesta rodada.</div>";
         return;
       }
 
-      container.innerHTML = apostasUser.map((nums, idx) => `
-        <div class="item-row">
+      box.innerHTML = apostasDoUser.map((nums, idx) => `
+        <div class="linha-item">
           <span><b>Bilhete #${idx + 1}</b></span>
-          <span class="badge">${nums.join(" - ")}</span>
+          <span class="badge-numeros">${nums.join(" - ")}</span>
         </div>
       `).join("");
     } catch (e) {
-      container.innerHTML = "<div style='color: var(--text-muted);'>Erro ao carregar apostas.</div>";
+      box.innerHTML = "<div style='color: #9ca3af; font-size: 14px;'>Erro ao listar bilhetes.</div>";
     }
   }
 
-  // 5. Histórico Público de Sorteios
+  // 6. Histórico Público de Sorteios
   async function carregarHistorico() {
-    const container = document.getElementById("historicoSorteios");
     if (!lotteryContract) return;
+    const box = document.getElementById("listaHistorico");
 
     try {
-      const total = await lotteryContract.getHistoricoCount();
-      if (total == 0) {
-        container.innerHTML = "<div style='color: var(--text-muted);'>Nenhum sorteio registrado ainda.</div>";
+      const count = await lotteryContract.getHistoricoCount();
+      if (count == 0) {
+        box.innerHTML = "<div style='color: #9ca3af; font-size: 14px;'>Nenhum sorteio registrado até o momento.</div>";
         return;
       }
 
       let html = "";
-      for (let i = Number(total) - 1; i >= 0; i--) {
-        const sorteio = await lotteryContract.historicoSorteios(i);
-        const nums = descompactarMascara(Number(sorteio.numerosSorteadosMask));
-        const data = new Date(Number(sorteio.dataSorteio) * 1000).toLocaleDateString("pt-BR");
-        
+      for (let i = Number(count) - 1; i >= 0; i--) {
+        const s = await lotteryContract.historicoSorteios(i);
+        const dezenas = descompactar(Number(s.numerosSorteadosMask));
+        const data = new Date(Number(s.dataSorteio) * 1000).toLocaleDateString("pt-BR");
+
         html += `
-          <div class="item-row">
+          <div class="linha-item">
             <div>
-              <div><b>Concurso #${sorteio.idConcurso.toString()}</b> (${data})</div>
-              <div style="font-size: 12px; color: var(--text-muted);">${sorteio.acumulouJackpot ? "Acumulou!" : "Jackpot Premiado!"}</div>
+              <b>Concurso #${s.idConcurso.toString()}</b> (${data}) - 
+              <span style="color: ${s.acumulouJackpot ? '#f59e0b' : '#00d26a'}; font-size: 12px;">
+                ${s.acumulouJackpot ? "Acumulou" : "Jackpot Saiu!"}
+              </span>
             </div>
-            <span class="badge">${nums.join(" - ")}</span>
+            <span class="badge-numeros">${dezenas.join(" - ")}</span>
           </div>
         `;
       }
-      container.innerHTML = html;
-    } catch (err) {
-      console.error(err);
+      box.innerHTML = html;
+    } catch (e) {
+      console.error(e);
     }
   }
 
-  function descompactarMascara(mask) {
-    let dezenas = [];
+  function descompactar(mask) {
+    let arr = [];
     for (let i = 1; i <= 25; i++) {
       if ((mask & (1 << (i - 1))) !== 0) {
-        dezenas.push(i < 10 ? "0" + i : "" + i);
+        arr.push(i < 10 ? "0" + i : "" + i);
       }
     }
-    return dezenas;
+    return arr;
   }
 
-  // 6. Relógio Regressivo (Domingo 20h UTC)
-  function atualizarRelogio() {
+  // 7. Relógio Regressivo (Domingo 20:00 UTC)
+  function rodarTimer() {
     const agora = new Date();
     const domingo = new Date();
     domingo.setUTCHours(20, 0, 0, 0);
@@ -304,14 +500,14 @@
     document.getElementById("countdown").innerText = 
       `${String(d).padStart(2,'0')}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
   }
-  setInterval(atualizarRelogio, 1000);
-  atualizarRelogio();
+  setInterval(rodarTimer, 1000);
+  rodarTimer();
 
-  // 7. Botão Telegram
+  // 8. Botão de Compartilhar no Telegram
   function compartilharTelegram() {
-    const msg = encodeURIComponent("🎰 Acabei de registrar meus bilhetes na MEGACRYPTO Lottery! Sorteio auditado via Chainlink VRF com Jackpot em USDT. Participe também:");
+    const texto = encodeURIComponent("🎰 Já garanti meus bilhetes na MEGACRYPTO Lottery! Sorteio auditado na blockchain via Chainlink VRF com premiações em USDT. Escolha seus 15 números e participe:");
     const url = encodeURIComponent(window.location.href);
-    window.open(`https://t.me/share/url?url=${url}&text=${msg}`, '_blank');
+    window.open(`https://t.me/share/url?url=${url}&text=${texto}`, '_blank');
   }
 </script>
 </body>
