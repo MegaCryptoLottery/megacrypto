@@ -204,7 +204,6 @@
             </div>
         </section>
 
-        <!-- Minhas Apostas -->
         <section class="mb-8 glass rounded-[30px] p-6 border-t border-white/10">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <div>
@@ -212,7 +211,7 @@
                         <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
                         <span data-i18n="myBetsTitle">MINHAS APOSTAS DA SEMANA</span>
                     </h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5">Dezenas sorteadas acendem em verde quando conferidas.</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Bilhetes ativos registrados na blockchain Polygon.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] text-gray-400 font-tech uppercase tracking-wider" data-i18n="shareLabel">Compartilhar:</span>
@@ -228,7 +227,7 @@
                 </div>
             </div>
             <div id="myBetsContainer" class="flex flex-col gap-3 max-h-56 overflow-y-auto">
-                <div class="text-xs text-gray-500 italic" data-i18n="noBetsYet">Conecte sua carteira para sincronizar suas apostas ativas.</div>
+                <div class="text-xs text-gray-500 italic" data-i18n="noBetsYet">Conecte sua carteira para ver seus bilhetes ativos.</div>
             </div>
         </section>
 
@@ -253,7 +252,6 @@
             </div>
         </section>
 
-        <!-- Histórico On-Chain -->
         <section class="mb-12 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-6 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-green-500 rounded-full shadow-[0_0_8px_#22c55e]"></span>
@@ -356,7 +354,7 @@
             "https://rpc.ankr.com/polygon"
         ];
 
-        // ABI alinhado com o contrato Solidity oficial
+        // ABI oficial exatamente conforme seu contrato inteligente
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
             "function jackpotAcumulado() external view returns (uint256)",
@@ -431,7 +429,7 @@
                 myBetsTitle: "MIS APUESTAS DE LA SEMANA", shareLabel: "Compartir:",
                 noBetsYet: "No hay apuestas activas registradas en este momento.",
                 howTitle: "Cómo Funciona", step1: "Conecta tu cartera Polygon (USDT).",
-                step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
+                step2: "Elige tus 15 números o usa la opção Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
                 step4: "Sorteo automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
                 rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
                 rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos Chainlink VRF.",
@@ -513,7 +511,6 @@
 
         let provider, signer, userAddress;
         let lotteryContract, usdtContract;
-        let sorteiosMascaras = []; // Lista ordenada com a máscara real de cada sorteio
 
         async function getPublicContract() {
             for (let url of RPC_URLS) {
@@ -611,13 +608,13 @@
             }
         }
 
-        // --- BUSCA HISTÓRICO REAL VIA EVENTOS DA EVM ---
+        // --- BUSCA HISTÓRICO REAL DOS SORTEIOS ---
         async function carregarHistoricoPublico(readLottery) {
             const tableBody = document.getElementById('historyBody');
             if (!tableBody) return;
 
             try {
-                // 1. Busca todos os ganhadores gravados
+                // 1. Busca os ganhadores gravados
                 let ganhadores = [];
                 const count = await readLottery.getHistoricoCount().catch(() => 0n);
                 for (let i = 0; i < Number(count); i++) {
@@ -627,25 +624,23 @@
                     } catch(e) { break; }
                 }
 
-                // 2. Busca todos os eventos SorteioRealizado emitidos
-                let eventosLogs = [];
+                // 2. Busca eventos SorteioRealizado
+                let sorteiosEventos = [];
                 try {
                     const provider = readLottery.runner || readLottery.provider;
                     const blockAtual = await provider.getBlockNumber();
                     const filtro = readLottery.filters.SorteioRealizado();
-                    // Busca abrangente de blocos
-                    eventosLogs = await readLottery.queryFilter(filtro, Math.max(0, blockAtual - 250000), blockAtual);
+                    const logs = await readLottery.queryFilter(filtro, Math.max(0, blockAtual - 250000), blockAtual);
+                    
+                    logs.forEach(evt => {
+                        const mask = evt.args ? (evt.args.maskSorteada || evt.args[1]) : null;
+                        if (mask) sorteiosEventos.push(Number(mask));
+                    });
                 } catch(e) {
-                    console.warn("Falha na consulta de logs:", e);
+                    console.warn("Consulta de eventos SorteioRealizado:", e);
                 }
 
-                sorteiosMascaras = [];
-                eventosLogs.forEach(evt => {
-                    const mask = evt.args ? (evt.args.maskSorteada || evt.args[1]) : null;
-                    if (mask) sorteiosMascaras.push(Number(mask));
-                });
-
-                const total = Math.max(ganhadores.length, sorteiosMascaras.length);
+                const total = Math.max(ganhadores.length, sorteiosEventos.length);
 
                 if (total === 0) {
                     tableBody.innerHTML = `
@@ -679,10 +674,10 @@
                             : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
                     }
 
-                    // Pega a máscara correspondente do concurso
+                    // Pega as dezenas individuais de cada concurso
                     let dezenasArray = [];
-                    if (sorteiosMascaras[i]) {
-                        dezenasArray = descompactarMascara(sorteiosMascaras[i]);
+                    if (sorteiosEventos[i]) {
+                        dezenasArray = descompactarMascara(sorteiosEventos[i]);
                     }
 
                     let dezenasHtml = "";
@@ -691,7 +686,7 @@
                             dezenasArray.map(n => `<span class="bg-purple-950/70 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">${n}</span>`).join("") + 
                             `</div>`;
                     } else {
-                        dezenasHtml = `<span class="text-gray-500 text-[11px] italic">Concurso #${i + 1} (Auditado on-chain)</span>`;
+                        dezenasHtml = `<span class="text-gray-500 text-[11px] italic">Auditado on-chain (Tx no Polygonscan)</span>`;
                     }
 
                     let walletElement = `<span class="font-mono text-gray-400">${carteiraFmt}</span>`;
@@ -714,8 +709,6 @@
                 }
 
                 tableBody.innerHTML = linhasHtml;
-
-                if (userAddress) carregarMinhasApostas();
 
             } catch (err) {
                 console.error("Falha ao puxar histórico público:", err);
@@ -906,7 +899,7 @@
             }
         };
 
-        // --- CONFERÊNCIA EXATA DE APOSTAS ATIVAS ---
+        // --- CARREGA OS NÚMEROS REAIS DAS APOSTAS DA CARTEIRA ---
         async function carregarMinhasApostas() {
             if (!lotteryContract || !userAddress) return;
             const container = document.getElementById('myBetsContainer');
@@ -928,36 +921,18 @@
                     return;
                 }
 
-                // Último sorteio executado na rede
-                const ultimaMask = sorteiosMascaras.length > 0 ? BigInt(sorteiosMascaras[sorteiosMascaras.length - 1]) : 0n;
-
                 container.innerHTML = apostasDoJogador.map((maskJogador, idx) => {
                     const dezenas = descompactarMascara(maskJogador);
                     
-                    let totalAcertos = 0;
-                    const dezenasHtml = dezenas.map(numStr => {
-                        const num = parseInt(numStr, 10);
-                        const bitPos = 1n << BigInt(num);
-                        const acertou = ultimaMask > 0n && ((ultimaMask & bitPos) !== 0n);
-                        if (acertou) totalAcertos++;
-
-                        return acertou 
-                            ? `<span class="bg-green-500 text-black border border-green-300 font-black px-1.5 py-0.5 rounded text-[10px] font-mono shadow-[0_0_10px_#22c55e] animate-pulse">${numStr}</span>`
-                            : `<span class="bg-white/5 text-gray-300 border border-white/10 px-1.5 py-0.5 rounded text-[10px] font-mono">${numStr}</span>`;
-                    }).join(" ");
-
-                    let badgeAcertos = "";
-                    if (ultimaMask > 0n) {
-                        badgeAcertos = totalAcertos >= 11 
-                            ? `<span class="text-amber-400 font-tech font-bold text-xs bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-full">🏆 ${totalAcertos} / 15 Acertos!</span>`
-                            : `<span class="text-gray-400 font-tech text-[10px] bg-white/5 px-2 py-0.5 rounded-full">🎯 ${totalAcertos} / 15 Acertos</span>`;
-                    }
+                    const dezenasHtml = dezenas.map(numStr => 
+                        `<span class="bg-white/5 text-purple-300 border border-purple-500/20 font-bold px-1.5 py-0.5 rounded text-[11px] font-mono">${numStr}</span>`
+                    ).join(" ");
 
                     return `
                         <div class="glass p-3 rounded-2xl flex flex-col gap-2 border border-white/5">
                             <div class="flex justify-between items-center">
                                 <span class="font-tech text-purple-400 font-bold text-xs">Bilhete #${idx + 1} (Rodada Ativa)</span>
-                                ${badgeAcertos}
+                                <span class="text-gray-400 font-tech text-[10px]">15 Dezenas</span>
                             </div>
                             <div class="flex flex-wrap gap-1">
                                 ${dezenasHtml}
@@ -971,7 +946,7 @@
             }
         }
 
-        // --- DESCOMPACTAÇÃO EXATA CONFORME O CONTRATO (1 << n) ---
+        // --- DESCOMPACTAÇÃO EXATA: bitPosition = 1 << numeros[i] ---
         function descompactarMascara(maskVal) {
             let mask = BigInt(maskVal);
             let dezenas = [];
