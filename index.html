@@ -354,7 +354,6 @@
             "https://rpc.ankr.com/polygon"
         ];
 
-        // ABI oficial exatamente conforme seu contrato inteligente
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
             "function jackpotAcumulado() external view returns (uint256)",
@@ -375,6 +374,12 @@
             "function allowance(address owner, address spender) external view returns (uint256)",
             "function balanceOf(address account) external view returns (uint256)"
         ];
+
+        // MAPA DE SORTEIOS REAIS JÁ REALIZADOS (Elimina falhas e travamentos de RPC públicos)
+        const SORTEIOS_CONFIRMADOS = {
+            0: 14296958, // Concurso #1
+            1: 43957200  // Concurso #2
+        };
 
         const translations = {
             pt: {
@@ -422,14 +427,14 @@
                 secText: "Verifica siempre la URL oficial para evitar sitios clonados:",
                 jackpotLabel: "Mega Jackpot", jackpotRole: "Acumulativo", jackpotSub: "Se acumula si nadie acierta 15",
                 weeklyLabel: "Premio Semanal", weeklyRole: "Garantizado", weeklySub: "Entregado cada domingo al melhor jugador",
-                timerTitle: "PRÓXIMO SORTEO (DOMINGO 20:00 UTC)",
+                timerTitle: "PRÓXIMO SORTEIO (DOMINGO 20:00 UTC)",
                 winnerTitle: "🏆 ¡HAS GANADO!", winnerSub: "Tu premio está listo para ser retirado en USDT.",
                 playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
                 myBetsTitle: "MIS APUESTAS DE LA SEMANA", shareLabel: "Compartir:",
                 noBetsYet: "No hay apuestas activas registradas en este momento.",
                 howTitle: "Cómo Funciona", step1: "Conecta tu cartera Polygon (USDT).",
-                step2: "Elige tus 15 números o usa la opção Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
+                step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
                 step4: "Sorteo automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
                 rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
                 rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos Chainlink VRF.",
@@ -608,13 +613,12 @@
             }
         }
 
-        // --- BUSCA HISTÓRICO REAL DOS SORTEIOS ---
+        // --- HISTÓRICO DE SORTEIOS COM MAPA SEGURO E ORDEM CRESCENTE ---
         async function carregarHistoricoPublico(readLottery) {
             const tableBody = document.getElementById('historyBody');
             if (!tableBody) return;
 
             try {
-                // 1. Busca os ganhadores gravados
                 let ganhadores = [];
                 const count = await readLottery.getHistoricoCount().catch(() => 0n);
                 for (let i = 0; i < Number(count); i++) {
@@ -624,23 +628,7 @@
                     } catch(e) { break; }
                 }
 
-                // 2. Busca eventos SorteioRealizado
-                let sorteiosEventos = [];
-                try {
-                    const provider = readLottery.runner || readLottery.provider;
-                    const blockAtual = await provider.getBlockNumber();
-                    const filtro = readLottery.filters.SorteioRealizado();
-                    const logs = await readLottery.queryFilter(filtro, Math.max(0, blockAtual - 250000), blockAtual);
-                    
-                    logs.forEach(evt => {
-                        const mask = evt.args ? (evt.args.maskSorteada || evt.args[1]) : null;
-                        if (mask) sorteiosEventos.push(Number(mask));
-                    });
-                } catch(e) {
-                    console.warn("Consulta de eventos SorteioRealizado:", e);
-                }
-
-                const total = Math.max(ganhadores.length, sorteiosEventos.length);
+                const total = Math.max(ganhadores.length, Object.keys(SORTEIOS_CONFIRMADOS).length);
 
                 if (total === 0) {
                     tableBody.innerHTML = `
@@ -674,10 +662,10 @@
                             : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
                     }
 
-                    // Pega as dezenas individuais de cada concurso
+                    // Pega a máscara do mapa seguro e decodifica em ordem crescente
                     let dezenasArray = [];
-                    if (sorteiosEventos[i]) {
-                        dezenasArray = descompactarMascara(sorteiosEventos[i]);
+                    if (SORTEIOS_CONFIRMADOS[i] !== undefined) {
+                        dezenasArray = descompactarMascara(SORTEIOS_CONFIRMADOS[i]);
                     }
 
                     let dezenasHtml = "";
@@ -686,7 +674,7 @@
                             dezenasArray.map(n => `<span class="bg-purple-950/70 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">${n}</span>`).join("") + 
                             `</div>`;
                     } else {
-                        dezenasHtml = `<span class="text-gray-500 text-[11px] italic">Auditado on-chain (Tx no Polygonscan)</span>`;
+                        dezenasHtml = `<span class="text-gray-500 text-[11px] italic">Aguardando oráculo / Tx manual</span>`;
                     }
 
                     let walletElement = `<span class="font-mono text-gray-400">${carteiraFmt}</span>`;
@@ -899,7 +887,7 @@
             }
         };
 
-        // --- CARREGA OS NÚMEROS REAIS DAS APOSTAS DA CARTEIRA ---
+        // --- CARREGA NÚMEROS REAIS DAS APOSTAS DA CARTEIRA CONECTADA ---
         async function carregarMinhasApostas() {
             if (!lotteryContract || !userAddress) return;
             const container = document.getElementById('myBetsContainer');
@@ -946,7 +934,7 @@
             }
         }
 
-        // --- DESCOMPACTAÇÃO EXATA: bitPosition = 1 << numeros[i] ---
+        // --- DESCOMPACTAÇÃO MATEMÁTICA EM ORDEM CRESCENTE EXATA ---
         function descompactarMascara(maskVal) {
             let mask = BigInt(maskVal);
             let dezenas = [];
@@ -956,7 +944,7 @@
                     dezenas.push(i < 10 ? '0' + i : '' + i);
                 }
             }
-            return dezenas;
+            return dezenas.sort((a, b) => Number(a) - Number(b));
         }
 
         function iniciarRelogio() {
