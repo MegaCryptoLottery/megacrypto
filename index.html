@@ -52,6 +52,20 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
+    <!-- BARRA OFICIAL ANTI-PHISHING / SEGURANÇA (FIXA NO TOPO) -->
+    <aside aria-label="Alerta de Segurança" id="securityBanner" class="w-full bg-[#0a0f1d] border-b border-purple-500/30 px-3 py-1.5 text-[11px] flex items-center justify-center gap-2 shadow-sm text-center">
+        <span class="inline-flex items-center gap-1.5 font-tech font-bold text-emerald-400">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span data-i18n="secBadge">OFICIAL</span>
+        </span>
+        <span class="text-gray-400 hidden sm:inline">•</span>
+        <span class="text-gray-300" data-i18n="secText">Confira sempre o endereço oficial para evitar clones:</span>
+        <span id="officialUrlBadge" class="font-mono bg-purple-950/60 border border-purple-500/40 text-purple-300 px-2 py-0.5 rounded text-[10px] font-bold select-all">
+            megacryptolottery.github.io
+        </span>
+    </aside>
+
+    <!-- Header / Navbar -->
     <nav class="sticky top-0 z-50 glass border-b border-white/10 px-4 py-3">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="text-xl font-tech font-bold text-white tracking-tighter flex items-center gap-2">
@@ -81,6 +95,7 @@
 
     <main class="max-w-4xl mx-auto px-4 pt-6">
         
+        <!-- Live Ticker de Compras On-Chain -->
         <div id="liveTicker" class="hidden mb-6 glass rounded-xl px-4 py-2.5 border-purple-500/30 flex items-center justify-between text-xs transition-all">
             <div class="flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-green-400 animate-ping"></span>
@@ -90,7 +105,7 @@
             <a id="tickerLink" href="#" target="_blank" class="text-[10px] text-gray-500 hover:text-white underline">Polygonscan ↗</a>
         </div>
 
-        <!-- Relógio Regressivo -->
+        <!-- Relógio de Contagem Regressiva (Público) -->
         <div class="glass rounded-2xl p-4 mb-6 text-center border-t border-purple-500/30">
             <span class="text-[10px] font-tech text-gray-400 tracking-widest uppercase" data-i18n="timerTitle">Próximo Sorteio Semanal (Domingo 20:00 UTC)</span>
             <div id="countdownTimer" class="text-2xl md:text-3xl font-tech font-black text-purple-400 tracking-widest mt-1">
@@ -98,6 +113,7 @@
             </div>
         </div>
 
+        <!-- Hero Section: Dual Pools (Visíveis sem login) -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div class="glass rounded-[28px] p-6 text-center border-t border-purple-500/40 neon-glow-p flex flex-col justify-between">
                 <div>
@@ -134,6 +150,7 @@
             </div>
         </section>
 
+        <!-- Painel de Prêmio a Resgatar (Winner Claim) -->
         <div id="winnerPanel" class="hidden glass rounded-2xl p-6 mb-8 border-green-500/40 bg-green-500/10 animate-pulse">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-center sm:text-left">
@@ -149,6 +166,7 @@
             </div>
         </div>
 
+        <!-- Área de Aposta / Cartela Interativa -->
         <section class="glass rounded-[30px] p-6 md:p-8 mb-8 border-t border-white/10">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
                 <div>
@@ -182,7 +200,7 @@
             </div>
         </section>
 
-        <!-- Minhas Apostas -->
+        <!-- Minhas Apostas (Somente esta seção exige carteira conectada) -->
         <section class="mb-8 glass rounded-[30px] p-6 border-t border-white/10">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-sm font-tech font-bold flex items-center gap-2 text-white">
@@ -198,7 +216,7 @@
             </div>
         </section>
 
-        <!-- Regras -->
+        <!-- Regras e Divisão -->
         <section class="grid md:grid-cols-2 gap-6 mb-8">
             <div class="glass rounded-2xl p-6 border-l-2 border-purple-500">
                 <h4 data-i18n="howTitle" class="font-tech text-xs text-purple-400 mb-4 uppercase tracking-wider">Como Funciona</h4>
@@ -220,25 +238,25 @@
             </div>
         </section>
 
-        <!-- Últimos Sorteios Realizados (10 Últimos) -->
+        <!-- Histórico On-Chain: Vencedores e Números Sorteados Anteriores (Público) -->
         <section class="mb-12 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-6 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-green-500 rounded-full shadow-[0_0_8px_#22c55e]"></span>
-                <span data-i18n="historyTitle">ÚLTIMOS SORTEIOS REALIZADOS</span>
+                <span data-i18n="historyTitle">HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS</span>
             </h3>
             <div class="overflow-x-auto text-xs">
                 <table class="w-full text-left text-gray-300">
                     <thead class="text-[9px] text-gray-400 uppercase tracking-widest border-b border-white/10">
                         <tr>
-                            <th class="pb-3">Concurso</th>
-                            <th class="pb-3">Data</th>
-                            <th class="pb-3">Dezenas Sorteadas (15)</th>
-                            <th class="pb-3 text-right">Resultado</th>
+                            <th class="pb-3" data-i18n="thWallet">Carteira Vencedora</th>
+                            <th class="pb-3" data-i18n="thType">Tipo</th>
+                            <th class="pb-3">Dezenas Premiadas (15)</th>
+                            <th class="pb-3 text-right" data-i18n="thValue">Prêmio</th>
                         </tr>
                     </thead>
                     <tbody id="historyBody">
                         <tr class="border-b border-white/10">
-                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Carregando sorteios...</td>
+                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Consultando blockchain Polygon...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -317,7 +335,12 @@
         const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
         const POLYGON_CHAIN_ID = 137;
 
-        // ABI com compatibilidade simultânea para as variações de nomes
+        const RPC_URLS = [
+            "https://polygon-bor-rpc.publicnode.com",
+            "https://polygon-rpc.com",
+            "https://rpc.ankr.com/polygon"
+        ];
+
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
             "function apostar(uint32 mask) external",
@@ -331,7 +354,8 @@
             "function apostasDaSemana(uint256) external view returns (address jogador, uint32 numerosMask)",
             "function getHistoricoCount() external view returns (uint256)",
             "function historicoSorteios(uint256) external view returns (uint256 idConcurso, uint256 dataSorteio, uint32 numerosSorteadosMask, uint256 totalJackpot, uint256 totalSemanal, uint256 ganhadoresJackpot, uint256 ganhadoresSemanal, bool acumulouJackpot)",
-            "function ultimosGanhadores(uint256) external view returns (address carteira, uint256 valor, uint256 data, string tipo)"
+            "function ultimosGanhadores(uint256) external view returns (address carteira, uint256 valor, uint256 data, string tipo)",
+            "event ApostaRealizada(address indexed jogador, uint32 numerosMask)"
         ];
 
         const ERC20_ABI = [
@@ -342,6 +366,8 @@
 
         const translations = {
             pt: {
+                secBadge: "OFICIAL",
+                secText: "Confira sempre o endereço oficial para evitar clones:",
                 jackpotLabel: "Mega Jackpot", jackpotRole: "Acumulativo", jackpotSub: "Acumula se não houver 15 acertos",
                 weeklyLabel: "Prêmio da Rodada", weeklyRole: "Garantido", weeklySub: "Pago todo Domingo ao melhor jogador",
                 timerTitle: "PRÓXIMO SORTEIO SEMANAL (DOMINGO 20:00 UTC)",
@@ -349,17 +375,19 @@
                 playTitle: "FAÇA SUA JOGADA", selectTip: "Selecione exatamente 15 números (1 a 25)",
                 quickPick: "Surpresinha", clearPick: "Limpar", cost: "Preço",
                 myBetsTitle: "MINHAS APOSTAS DA SEMANA", btnShareTg: "Compartilhar Telegram",
-                noBetsYet: "Nenhuma aposta ativa registrada para esta rodada.",
+                noBetsYet: "Conecte sua carteira para sincronizar suas apostas ativas.",
                 howTitle: "Como Funciona", step1: "Conecte sua carteira Polygon (USDT).",
                 step2: "Escolha seus 15 números da sorte ou use a Surpresinha.", step3: "Aprove o contrato e confirme sua aposta de 5 USDT.",
                 step4: "Sorteio automático todo Domingo via Chainlink VRF.", rulesTitle: "Divisão Transparente (100%)",
                 rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
                 rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos Chainlink VRF.",
-                historyTitle: "ÚLTIMOS SORTEIOS REALIZADOS",
+                historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
                 legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO é um protocolo descentralizado operando na blockchain Polygon. Não possuímos custódia sobre fundos de premiação. O jogo de azar envolve risco financeiro. Ao utilizar este Mini App, você declara ser maior de 18 anos. Sorteios provadamente justos via Chainlink VRF.",
                 btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
             },
             en: {
+                secBadge: "OFFICIAL",
+                secText: "Always verify the official URL to prevent phishing clones:",
                 jackpotLabel: "Mega Jackpot", jackpotRole: "Accumulative", jackpotSub: "Rolls over if no 15 hits occur",
                 weeklyLabel: "Round Prize", weeklyRole: "Guaranteed", weeklySub: "Paid every Sunday to the best player",
                 timerTitle: "NEXT WEEKLY DRAW (SUNDAY 20:00 UTC)",
@@ -367,17 +395,19 @@
                 playTitle: "PLACE YOUR BET", selectTip: "Select exactly 15 numbers (1 to 25)",
                 quickPick: "Quick Pick", clearPick: "Clear", cost: "Price",
                 myBetsTitle: "MY TICKETS THIS ROUND", btnShareTg: "Share on Telegram",
-                noBetsYet: "No active bets registered for this round yet.",
+                noBetsYet: "Connect your wallet to synchronize your active tickets.",
                 howTitle: "How It Works", step1: "Connect your Polygon wallet (USDT).",
                 step2: "Choose your 15 lucky numbers or use Quick Pick.", step3: "Approve the contract and confirm your 5 USDT bet.",
                 step4: "Automated draw every Sunday via Chainlink VRF.", rulesTitle: "Transparent Split (100%)",
                 rule1: "50% to the Mega Jackpot (15 hits).", rule2: "38% to the Weekly Prize (Highest score).",
                 rule3: "6% Maintenance and Infrastructure.", rule4: "6% Oracle Verification (Chainlink VRF).",
-                historyTitle: "PAST DRAW RESULTS",
+                historyTitle: "WINNER HISTORY & DRAWN NUMBERS", thWallet: "Winning Wallet", thType: "Type", thValue: "Prize",
                 legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO is a decentralized protocol on the Polygon blockchain. We do not hold custody of prize pools. Gambling involves risk. 18+ only. Provably fair draws via Chainlink VRF.",
                 btnApprove: "1. APPROVE USDT", btnBuy: "2. PLAY NOW", liveTicket: "New ticket confirmed:"
             },
             es: {
+                secBadge: "OFICIAL",
+                secText: "Verifica siempre la URL oficial para evitar sitios clonados:",
                 jackpotLabel: "Mega Jackpot", jackpotRole: "Acumulativo", jackpotSub: "Se acumula si nadie acierta 15",
                 weeklyLabel: "Premio Semanal", weeklyRole: "Garantizado", weeklySub: "Entregado cada domingo al mejor jugador",
                 timerTitle: "PRÓXIMO SORTEO (DOMINGO 20:00 UTC)",
@@ -385,17 +415,19 @@
                 playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
                 myBetsTitle: "MIS APUESTAS DE LA SEMANA", btnShareTg: "Compartir en Telegram",
-                noBetsYet: "No hay apuestas activas registradas para esta ronda.",
+                noBetsYet: "Conecta tu cartera para sincronizar tus jugadas activas.",
                 howTitle: "Cómo Funciona", step1: "Conecta tu cartera Polygon (USDT).",
                 step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
                 step4: "Sorteo automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
                 rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
                 rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos Chainlink VRF.",
-                historyTitle: "ÚLTIMOS SORTEOS REALIZADOS",
+                historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
                 legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO es un protocolo autónomo en Polygon. Solo +18. Juega con responsabilidad. Sorteos justos auditados por Chainlink VRF.",
                 btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo billete registrado:"
             },
             zh: {
+                secBadge: "官方验证",
+                secText: "请务必核对官方网址，防范克隆钓鱼网站：",
                 jackpotLabel: "超级累积奖", jackpotRole: "累积型", jackpotSub: "若无人命中15个号码则自动累积",
                 weeklyLabel: "本轮周奖", weeklyRole: "必开奖", weeklySub: "每周日全额发放给本轮最高分玩家",
                 timerTitle: "下一次开奖倒计时 (周日 20:00 UTC)",
@@ -403,17 +435,19 @@
                 playTitle: "进行下注", selectTip: "请从 1 至 25 中精准选择 15 个号码",
                 quickPick: "机选号码", clearPick: "清空", cost: "票价",
                 myBetsTitle: "本轮我的彩票", btnShareTg: "分享至 Telegram",
-                noBetsYet: "本轮暂无已确认投注。",
+                noBetsYet: "请连接钱包以同步当前有效投注。",
                 howTitle: "运作方式", step1: "连接您的 Polygon 钱包 (USDT)。",
                 step2: "自选 15 个幸运号码或使用机选功能。", step3: "授权并确认 5 USDT 投注交易。",
                 step4: "每周日由 Chainlink VRF 自动完成公正开奖。", rulesTitle: "透明资金分配 (100%)",
                 rule1: "50% 汇入超级大奖 (15个号码全中)。", rule2: "38% 汇入每周大奖 (最高分玩家平分)。",
                 rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于 Chainlink VRF 预言机开销。",
-                historyTitle: "过往开奖记录",
+                historyTitle: "中奖历史及开出号码", thWallet: "中奖钱包", thType: "类型", thValue: "奖金",
                 legalTitle: "去中心化协议", legalText: "MEGACRYPTO 是部署在 Polygon 上的自主智能合约。我们不托管任何奖池。博彩有风险，仅限18周岁以上玩家参与。开奖经 Chainlink VRF 链上验证。",
                 btnApprove: "1. 授权 USDT", btnBuy: "2. 立即投注", liveTicket: "最新出票交易:"
             },
             fr: {
+                secBadge: "OFFICIEL",
+                secText: "Vérifiez toujours l'adresse officielle pour éviter les sites clones :",
                 jackpotLabel: "Méga Jackpot", jackpotRole: "Accumulatif", jackpotSub: "Cumulé si aucun gagnant à 15 numéros",
                 weeklyLabel: "Prix Hebdomadaire", weeklyRole: "Garanti", weeklySub: "Versé chaque dimanche au meilleur score",
                 timerTitle: "PROCHAIN TIRAGE (DIMANCHE 20:00 UTC)",
@@ -421,13 +455,13 @@
                 playTitle: "PLACEZ VOTRE PARI", selectTip: "Sélectionnez exactement 15 numéros (1 à 25)",
                 quickPick: "Aléatoire", clearPick: "Effacer", cost: "Prix",
                 myBetsTitle: "MES BILLETS CETTE SEMAINE", btnShareTg: "Partager sur Telegram",
-                noBetsYet: "Aucun pari enregistré pour ce tirage.",
+                noBetsYet: "Connectez votre portefeuille pour afficher vos paris.",
                 howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille Polygon (USDT).",
-                step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat et confirmez votre pari de 5 USDT.",
+                step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat e confirmez votre pari de 5 USDT.",
                 step4: "Tirage automatique chaque dimanche via Chainlink VRF.", rulesTitle: "Répartition Transparente (100%)",
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
                 rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Frais d'oracles Chainlink VRF.",
-                historyTitle: "HISTORIQUE DES TIRAGES",
+                historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
                 legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO est un protocole autonome sur Polygon. 18+ únicamente. Jouez avec modération. Tirages prouvés équitables par Chainlink VRF.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
@@ -443,6 +477,24 @@
 
         document.getElementById('langSelector').onchange = (e) => setLanguage(e.target.value);
 
+        // --- SISTEMA ATIVO DE DETECÇÃO ANTI-PHISHING ---
+        function verificarAntiPhishing() {
+            const currentHost = window.location.hostname;
+            const badge = document.getElementById('officialUrlBadge');
+            
+            // Exibe o domínio exato no crachá
+            if (badge) {
+                badge.innerText = currentHost || "megacryptolottery.github.io";
+            }
+
+            // Se alguém tentar subir um iframe falso ou espelho em outro domínio malicioso
+            const banner = document.getElementById('securityBanner');
+            if (banner && currentHost && !currentHost.includes("github.io") && !currentHost.includes("localhost") && !currentHost.includes("127.0.0.1")) {
+                banner.className = "w-full bg-red-950/90 border-b border-red-500 px-3 py-2 text-xs flex items-center justify-center gap-2 text-red-200";
+                banner.innerHTML = "⚠️ <b>ALERTA DE SEGURANÇA:</b> Você pode estar em uma cópia não autorizada! Verifique o domínio oficial.";
+            }
+        }
+
         const tg = window.Telegram?.WebApp;
         if (tg) {
             tg.expand();
@@ -453,6 +505,20 @@
 
         let provider, signer, userAddress;
         let lotteryContract, usdtContract;
+
+        async function getPublicContract() {
+            for (let url of RPC_URLS) {
+                try {
+                    const p = new ethers.JsonRpcProvider(url);
+                    const c = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, p);
+                    await p.getBlockNumber();
+                    return c;
+                } catch(e) {
+                    console.warn("Falha no RPC " + url);
+                }
+            }
+            return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
+        }
 
         async function connectWallet() {
             if (window.ethereum) {
@@ -474,7 +540,7 @@
                                         chainId: '0x89',
                                         chainName: 'Polygon Mainnet',
                                         nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
-                                        rpcUrls: ['https://polygon-rpc.com'],
+                                        rpcUrls: ['https://polygon-bor-rpc.publicnode.com'],
                                         blockExplorerUrls: ['https://polygonscan.com']
                                     }]
                                 });
@@ -490,7 +556,6 @@
                     usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
 
                     updateConnectedUI(userAddress);
-                    await carregarDadosContrato();
                     await carregarMinhasApostas();
                     await verificarPremioDisponivel();
                     SoundEngine.successTx();
@@ -520,14 +585,9 @@
 
         document.getElementById('connectBtn').onclick = connectWallet;
 
-        async function carregarDadosContrato() {
+        async function carregarDadosPublicos() {
             try {
-                let readProvider = provider;
-                if (!readProvider) {
-                    readProvider = new ethers.JsonRpcProvider('https://polygon-rpc.com');
-                }
-
-                const readLottery = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, readProvider);
+                const readLottery = await getPublicContract();
                 
                 let jackpotRaw = 0n;
                 let semanalRaw = 0n;
@@ -541,15 +601,14 @@
                 document.getElementById('jackpotValue').innerText = parseFloat(ethers.formatUnits(jackpotRaw, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 document.getElementById('weeklyValue').innerText = parseFloat(ethers.formatUnits(semanalRaw, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-                // Carregar os 10 últimos sorteios
-                await carregarUltimos10Sorteios(readLottery);
+                await carregarHistoricoPublico(readLottery);
 
             } catch (err) {
-                console.error("Erro ao carregar dados on-chain:", err);
+                console.error("Erro ao carregar dados on-chain públicos:", err);
             }
         }
 
-        async function carregarUltimos10Sorteios(readLottery) {
+        async function carregarHistoricoPublico(readLottery) {
             const tableBody = document.getElementById('historyBody');
             try {
                 const totalCount = await readLottery.getHistoricoCount().catch(() => 0n);
@@ -565,31 +624,49 @@
                 }
 
                 tableBody.innerHTML = '';
-                // Limitar aos 10 últimos sorteios de trás para frente
-                const inicio = Math.max(0, count - 10);
-                for (let i = count - 1; i >= inicio; i--) {
+                const limite = Math.min(count, 10);
+                
+                for (let i = count - 1; i >= count - limite; i--) {
                     try {
+                        let carteiraVencedora = "Sem Vencedor";
+                        let valorPremio = "0.00";
+                        let tipoBadge = "bg-purple-500/20 text-purple-400";
+                        let tipoTexto = "ACUMULOU";
+
+                        try {
+                            const g = await readLottery.ultimosGanhadores(i);
+                            if (g.carteira && g.carteira !== ethers.ZeroAddress) {
+                                carteiraVencedora = g.carteira.slice(0,6) + "..." + g.carteira.slice(-4);
+                                valorPremio = parseFloat(ethers.formatUnits(g.valor, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                tipoTexto = g.tipo || "PREMIADO";
+                                tipoBadge = tipoTexto === "JACKPOT" ? "bg-purple-500/20 text-purple-400" : "bg-pink-500/20 text-pink-400";
+                            }
+                        } catch(e) {}
+
                         const s = await readLottery.historicoSorteios(i);
                         const dezenas = descompactarMascara(Number(s.numerosSorteadosMask));
-                        const dataStr = new Date(Number(s.dataSorteio) * 1000).toLocaleDateString();
-                        const statusBadge = s.acumulouJackpot 
-                            ? `<span class="bg-purple-500/20 text-purple-400 px-2.5 py-0.5 rounded text-[9px] font-bold">Acumulou</span>`
-                            : `<span class="bg-green-500/20 text-green-400 px-2.5 py-0.5 rounded text-[9px] font-bold">Premiado!</span>`;
-                        
+
+                        if (carteiraVencedora === "Sem Vencedor" && !s.acumulouJackpot) {
+                            carteiraVencedora = "Vários Vencedores";
+                            valorPremio = parseFloat(ethers.formatUnits(s.totalSemanal, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            tipoTexto = "SEMANAL";
+                            tipoBadge = "bg-pink-500/20 text-pink-400";
+                        }
+
                         tableBody.innerHTML += `
                             <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
-                                <td class="py-3 font-tech text-purple-400 font-bold">#${s.idConcurso}</td>
-                                <td class="py-3 text-gray-400 font-mono text-[11px]">${dataStr}</td>
+                                <td class="py-3 font-mono text-purple-400 font-bold">${carteiraVencedora}</td>
+                                <td class="py-3"><span class="${tipoBadge} px-2 py-0.5 rounded text-[9px] font-bold">${tipoTexto}</span></td>
                                 <td class="py-3 font-mono text-white text-[11px]">${dezenas.join(" - ")}</td>
-                                <td class="py-3 text-right">${statusBadge}</td>
+                                <td class="py-3 text-right font-bold text-white">$${valorPremio} USDT</td>
                             </tr>
                         `;
                     } catch(itemErr) {
-                        console.warn("Item de histórico indisponível no índice", i, itemErr);
+                        console.warn("Item indisponível no índice", i);
                     }
                 }
             } catch (err) {
-                console.error("Falha ao puxar histórico:", err);
+                console.error("Falha ao puxar histórico público:", err);
                 tableBody.innerHTML = `
                     <tr class="border-b border-white/10">
                         <td class="py-4 text-gray-500 italic text-center" colspan="4">Histórico indisponível no momento.</td>
@@ -681,7 +758,6 @@
             approveBtn.classList.toggle('hover:bg-white/20', isReady);
         }
 
-        // 1. APPROVE USDT
         document.getElementById('btnApprove').onclick = async () => {
             if (!signer) {
                 await connectWallet();
@@ -716,7 +792,6 @@
             }
         };
 
-        // 2. COMPRA SEGURA COM FALLBACK PARA COMPATIBILIDADE DE ABI
         document.getElementById('btnBuy').onclick = async () => {
             if (!signer) return;
             if (selectedNumbers.length !== 15) {
@@ -733,13 +808,10 @@
 
                 const numerosOrdenados = [...selectedNumbers].sort((a, b) => a - b);
 
-                // Execução com limite de gas fixo para evitar erro de estimativa da MetaMask
                 let tx;
                 try {
-                    // Tenta chamar comprarBilhete com o array (assinatura original do contrato)
                     tx = await lotteryContract.comprarBilhete(numerosOrdenados, { gasLimit: 800000 });
                 } catch (fallbackErr) {
-                    // Se o contrato exigir bitmasking uint32, calcula e envia
                     let mask = 0;
                     numerosOrdenados.forEach(n => { mask |= (1 << (n - 1)); });
                     tx = await lotteryContract.apostar(mask, { gasLimit: 800000 });
@@ -761,7 +833,7 @@
                 
                 document.getElementById('btnApprove').innerText = translations[lang].btnApprove;
                 
-                await carregarDadosContrato();
+                await carregarDadosPublicos();
                 await carregarMinhasApostas();
             } catch (err) {
                 console.error("Erro na Compra:", err);
@@ -773,7 +845,6 @@
             }
         };
 
-        // 3. WITHDRAW
         document.getElementById('btnClaim').onclick = async () => {
             if (!signer) {
                 await connectWallet();
@@ -789,7 +860,7 @@
                 SoundEngine.winFanfare();
                 alert("Prêmio resgatado e transferido para sua carteira com sucesso!");
                 await verificarPremioDisponivel();
-                await carregarDadosContrato();
+                await carregarDadosPublicos();
             } catch (err) {
                 console.error("Erro no saque:", err);
                 SoundEngine.errorSound();
@@ -799,7 +870,6 @@
             }
         };
 
-        // 4. MINHAS APOSTAS
         async function carregarMinhasApostas() {
             if (!lotteryContract || !userAddress) return;
             const container = document.getElementById('myBetsContainer');
@@ -878,9 +948,10 @@
             const savedLang = localStorage.getItem('megacrypto_lang') || 'pt';
             setLanguage(savedLang);
             document.getElementById('langSelector').value = savedLang;
+            verificarAntiPhishing();
             initGrid();
             iniciarRelogio();
-            carregarDadosContrato();
+            carregarDadosPublicos();
         };
     </script>
 </body>
