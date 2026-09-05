@@ -409,7 +409,7 @@
                 secBadge: "OFICIAL",
                 secText: "Verifica siempre la URL oficial para evitar sitios clonados:",
                 jackpotLabel: "Mega Jackpot", jackpotRole: "Acumulativo", jackpotSub: "Se acumula si nadie acierta 15",
-                weeklyLabel: "Premio Semanal", weeklyRole: "Garantizado", weeklySub: "Entregado cada domingo al mejor jugador",
+                weeklyLabel: "Premio Semanal", weeklyRole: "Garantizado", weeklySub: "Entregado cada domingo al melhor jugador",
                 timerTitle: "PRÓXIMO SORTEO (DOMINGO 20:00 UTC)",
                 winnerTitle: "🏆 ¡HAS GANADO!", winnerSub: "Tu premio está listo para ser retirado en USDT.",
                 playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
@@ -477,17 +477,13 @@
 
         document.getElementById('langSelector').onchange = (e) => setLanguage(e.target.value);
 
-        // --- SISTEMA ATIVO DE DETECÇÃO ANTI-PHISHING ---
         function verificarAntiPhishing() {
             const currentHost = window.location.hostname;
             const badge = document.getElementById('officialUrlBadge');
-            
-            // Exibe o domínio exato no crachá
             if (badge) {
                 badge.innerText = currentHost || "megacryptolottery.github.io";
             }
 
-            // Se alguém tentar subir um iframe falso ou espelho em outro domínio malicioso
             const banner = document.getElementById('securityBanner');
             if (banner && currentHost && !currentHost.includes("github.io") && !currentHost.includes("localhost") && !currentHost.includes("127.0.0.1")) {
                 banner.className = "w-full bg-red-950/90 border-b border-red-500 px-3 py-2 text-xs flex items-center justify-center gap-2 text-red-200";
@@ -610,9 +606,21 @@
 
         async function carregarHistoricoPublico(readLottery) {
             const tableBody = document.getElementById('historyBody');
+            if (!tableBody) return;
+
             try {
-                const totalCount = await readLottery.getHistoricoCount().catch(() => 0n);
-                const count = Number(totalCount);
+                let count = 0;
+                try {
+                    const c = await readLottery.getHistoricoCount();
+                    count = Number(c);
+                } catch(e) {
+                    try {
+                        const teste = await readLottery.ultimosGanhadores(0);
+                        if (teste && teste.carteira && teste.carteira !== ethers.ZeroAddress) count = 1;
+                    } catch(e2) {
+                        count = 0;
+                    }
+                }
 
                 if (count === 0) {
                     tableBody.innerHTML = `
@@ -623,50 +631,73 @@
                     return;
                 }
 
-                tableBody.innerHTML = '';
+                let linhasHtml = '';
                 const limite = Math.min(count, 10);
-                
-                for (let i = count - 1; i >= count - limite; i--) {
+
+                for (let i = count - 1; i >= Math.max(0, count - limite); i--) {
                     try {
-                        let carteiraVencedora = "Sem Vencedor";
+                        let carteiraFmt = "Sem Vencedor";
                         let valorPremio = "0.00";
-                        let tipoBadge = "bg-purple-500/20 text-purple-400";
                         let tipoTexto = "ACUMULOU";
+                        let tipoBadge = "bg-purple-500/20 text-purple-400 border border-purple-500/30";
 
                         try {
                             const g = await readLottery.ultimosGanhadores(i);
-                            if (g.carteira && g.carteira !== ethers.ZeroAddress) {
-                                carteiraVencedora = g.carteira.slice(0,6) + "..." + g.carteira.slice(-4);
-                                valorPremio = parseFloat(ethers.formatUnits(g.valor, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            if (g && g.carteira && g.carteira !== ethers.ZeroAddress) {
+                                carteiraFmt = g.carteira.slice(0, 6) + "..." + g.carteira.slice(-4);
+                                valorPremio = parseFloat(ethers.formatUnits(g.valor, 6)).toLocaleString('en-US', { 
+                                    minimumFractionDigits: 2, 
+                                    maximumFractionDigits: 2 
+                                });
                                 tipoTexto = g.tipo || "PREMIADO";
-                                tipoBadge = tipoTexto === "JACKPOT" ? "bg-purple-500/20 text-purple-400" : "bg-pink-500/20 text-pink-400";
+                                tipoBadge = (tipoTexto === "JACKPOT" || tipoTexto.includes("15")) 
+                                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
+                                    : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
                             }
-                        } catch(e) {}
+                        } catch(gErr) {}
 
-                        const s = await readLottery.historicoSorteios(i);
-                        const dezenas = descompactarMascara(Number(s.numerosSorteadosMask));
+                        let dezenasTexto = "Auditado on-chain";
+                        try {
+                            const s = await readLottery.historicoSorteios(i);
+                            if (s && s.numerosSorteadosMask) {
+                                const dezenas = descompactarMascara(Number(s.numerosSorteadosMask));
+                                if (dezenas.length > 0) {
+                                    dezenasTexto = dezenas.join(" - ");
+                                }
+                            }
+                            if (carteiraFmt === "Sem Vencedor" && !s.acumulouJackpot) {
+                                carteiraFmt = "Vencedor(es)";
+                                valorPremio = parseFloat(ethers.formatUnits(s.totalSemanal, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                tipoTexto = "SEMANAL";
+                                tipoBadge = "bg-pink-500/20 text-pink-400 border border-pink-500/30";
+                            }
+                        } catch (numErr) {}
 
-                        if (carteiraVencedora === "Sem Vencedor" && !s.acumulouJackpot) {
-                            carteiraVencedora = "Vários Vencedores";
-                            valorPremio = parseFloat(ethers.formatUnits(s.totalSemanal, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            tipoTexto = "SEMANAL";
-                            tipoBadge = "bg-pink-500/20 text-pink-400";
-                        }
-
-                        tableBody.innerHTML += `
+                        linhasHtml += `
                             <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
-                                <td class="py-3 font-mono text-purple-400 font-bold">${carteiraVencedora}</td>
+                                <td class="py-3 font-mono text-purple-400 font-bold">${carteiraFmt}</td>
                                 <td class="py-3"><span class="${tipoBadge} px-2 py-0.5 rounded text-[9px] font-bold">${tipoTexto}</span></td>
-                                <td class="py-3 font-mono text-white text-[11px]">${dezenas.join(" - ")}</td>
+                                <td class="py-3 font-mono text-gray-300 text-[11px]">${dezenasTexto}</td>
                                 <td class="py-3 text-right font-bold text-white">$${valorPremio} USDT</td>
                             </tr>
                         `;
-                    } catch(itemErr) {
-                        console.warn("Item indisponível no índice", i);
+                    } catch (itemErr) {
+                        console.warn("Item no índice " + i + " indisponível:", itemErr);
                     }
                 }
+
+                if (linhasHtml !== '') {
+                    tableBody.innerHTML = linhasHtml;
+                } else {
+                    tableBody.innerHTML = `
+                        <tr class="border-b border-white/10">
+                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum registro encontrado.</td>
+                        </tr>
+                    `;
+                }
+
             } catch (err) {
-                console.error("Falha ao puxar histórico público:", err);
+                console.error("Falha geral ao puxar histórico:", err);
                 tableBody.innerHTML = `
                     <tr class="border-b border-white/10">
                         <td class="py-4 text-gray-500 italic text-center" colspan="4">Histórico indisponível no momento.</td>
