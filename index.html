@@ -351,22 +351,20 @@
             "https://rpc.ankr.com/polygon"
         ];
 
-        // ABI com todas as interfaces possíveis para compatibilidade de struct e tuplas
+        // ABI 100% FIEL AO SEU CONTRATO SOLIDITY
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
-            "function apostar(uint32 mask) external",
-            "function totalJackpot() external view returns (uint256)",
-            "function totalSemanal() external view returns (uint256)",
             "function jackpotAcumulado() external view returns (uint256)",
             "function poolSemanal() external view returns (uint256)",
+            "function precoBilhete() external view returns (uint256)",
             "function premiosParaSacar(address) external view returns (uint256)",
             "function reclamarPremio() external",
             "function getApostasCount() external view returns (uint256)",
-            "function apostasDaSemana(uint256) external view returns (address jogador, uint32 numerosMask)",
+            "function apostasDaSemana(uint256) external view returns (address jogador, uint256 mask)",
             "function getHistoricoCount() external view returns (uint256)",
-            "function historicoSorteios(uint256) external view returns (uint256, uint256, uint32, uint256, uint256, uint256, uint256, bool)",
             "function ultimosGanhadores(uint256) external view returns (address carteira, uint256 valor, uint256 data, string tipo)",
-            "event ApostaRealizada(address indexed jogador, uint32 numerosMask)"
+            "event BilheteComprado(address indexed jogador, uint256 quantidadeApostas)",
+            "event SorteioRealizado(uint256 indexed requestId, uint256 maskSorteada)"
         ];
 
         const ERC20_ABI = [
@@ -519,12 +517,13 @@
                     const p = new ethers.JsonRpcProvider(url);
                     const c = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, p);
                     await p.getBlockNumber();
-                    return c;
+                    return { contract: c, provider: p };
                 } catch(e) {
                     console.warn("Falha no RPC " + url);
                 }
             }
-            return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
+            const fallbackProvider = new ethers.JsonRpcProvider(RPC_URLS[0]);
+            return { contract: new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, fallbackProvider), provider: fallbackProvider };
         }
 
         async function connectWallet() {
@@ -594,44 +593,32 @@
 
         async function carregarDadosPublicos() {
             try {
-                const readLottery = await getPublicContract();
+                const { contract: readLottery, provider: readProvider } = await getPublicContract();
                 
-                let jackpotRaw = 0n;
-                let semanalRaw = 0n;
-
-                try { jackpotRaw = await readLottery.totalJackpot(); } 
-                catch(e) { try { jackpotRaw = await readLottery.jackpotAcumulado(); } catch(e2) { jackpotRaw = 0n; } }
-
-                try { semanalRaw = await readLottery.totalSemanal(); } 
-                catch(e) { try { semanalRaw = await readLottery.poolSemanal(); } catch(e2) { semanalRaw = 0n; } }
+                // 1. Ler Jackpot e Pool Semanal direto das variáveis exatas do Solidity
+                const [jackpotRaw, semanalRaw] = await Promise.all([
+                    readLottery.jackpotAcumulado().catch(() => 0n),
+                    readLottery.poolSemanal().catch(() => 0n)
+                ]);
 
                 document.getElementById('jackpotValue').innerText = parseFloat(ethers.formatUnits(jackpotRaw, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 document.getElementById('weeklyValue').innerText = parseFloat(ethers.formatUnits(semanalRaw, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-                await carregarHistoricoPublico(readLottery);
+                // 2. Carregar Histórico e Dezenas oficiais emitidas pelo evento SorteioRealizado
+                await carregarHistoricoPublico(readLottery, readProvider);
 
             } catch (err) {
                 console.error("Erro ao carregar dados on-chain públicos:", err);
             }
         }
 
-        async function carregarHistoricoPublico(readLottery) {
+        async function carregarHistoricoPublico(readLottery, readProvider) {
             const tableBody = document.getElementById('historyBody');
             if (!tableBody) return;
 
             try {
-                let count = 0;
-                try {
-                    const c = await readLottery.getHistoricoCount();
-                    count = Number(c);
-                } catch(e) {
-                    try {
-                        const teste = await readLottery.ultimosGanhadores(0);
-                        if (teste && teste.carteira && teste.carteira !== ethers.ZeroAddress) count = 1;
-                    } catch(e2) {
-                        count = 0;
-                    }
-                }
+                const totalGanhadores = await readLottery.getHistoricoCount().catch(() => 0n);
+                const count = Number(totalGanhadores);
 
                 if (count === 0) {
                     tableBody.innerHTML = `
@@ -642,74 +629,56 @@
                     return;
                 }
 
+                // BUSCA OS EVENTOS OFICIAIS SorteioRealizado ONDE ESTÃO AS DEZENAS SORTEADAS
+                let masksSorteados = [];
+                try {
+                    const currentBlock = await readProvider.getBlockNumber();
+                    const fromBlock = Math.max(0, currentBlock - 45000); // Busca nos blocos recentes
+                    const eventos = await readLottery.queryFilter(readLottery.filters.SorteioRealizado(), fromBlock, 'latest');
+                    masksSorteados = eventos.map(ev => ev.args.maskSorteada || ev.args[1]);
+                } catch(eventErr) {
+                    console.warn("Falha ao buscar eventos de sorteio:", eventErr);
+                }
+
                 let linhasHtml = '';
                 const limite = Math.min(count, 10);
 
                 for (let i = count - 1; i >= Math.max(0, count - limite); i--) {
                     try {
-                        let carteiraFmt = "Sem Vencedor";
-                        let rawWallet = "";
-                        let valorPremio = "0.00";
-                        let tipoTexto = "ACUMULOU";
-                        let tipoBadge = "bg-purple-500/20 text-purple-400 border border-purple-500/30";
+                        const g = await readLottery.ultimosGanhadores(i);
+                        if (!g || !g.carteira || g.carteira === ethers.ZeroAddress) continue;
 
-                        try {
-                            const g = await readLottery.ultimosGanhadores(i);
-                            if (g && g.carteira && g.carteira !== ethers.ZeroAddress) {
-                                rawWallet = g.carteira;
-                                carteiraFmt = g.carteira.slice(0, 6) + "..." + g.carteira.slice(-4);
-                                valorPremio = parseFloat(ethers.formatUnits(g.valor, 6)).toLocaleString('en-US', { 
-                                    minimumFractionDigits: 2, 
-                                    maximumFractionDigits: 2 
-                                });
-                                tipoTexto = g.tipo || "PREMIADO";
-                                tipoBadge = (tipoTexto === "JACKPOT" || tipoTexto.includes("15")) 
-                                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
-                                    : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
-                            }
-                        } catch(gErr) {}
+                        const rawWallet = g.carteira;
+                        const carteiraFmt = g.carteira.slice(0, 6) + "..." + g.carteira.slice(-4);
+                        const valorPremio = parseFloat(ethers.formatUnits(g.valor, 6)).toLocaleString('en-US', { 
+                            minimumFractionDigits: 2, 
+                            maximumFractionDigits: 2 
+                        });
+                        const tipoTexto = g.tipo || "PREMIADO";
+                        const tipoBadge = tipoTexto === "JACKPOT" 
+                            ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
+                            : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
 
-                        // --- LEITURA RESILIENTE DAS DEZENAS ---
-                        let dezenasArray = [];
-
-                        // 1. Tenta por índice 'i'
-                        try {
-                            const s = await readLottery.historicoSorteios(i);
-                            // Ethers v6 pode retornar como tupla posicional ou propriedades nomeadas
-                            const mask = (s && s[2] !== undefined) ? s[2] : (s && s.numerosSorteadosMask !== undefined ? s.numerosSorteadosMask : null);
-                            if (mask !== null && Number(mask) > 0) {
-                                dezenasArray = descompactarMascara(Number(mask));
-                            } else if (s && (Array.isArray(s[2]) || Array.isArray(s.numeros))) {
-                                const arr = s[2] || s.numeros;
-                                dezenasArray = Array.from(arr).map(n => Number(n) < 10 ? "0" + n : "" + n);
-                            }
-                        } catch(e1) {
-                            // 2. Se falhar, tenta índice 1-based (i + 1)
-                            try {
-                                const s = await readLottery.historicoSorteios(i + 1);
-                                const mask = (s && s[2] !== undefined) ? s[2] : (s && s.numerosSorteadosMask !== undefined ? s.numerosSorteadosMask : null);
-                                if (mask !== null && Number(mask) > 0) {
-                                    dezenasArray = descompactarMascara(Number(mask));
-                                }
-                            } catch(e2) {}
-                        }
-
+                        // DECODIFICAÇÃO DOS 15 NÚMEROS DO EVENTO
                         let dezenasHtml = '<span class="text-gray-500 italic text-[10px]">Auditado on-chain</span>';
-                        if (dezenasArray.length > 0) {
-                            dezenasHtml = `<div class="flex flex-wrap gap-1 max-w-[280px]">` + 
-                                dezenasArray.map(n => `<span class="bg-purple-950/70 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">${n}</span>`).join("") + 
-                                `</div>`;
+                        if (masksSorteados.length > 0) {
+                            // Pega o sorteio correspondente
+                            const maskIdx = Math.min(i, masksSorteados.length - 1);
+                            const mask = masksSorteados[maskIdx];
+                            const dezenas = descompactarMascara(mask);
+                            if (dezenas.length > 0) {
+                                dezenasHtml = `<div class="flex flex-wrap gap-1 max-w-[280px]">` + 
+                                    dezenas.map(n => `<span class="bg-purple-950/70 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">${n}</span>`).join("") + 
+                                    `</div>`;
+                            }
                         }
 
-                        // Formatação do link Polygonscan
-                        let walletElement = `<span class="font-mono text-gray-400">${carteiraFmt}</span>`;
-                        if (rawWallet) {
-                            walletElement = `
-                                <a href="https://polygonscan.com/address/${rawWallet}" target="_blank" rel="noopener noreferrer" class="font-mono text-purple-400 hover:text-white underline font-bold inline-flex items-center gap-1" title="Verificar na Polygonscan">
-                                    ${carteiraFmt} ↗
-                                </a>
-                            `;
-                        }
+                        // LINK OFICIAL POLYGONSCAN
+                        const walletElement = `
+                            <a href="https://polygonscan.com/address/${rawWallet}" target="_blank" rel="noopener noreferrer" class="font-mono text-purple-400 hover:text-white underline font-bold inline-flex items-center gap-1" title="Verificar na Polygonscan">
+                                ${carteiraFmt} ↗
+                            </a>
+                        `;
 
                         linhasHtml += `
                             <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
@@ -861,6 +830,7 @@
             }
         };
 
+        // COMPRA DE BILHETES USANDO EXATAMENTE A ASSINATURA DO SEU CONTRATO: comprarBilhete(uint8[])
         document.getElementById('btnBuy').onclick = async () => {
             if (!signer) return;
             if (selectedNumbers.length !== 15) {
@@ -876,16 +846,7 @@
                 SoundEngine.playTone(520, 'sine', 0.15, 0.08);
 
                 const numerosOrdenados = [...selectedNumbers].sort((a, b) => a - b);
-
-                let tx;
-                try {
-                    tx = await lotteryContract.comprarBilhete(numerosOrdenados, { gasLimit: 800000 });
-                } catch (fallbackErr) {
-                    let mask = 0;
-                    numerosOrdenados.forEach(n => { mask |= (1 << (n - 1)); });
-                    tx = await lotteryContract.apostar(mask, { gasLimit: 800000 });
-                }
-
+                const tx = await lotteryContract.comprarBilhete(numerosOrdenados, { gasLimit: 800000 });
                 await tx.wait();
 
                 SoundEngine.successTx();
@@ -939,6 +900,7 @@
             }
         };
 
+        // CARREGA APOSTAS COM A ESTRUTURA EXATA DO SEU CONTRATO (Aposta: address jogador, uint256 mask)
         async function carregarMinhasApostas() {
             if (!lotteryContract || !userAddress) return;
             const container = document.getElementById('myBetsContainer');
@@ -950,7 +912,7 @@
                 for (let i = 0; i < totalApostas; i++) {
                     const aposta = await lotteryContract.apostasDaSemana(i);
                     if (aposta.jogador.toLowerCase() === userAddress.toLowerCase()) {
-                        minhasApostas.push(descompactarMascara(Number(aposta.numerosMask)));
+                        minhasApostas.push(descompactarMascara(aposta.mask));
                     }
                 }
 
@@ -972,10 +934,13 @@
             }
         }
 
+        // DESCOMPACTAÇÃO 100% FIEL AO BITSHIFT DO SEU CONTRATO (1 << num)
         function descompactarMascara(mask) {
             let dezenas = [];
+            if (!mask) return dezenas;
+            const bMask = BigInt(mask);
             for (let i = 1; i <= 25; i++) {
-                if ((mask & (1 << (i - 1))) !== 0) {
+                if ((bMask & (1n << BigInt(i))) !== 0n) {
                     dezenas.push(i < 10 ? '0' + i : '' + i);
                 }
             }
