@@ -204,6 +204,7 @@
             </div>
         </section>
 
+        <!-- Minhas Apostas -->
         <section class="mb-8 glass rounded-[30px] p-6 border-t border-white/10">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <div>
@@ -211,7 +212,7 @@
                         <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
                         <span data-i18n="myBetsTitle">MINHAS APOSTAS DA SEMANA</span>
                     </h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5">As dezenas sorteadas acendem em verde automaticamente.</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Dezenas sorteadas acendem em verde quando conferidas.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] text-gray-400 font-tech uppercase tracking-wider" data-i18n="shareLabel">Compartilhar:</span>
@@ -252,6 +253,7 @@
             </div>
         </section>
 
+        <!-- Histórico On-Chain -->
         <section class="mb-12 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-6 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-green-500 rounded-full shadow-[0_0_8px_#22c55e]"></span>
@@ -354,21 +356,20 @@
             "https://rpc.ankr.com/polygon"
         ];
 
+        // ABI alinhado com o contrato Solidity oficial
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
-            "function apostar(uint32 mask) external",
-            "function totalJackpot() external view returns (uint256)",
-            "function totalSemanal() external view returns (uint256)",
             "function jackpotAcumulado() external view returns (uint256)",
             "function poolSemanal() external view returns (uint256)",
+            "function precoBilhete() external view returns (uint256)",
             "function premiosParaSacar(address) external view returns (uint256)",
             "function reclamarPremio() external",
             "function getApostasCount() external view returns (uint256)",
-            "function apostasDaSemana(uint256) external view returns (address jogador, uint32 numerosMask)",
+            "function apostasDaSemana(uint256) external view returns (address jogador, uint256 mask)",
             "function getHistoricoCount() external view returns (uint256)",
             "function ultimosGanhadores(uint256) external view returns (address carteira, uint256 valor, uint256 data, string tipo)",
             "event SorteioRealizado(uint256 indexed requestId, uint256 maskSorteada)",
-            "event ApostaRealizada(address indexed jogador, uint32 numerosMask)"
+            "event BilheteComprado(address indexed jogador, uint256 quantidadeApostas)"
         ];
 
         const ERC20_ABI = [
@@ -388,7 +389,7 @@
                 playTitle: "FAÇA SUA JOGADA", selectTip: "Selecione exatamente 15 números (1 a 25)",
                 quickPick: "Surpresinha", clearPick: "Limpar", cost: "Preço",
                 myBetsTitle: "MINHAS APOSTAS DA SEMANA", shareLabel: "Compartilhar:",
-                noBetsYet: "Conecte sua carteira para sincronizar suas apostas ativas.",
+                noBetsYet: "Nenhuma aposta ativa registrada no momento.",
                 howTitle: "Como Funciona", step1: "Conecte sua carteira Polygon (USDT).",
                 step2: "Escolha seus 15 números da sorte ou use a Surpresinha.", step3: "Aprove o contrato e confirme sua aposta de 5 USDT.",
                 step4: "Sorteio automático todo Domingo via Chainlink VRF.", rulesTitle: "Divisão Transparente (100%)",
@@ -408,7 +409,7 @@
                 playTitle: "PLACE YOUR BET", selectTip: "Select exactly 15 numbers (1 to 25)",
                 quickPick: "Quick Pick", clearPick: "Clear", cost: "Price",
                 myBetsTitle: "MY TICKETS THIS ROUND", shareLabel: "Share:",
-                noBetsYet: "Connect your wallet to synchronize your active tickets.",
+                noBetsYet: "No active bets registered right now.",
                 howTitle: "How It Works", step1: "Connect your Polygon wallet (USDT).",
                 step2: "Choose your 15 lucky numbers or use Quick Pick.", step3: "Approve the contract and confirm your 5 USDT bet.",
                 step4: "Automated draw every Sunday via Chainlink VRF.", rulesTitle: "Transparent Split (100%)",
@@ -428,7 +429,7 @@
                 playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
                 myBetsTitle: "MIS APUESTAS DE LA SEMANA", shareLabel: "Compartir:",
-                noBetsYet: "Conecta tu cartera para sincronizar tus jugadas activas.",
+                noBetsYet: "No hay apuestas activas registradas en este momento.",
                 howTitle: "Cómo Funciona", step1: "Conecta tu cartera Polygon (USDT).",
                 step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
                 step4: "Sorteo automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
@@ -448,7 +449,7 @@
                 playTitle: "进行下注", selectTip: "请从 1 至 25 中精准选择 15 个号码",
                 quickPick: "机选号码", clearPick: "清空", cost: "票价",
                 myBetsTitle: "本轮我的彩票", shareLabel: "分享:",
-                noBetsYet: "请连接钱包以同步当前有效投注。",
+                noBetsYet: "当前暂无已生效投注记录。",
                 howTitle: "运作方式", step1: "连接您的 Polygon 钱包 (USDT)。",
                 step2: "自选 15 个幸运号码或使用机选功能。", step3: "授权并确认 5 USDT 投注交易。",
                 step4: "每周日由 Chainlink VRF 自动完成公正开奖。", rulesTitle: "透明资金分配 (100%)",
@@ -468,7 +469,7 @@
                 playTitle: "PLACEZ VOTRE PARI", selectTip: "Sélectionnez exatamente 15 numéros (1 à 25)",
                 quickPick: "Aléatoire", clearPick: "Effacer", cost: "Prix",
                 myBetsTitle: "MES BILLETS CETTE SEMAINE", shareLabel: "Partager:",
-                noBetsYet: "Connectez votre portefeuille pour afficher vos paris.",
+                noBetsYet: "Aucun pari enregistré actuellement.",
                 howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille Polygon (USDT).",
                 step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat e confirmez votre pari de 5 USDT.",
                 step4: "Tirage automatique chaque dimanche via Chainlink VRF.", rulesTitle: "Répartition Transparente (100%)",
@@ -493,9 +494,7 @@
         function verificarAntiPhishing() {
             const currentHost = window.location.hostname;
             const badge = document.getElementById('officialUrlBadge');
-            if (badge) {
-                badge.innerText = currentHost || "megacryptolottery.github.io";
-            }
+            if (badge) badge.innerText = currentHost || "megacryptolottery.github.io";
 
             const banner = document.getElementById('securityBanner');
             if (banner && currentHost && !currentHost.includes("github.io") && !currentHost.includes("localhost") && !currentHost.includes("127.0.0.1")) {
@@ -514,7 +513,7 @@
 
         let provider, signer, userAddress;
         let lotteryContract, usdtContract;
-        let ultimoSorteioMaskGlobal = 0; // Armazena a máscara do último sorteio para comparação visual
+        let sorteiosMascaras = []; // Lista ordenada com a máscara real de cada sorteio
 
         async function getPublicContract() {
             for (let url of RPC_URLS) {
@@ -523,9 +522,7 @@
                     const c = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, p);
                     await p.getBlockNumber();
                     return c;
-                } catch(e) {
-                    console.warn("Falha no RPC " + url);
-                }
+                } catch(e) {}
             }
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
@@ -599,14 +596,10 @@
             try {
                 const readLottery = await getPublicContract();
                 
-                let jackpotRaw = 0n;
-                let semanalRaw = 0n;
-
-                try { jackpotRaw = await readLottery.totalJackpot(); } 
-                catch(e) { try { jackpotRaw = await readLottery.jackpotAcumulado(); } catch(e2) { jackpotRaw = 0n; } }
-
-                try { semanalRaw = await readLottery.totalSemanal(); } 
-                catch(e) { try { semanalRaw = await readLottery.poolSemanal(); } catch(e2) { semanalRaw = 0n; } }
+                const [jackpotRaw, semanalRaw] = await Promise.all([
+                    readLottery.jackpotAcumulado().catch(() => 0n),
+                    readLottery.poolSemanal().catch(() => 0n)
+                ]);
 
                 document.getElementById('jackpotValue').innerText = parseFloat(ethers.formatUnits(jackpotRaw, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 document.getElementById('weeklyValue').innerText = parseFloat(ethers.formatUnits(semanalRaw, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -618,38 +611,41 @@
             }
         }
 
-        // --- HISTÓRICO COM EVENTOS REAIS SEM REPETIÇÃO ---
+        // --- BUSCA HISTÓRICO REAL VIA EVENTOS DA EVM ---
         async function carregarHistoricoPublico(readLottery) {
             const tableBody = document.getElementById('historyBody');
             if (!tableBody) return;
 
             try {
+                // 1. Busca todos os ganhadores gravados
                 let ganhadores = [];
-                for (let i = 0; i < 10; i++) {
+                const count = await readLottery.getHistoricoCount().catch(() => 0n);
+                for (let i = 0; i < Number(count); i++) {
                     try {
                         const g = await readLottery.ultimosGanhadores(i);
-                        if (g && g.carteira && g.carteira !== ethers.ZeroAddress) {
-                            ganhadores.push(g);
-                        } else {
-                            break;
-                        }
-                    } catch(e) {
-                        break;
-                    }
+                        if (g && g.carteira !== ethers.ZeroAddress) ganhadores.push(g);
+                    } catch(e) { break; }
                 }
 
-                // Busca logs do evento SorteioRealizado sem travar o RPC
+                // 2. Busca todos os eventos SorteioRealizado emitidos
                 let eventosLogs = [];
                 try {
                     const provider = readLottery.runner || readLottery.provider;
                     const blockAtual = await provider.getBlockNumber();
                     const filtro = readLottery.filters.SorteioRealizado();
-                    eventosLogs = await readLottery.queryFilter(filtro, Math.max(0, blockAtual - 100000), blockAtual);
+                    // Busca abrangente de blocos
+                    eventosLogs = await readLottery.queryFilter(filtro, Math.max(0, blockAtual - 250000), blockAtual);
                 } catch(e) {
-                    console.warn("Falha ao filtrar eventos:", e);
+                    console.warn("Falha na consulta de logs:", e);
                 }
 
-                const total = Math.max(ganhadores.length, eventosLogs.length);
+                sorteiosMascaras = [];
+                eventosLogs.forEach(evt => {
+                    const mask = evt.args ? (evt.args.maskSorteada || evt.args[1]) : null;
+                    if (mask) sorteiosMascaras.push(Number(mask));
+                });
+
+                const total = Math.max(ganhadores.length, sorteiosMascaras.length);
 
                 if (total === 0) {
                     tableBody.innerHTML = `
@@ -683,22 +679,10 @@
                             : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
                     }
 
-                    // Extrai a máscara individual de cada evento correspondente
+                    // Pega a máscara correspondente do concurso
                     let dezenasArray = [];
-                    if (eventosLogs[i] && eventosLogs[i].args) {
-                        const maskVal = eventosLogs[i].args.maskSorteada || eventosLogs[i].args[1];
-                        if (maskVal) {
-                            dezenasArray = descompactarMascara(Number(maskVal));
-                            if (i === total - 1) {
-                                ultimoSorteioMaskGlobal = Number(maskVal); // Guarda para checar "Minhas Apostas"
-                            }
-                        }
-                    }
-
-                    // Se não encontrou o evento via queryFilter mas é o sorteio confirmado da foto, usa a máscara 14296958 apenas para a linha 0
-                    if (dezenasArray.length === 0 && i === 0) {
-                        dezenasArray = descompactarMascara(14296958);
-                        ultimoSorteioMaskGlobal = 14296958;
+                    if (sorteiosMascaras[i]) {
+                        dezenasArray = descompactarMascara(sorteiosMascaras[i]);
                     }
 
                     let dezenasHtml = "";
@@ -707,7 +691,7 @@
                             dezenasArray.map(n => `<span class="bg-purple-950/70 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">${n}</span>`).join("") + 
                             `</div>`;
                     } else {
-                        dezenasHtml = `<span class="text-gray-500 text-[11px] italic">Concurso #${i + 1} (Auditado)</span>`;
+                        dezenasHtml = `<span class="text-gray-500 text-[11px] italic">Concurso #${i + 1} (Auditado on-chain)</span>`;
                     }
 
                     let walletElement = `<span class="font-mono text-gray-400">${carteiraFmt}</span>`;
@@ -731,7 +715,6 @@
 
                 tableBody.innerHTML = linhasHtml;
 
-                // Se o usuário já estiver conectado, atualiza a comparação visual das apostas dele
                 if (userAddress) carregarMinhasApostas();
 
             } catch (err) {
@@ -750,9 +733,7 @@
                 } else {
                     panel.classList.add('hidden');
                 }
-            } catch (e) {
-                console.error("Erro ao checar saldo de prêmios:", e);
-            }
+            } catch (e) {}
         }
 
         let selectedNumbers = [];
@@ -871,16 +852,7 @@
                 SoundEngine.playTone(520, 'sine', 0.15, 0.08);
 
                 const numerosOrdenados = [...selectedNumbers].sort((a, b) => a - b);
-
-                let tx;
-                try {
-                    tx = await lotteryContract.comprarBilhete(numerosOrdenados, { gasLimit: 800000 });
-                } catch (fallbackErr) {
-                    let mask = 0;
-                    numerosOrdenados.forEach(n => { mask |= (1 << (n - 1)); });
-                    tx = await lotteryContract.apostar(mask, { gasLimit: 800000 });
-                }
-
+                const tx = await lotteryContract.comprarBilhete(numerosOrdenados, { gasLimit: 800000 });
                 await tx.wait();
 
                 SoundEngine.successTx();
@@ -934,7 +906,7 @@
             }
         };
 
-        // --- MINHAS APOSTAS COM PINTURA AUTOMÁTICA DE ACERTOS ---
+        // --- CONFERÊNCIA EXATA DE APOSTAS ATIVAS ---
         async function carregarMinhasApostas() {
             if (!lotteryContract || !userAddress) return;
             const container = document.getElementById('myBetsContainer');
@@ -946,7 +918,7 @@
                 for (let i = 0; i < totalApostas; i++) {
                     const aposta = await lotteryContract.apostasDaSemana(i);
                     if (aposta.jogador.toLowerCase() === userAddress.toLowerCase()) {
-                        apostasDoJogador.push(Number(aposta.numerosMask));
+                        apostasDoJogador.push(BigInt(aposta.mask));
                     }
                 }
 
@@ -956,24 +928,26 @@
                     return;
                 }
 
+                // Último sorteio executado na rede
+                const ultimaMask = sorteiosMascaras.length > 0 ? BigInt(sorteiosMascaras[sorteiosMascaras.length - 1]) : 0n;
+
                 container.innerHTML = apostasDoJogador.map((maskJogador, idx) => {
                     const dezenas = descompactarMascara(maskJogador);
                     
-                    // Compara com o último sorteio realizado
                     let totalAcertos = 0;
                     const dezenasHtml = dezenas.map(numStr => {
                         const num = parseInt(numStr, 10);
-                        const foiSorteado = ultimoSorteioMaskGlobal > 0 && ((ultimoSorteioMaskGlobal & (1 << (num - 1))) !== 0);
-                        if (foiSorteado) totalAcertos++;
+                        const bitPos = 1n << BigInt(num);
+                        const acertou = ultimaMask > 0n && ((ultimaMask & bitPos) !== 0n);
+                        if (acertou) totalAcertos++;
 
-                        return foiSorteado 
+                        return acertou 
                             ? `<span class="bg-green-500 text-black border border-green-300 font-black px-1.5 py-0.5 rounded text-[10px] font-mono shadow-[0_0_10px_#22c55e] animate-pulse">${numStr}</span>`
                             : `<span class="bg-white/5 text-gray-300 border border-white/10 px-1.5 py-0.5 rounded text-[10px] font-mono">${numStr}</span>`;
                     }).join(" ");
 
-                    // Resumo de acertos
                     let badgeAcertos = "";
-                    if (ultimoSorteioMaskGlobal > 0) {
+                    if (ultimaMask > 0n) {
                         badgeAcertos = totalAcertos >= 11 
                             ? `<span class="text-amber-400 font-tech font-bold text-xs bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-full">🏆 ${totalAcertos} / 15 Acertos!</span>`
                             : `<span class="text-gray-400 font-tech text-[10px] bg-white/5 px-2 py-0.5 rounded-full">🎯 ${totalAcertos} / 15 Acertos</span>`;
@@ -982,7 +956,7 @@
                     return `
                         <div class="glass p-3 rounded-2xl flex flex-col gap-2 border border-white/5">
                             <div class="flex justify-between items-center">
-                                <span class="font-tech text-purple-400 font-bold text-xs">Bilhete #${idx + 1}</span>
+                                <span class="font-tech text-purple-400 font-bold text-xs">Bilhete #${idx + 1} (Rodada Ativa)</span>
                                 ${badgeAcertos}
                             </div>
                             <div class="flex flex-wrap gap-1">
@@ -997,10 +971,13 @@
             }
         }
 
-        function descompactarMascara(mask) {
+        // --- DESCOMPACTAÇÃO EXATA CONFORME O CONTRATO (1 << n) ---
+        function descompactarMascara(maskVal) {
+            let mask = BigInt(maskVal);
             let dezenas = [];
             for (let i = 1; i <= 25; i++) {
-                if ((mask & (1 << (i - 1))) !== 0) {
+                let bitPos = 1n << BigInt(i);
+                if ((mask & bitPos) !== 0n) {
                     dezenas.push(i < 10 ? '0' + i : '' + i);
                 }
             }
