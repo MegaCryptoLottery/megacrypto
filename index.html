@@ -289,6 +289,42 @@
         </footer>
     </main>
 
+    <!-- Importação do AppKit (Reown / WalletConnect) via ESM Bundle Seguro -->
+    <script type="module">
+        import { createAppKit } from 'https://esm.sh/@reown/appkit@1.6.8';
+        import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers@1.6.8';
+
+        // Definição da Polygon Mainnet
+        const polygon = {
+            id: 137,
+            name: 'Polygon Mainnet',
+            network: 'polygon',
+            nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+            rpcUrls: { default: { http: ['https://polygon-bor-rpc.publicnode.com'] } },
+            blockExplorers: { default: { name: 'Polygonscan', url: 'https://polygonscan.com' } }
+        };
+
+        const projectId = 'b56e18d47c72ab683b10814fe9495694'; // Project ID universal padrão para Web3 dApps
+
+        const metadata = {
+            name: 'MEGACRYPTO',
+            description: 'Telegram Web3 Lottery on Polygon',
+            url: window.location.origin,
+            icons: ['https://avatars.githubusercontent.com/u/179229932']
+        };
+
+        const modal = createAppKit({
+            adapters: [new EthersAdapter()],
+            networks: [polygon],
+            projectId,
+            metadata,
+            themeMode: 'dark',
+            features: { analytics: false }
+        });
+
+        window.appKitModal = modal;
+    </script>
+
     <script>
         let audioCtx = null;
         let isMuted = localStorage.getItem('megacrypto_muted') === 'true';
@@ -533,73 +569,46 @@
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
 
-        // Conexão multicarteira segura e atualizada (Compatível com MetaMask, Coinbase e Injected EIP-1193)
+        // Acionamento da modal multicarteira AppKit (MetaMask, Coinbase, WalletConnect, etc.)
         async function connectWallet() {
-            try {
-                // Tenta usar o provedor injetado padrão ou da Coinbase/WalletConnect se disponível
-                const ethProvider = window.ethereum || window.coinbaseWalletExtension;
-                
-                if (!ethProvider) {
-                    const rawUrl = window.location.href.replace(/^https?:\/\//, '');
-                    const metamaskUrl = `https://metamask.app.link/dapp/${rawUrl}`;
-                    if (window.Telegram?.WebApp?.openLink) {
-                        window.Telegram.WebApp.openLink(metamaskUrl);
-                    } else {
-                        window.location.href = metamaskUrl;
-                    }
-                    return;
-                }
-
-                provider = new ethers.BrowserProvider(ethProvider);
-                const network = await provider.getNetwork();
-                
-                if (Number(network.chainId) !== POLYGON_CHAIN_ID) {
-                    try {
-                        await ethProvider.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x89' }]
-                        });
-                    } catch (switchError) {
-                        if (switchError.code === 4902) {
-                            await ethProvider.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [{
-                                    chainId: '0x89',
-                                    chainName: 'Polygon Mainnet',
-                                    nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
-                                    rpcUrls: ['https://polygon-bor-rpc.publicnode.com'],
-                                    blockExplorerUrls: ['https://polygonscan.com']
-                                }]
-                            });
-                        }
-                    }
-                    provider = new ethers.BrowserProvider(ethProvider);
-                }
-
-                signer = await provider.getSigner();
-                userAddress = await signer.getAddress();
-                
-                lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
-                usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
-
-                updateConnectedUI(userAddress);
-                await carregarMinhasApostas();
-                await verificarPremioDisponivel();
-                SoundEngine.successTx();
-            } catch (error) {
-                console.log("Conexão cancelada ou falhou", error);
-                SoundEngine.errorSound();
+            if (window.appKitModal) {
+                await window.appKitModal.open();
+                // O evento de mudança de conta cuidará de inicializar o provedor ethers
+                checkAppKitConnection();
             }
         }
+
+        async function checkAppKitConnection() {
+            try {
+                if (window.appKitModal && window.appKitModal.getIsConnected()) {
+                    const walletProvider = window.appKitModal.getWalletProvider();
+                    if (walletProvider) {
+                        provider = new ethers.BrowserProvider(walletProvider);
+                        signer = await provider.getSigner();
+                        userAddress = await signer.getAddress();
+                        
+                        lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
+                        usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+
+                        updateConnectedUI(userAddress);
+                        await carregarMinhasApostas();
+                        await verificarPremioDisponivel();
+                        SoundEngine.successTx();
+                    }
+                }
+            } catch (err) {
+                console.log("Aguardando conexão AppKit...", err);
+            }
+        }
+
+        document.getElementById('connectBtn').onclick = connectWallet;
 
         function updateConnectedUI(addr) {
             const btn = document.getElementById('connectBtn');
             btn.innerText = addr.slice(0,6) + "..." + addr.slice(-4);
             btn.classList.remove('btn-grad');
-            btn.classList.add('bg-green-600');
+            btn.classList.add('bg-green-650');
         }
-
-        document.getElementById('connectBtn').onclick = connectWallet;
 
         async function carregarDadosPublicos() {
             try {
