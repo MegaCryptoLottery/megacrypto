@@ -541,20 +541,18 @@
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
 
-        // Função de conexão com tratamento seguro para o Telegram WebView
+        // Função de conexão com tratamento original estável para navegadores e Telegram
         async function connectWallet() {
             try {
                 const ethProvider = window.ethereum || window.coinbaseWalletExtension;
-                
-                // BLINDAGEM DO TELEGRAM: Se estiver rodando dentro do aplicativo do Telegram e não houver provedor injetado direto
-                if (!ethProvider && window.Telegram?.WebApp?.initData) {
-                    alert("Por favor, abra este link em um navegador externo (como Chrome, Safari ou o app da sua carteira) para conectar.");
-                    return;
-                }
-
                 if (!ethProvider) {
                     const rawUrl = window.location.href.replace(/^https?:\/\//, '');
-                    window.location.href = `https://metamask.app.link/dapp/${rawUrl}`;
+                    const metamaskUrl = `https://metamask.app.link/dapp/${rawUrl}`;
+                    if (window.Telegram?.WebApp?.openLink) {
+                        window.Telegram.WebApp.openLink(metamaskUrl);
+                    } else {
+                        window.location.href = metamaskUrl;
+                    }
                     return;
                 }
 
