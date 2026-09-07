@@ -116,14 +116,21 @@
             <a id="tickerLink" href="#" target="_blank" class="text-[10px] text-gray-500 hover:text-white underline"><span id="scanName">Polygonscan</span> ↗</a>
         </div>
 
-        <div class="glass rounded-2xl p-4 mb-6 text-center border-t border-purple-500/30">
+        <!-- Temporizador e Somatória Global de Prêmios (Todas as Redes) -->
+        <div class="glass rounded-2xl p-5 mb-6 text-center border-t border-purple-500/30">
             <span class="text-[10px] font-tech text-gray-400 tracking-widest uppercase" data-i18n="timerTitle">Próximo Sorteio Semanal (Domingo 20:00 UTC)</span>
-            <div id="countdownTimer" class="text-2xl md:text-3xl font-tech font-black text-purple-400 tracking-widest mt-1">
+            <div id="countdownTimer" class="text-2xl md:text-3xl font-tech font-black text-purple-400 tracking-widest mt-1 mb-3">
                 00d 00h 00m 00s
+            </div>
+            <div class="pt-3 border-t border-white/5 flex flex-col items-center justify-center gap-1">
+                <span class="text-[10px] font-tech text-emerald-400 uppercase tracking-wider">💎 Somatória Total Global (Todas as Redes Conectadas):</span>
+                <div class="text-xl md:text-2xl font-tech font-black text-white">
+                    $ <span id="globalTotalValue">0.00</span> USDT
+                </div>
             </div>
         </div>
 
-        <!-- Seção de Escolha e Comparação de Redes Multi-Chain -->
+        <!-- Seção de Cards Multi-Chain com Detalhes dos Prêmios (Jackpot 50% + Menor 38%) -->
         <section class="mb-6 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-4 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
@@ -137,9 +144,15 @@
                         <span class="font-tech text-xs font-bold text-purple-300">Polygon Network (137)</span>
                         <span id="statusNet-137" class="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase">Disponível</span>
                     </div>
-                    <div class="mb-4">
-                        <span class="text-[10px] text-gray-400 uppercase font-tech">Jackpot Acumulado:</span>
-                        <div class="text-2xl font-tech font-bold text-white">$ <span id="jpNet-137">0.00</span> USDT</div>
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Mega Jackpot (50%):</span>
+                            <div class="text-lg font-tech font-bold text-white">$ <span id="jpNet-137">0.00</span></div>
+                        </div>
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Prêmio Menor / Rodada (38%):</span>
+                            <div class="text-lg font-tech font-bold text-white">$ <span id="weeklyNet-137">0.00</span></div>
+                        </div>
                     </div>
                     <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-purple-500/30">
                         Conectar / Ver Polygon
@@ -152,9 +165,15 @@
                         <span class="font-tech text-xs font-bold text-yellow-300">BNB Smart Chain (56)</span>
                         <span id="statusNet-56" class="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase">Disponível</span>
                     </div>
-                    <div class="mb-4">
-                        <span class="text-[10px] text-gray-400 uppercase font-tech">Jackpot Acumulado:</span>
-                        <div class="text-2xl font-tech font-bold text-white">$ <span id="jpNet-56">0.00</span> USDT</div>
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Mega Jackpot (50%):</span>
+                            <div class="text-lg font-tech font-bold text-white">$ <span id="jpNet-56">0.00</span></div>
+                        </div>
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Prêmio Menor / Rodada (38%):</span>
+                            <div class="text-lg font-tech font-bold text-white">$ <span id="weeklyNet-56">0.00</span></div>
+                        </div>
                     </div>
                     <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-yellow-500/30">
                         Conectar / Ver BSC
@@ -638,9 +657,29 @@
                 await carregarDadosPublicos();
                 SoundEngine.successTx();
 
-                if (window.ethereum && window.ethereum.on) {
-                    window.ethereum.on('chainChanged', () => {
-                        window.location.reload();
+                if (window.ethereum && window.ethereum.on && !window._chainListenerAttached) {
+                    window._chainListenerAttached = true;
+                    window.ethereum.on('chainChanged', async (newChainIdHex) => {
+                        const newChainId = Number(newChainIdHex);
+                        if (NETWORKS[newChainId]) {
+                            currentChainId = newChainId;
+                            updateNetworkBadge(newChainId);
+                            
+                            provider = new ethers.BrowserProvider(window.ethereum);
+                            signer = await provider.getSigner();
+                            userAddress = await signer.getAddress();
+                            
+                            const activeNet = NETWORKS[newChainId];
+                            lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
+                            usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
+
+                            updateConnectedUI(userAddress);
+                            await carregarMinhasApostas();
+                            await verificarPremioDisponivel();
+                            await carregarDadosPublicos();
+                        } else {
+                            window.location.reload();
+                        }
                     });
                 }
 
@@ -658,7 +697,6 @@
                     params: [{ chainId: hexChainId }],
                 });
                 document.getElementById('networkWarningBanner').classList.add('hidden');
-                connectWallet();
             } catch (switchError) {
                 alert("Por favor, altere manualmente sua rede na carteira.");
             }
@@ -715,17 +753,29 @@
         }
 
         async function atualizarCardsMultiChain() {
+            let globalTotalSum = 0;
+
             for (const [chainIdStr, net] of Object.entries(NETWORKS)) {
                 const chainId = Number(chainIdStr);
+                let jpFormatted = 0;
+                let weeklyFormatted = 0;
+
                 try {
                     const tempProvider = new ethers.JsonRpcProvider(net.rpc);
                     const tempContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
-                    const jackpotRaw = await tempContract.jackpotAcumulado().catch(() => 0n);
                     
-                    const el = document.getElementById(`jpNet-${chainId}`);
-                    if (el) {
-                        el.innerText = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    }
+                    const [jackpotRaw, semanalRaw] = await Promise.all([
+                        tempContract.jackpotAcumulado().catch(() => 0n),
+                        tempContract.poolSemanal().catch(() => 0n)
+                    ]);
+                    
+                    jpFormatted = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals));
+                    weeklyFormatted = parseFloat(ethers.formatUnits(semanalRaw, net.decimals));
+
+                    document.getElementById(`jpNet-${chainId}`).innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById(`weeklyNet-${chainId}`).innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                    globalTotalSum += jpFormatted + weeklyFormatted;
                 } catch (e) {
                     console.error(`Erro ao buscar dados da rede ${net.name}:`, e);
                 }
@@ -751,6 +801,11 @@
                         ? "w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-yellow-500/30"
                         : "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-purple-500/30";
                 }
+            }
+
+            const globalEl = document.getElementById('globalTotalValue');
+            if (globalEl) {
+                globalEl.innerText = globalTotalSum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
         }
 
