@@ -525,10 +525,10 @@
         let lotteryContract, usdtContract;
         let modalWeb3Modal = null;
 
-        // Configuração multirrede (Polygon principal + BNB Chain, Arbitrum e Base preparadas para o futuro)
+        // Inicialização com o Project ID oficial fornecido pelo usuário
         try {
             if (window.Web3Modal && window.Web3Modal.createWeb3Modal) {
-                const projectId = 'b56e18d47c72ab683b10814fe9495694';
+                const projectId = 'c25fc20a251d0c4850783b60fbc7609a';
                 
                 const polygonChain = {
                     chainId: 137,
