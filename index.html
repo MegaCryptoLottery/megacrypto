@@ -525,7 +525,7 @@
         let lotteryContract, usdtContract;
         let modalWeb3Modal = null;
 
-        // Inicialização com o Project ID oficial fornecido pelo usuário
+        // Inicialização UMD blindada com o Project ID oficial e redes mapeadas
         try {
             if (window.Web3Modal && window.Web3Modal.createWeb3Modal) {
                 const projectId = 'c25fc20a251d0c4850783b60fbc7609a';
@@ -563,23 +563,21 @@
                 };
 
                 modalWeb3Modal = window.Web3Modal.createWeb3Modal({
-                    ethersConfig: window.Web3Modal.defaultConfig({ 
-                        metadata: { 
-                            name: 'MEGACRYPTO', 
-                            description: 'Telegram Web3 Lottery', 
-                            url: window.location.origin, 
-                            icons: ['https://avatars.githubusercontent.com/u/179229932'] 
-                        } 
-                    }),
-                    chains: [polygonChain, bnbChain, arbitrumChain, baseChain],
                     projectId,
+                    chains: [polygonChain, bnbChain, arbitrumChain, baseChain],
+                    metadata: { 
+                        name: 'MEGACRYPTO', 
+                        description: 'Telegram Web3 Lottery', 
+                        url: window.location.origin, 
+                        icons: ['https://avatars.githubusercontent.com/u/179229932'] 
+                    },
                     themeMode: 'dark',
                     enableAnalytics: false,
                     allWallets: 'SHOW'
                 });
             }
         } catch (e) {
-            console.log("Web3Modal multichain notice:", e);
+            console.log("Aviso de inicialização do Web3Modal UMD:", e);
         }
 
         async function getPublicContract() {
