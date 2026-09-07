@@ -72,7 +72,6 @@
             </div>
             
             <div class="flex items-center gap-2">
-                <!-- Indicador de Rede Ativa -->
                 <div id="activeNetworkBadge" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-tech font-bold border border-white/10 bg-black/60">
                     <span id="netDot" class="h-2 w-2 rounded-full bg-purple-400"></span>
                     <span id="netName" class="text-gray-300">Polygon</span>
@@ -99,7 +98,6 @@
 
     <main class="max-w-4xl mx-auto px-4 pt-6">
         
-        <!-- Alerta de Rede Não Suportada -->
         <div id="networkWarningBanner" class="hidden mb-6 glass rounded-xl p-4 border-amber-500/50 bg-amber-500/10 text-center shadow-lg animate-pulse">
             <h4 class="text-amber-400 font-tech text-xs font-bold mb-1">⚠️ REDE NÃO SUPORTADA</h4>
             <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo exclusivamente na <b class="text-white">Polygon (137)</b> e na <b class="text-white">BNB Smart Chain (56)</b>.</p>
@@ -300,7 +298,7 @@
         <footer class="text-center border-t border-white/10 pt-8">
             <h5 data-i18n="legalTitle" class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
             <p data-i18n="legalText" class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
-                A MEGACRYPTO é um protocolo descentralizado operando nas redes Polygon e BNB Smart Chain. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.
+                A MEGACRYPTO opera nas redes Polygon e BNB Smart Chain. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.
             </p>
         </footer>
     </main>
@@ -365,7 +363,6 @@
         };
         updateSoundBtn();
 
-        // CONFIGURAÇÃO MULTI-CHAIN (Polygon & BSC)
         const NETWORKS = {
             137: {
                 name: "Polygon",
@@ -385,7 +382,7 @@
             }
         };
 
-        let currentChainId = 137; // Padrão inicial Polygon
+        let currentChainId = 137;
 
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
@@ -407,11 +404,6 @@
             "function allowance(address owner, address spender) external view returns (uint256)",
             "function balanceOf(address account) external view returns (uint256)"
         ];
-
-        const SORTEIOS_CONFIRMADOS = {
-            0: 14296958,
-            1: 43957200
-        };
 
         const translations = {
             pt: {
@@ -490,8 +482,8 @@
                 step4: "每周日由 Chainlink VRF 自动完成公正开奖。", rulesTitle: "透明资金分配 (100%)",
                 rule1: "50% 汇入超级大奖 (15个号码全中)。", rule2: "38% 汇入每周大奖 (最高分玩家平分)。",
                 rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于 Chainlink VRF 预言机开销。",
-                historyTitle: "中奖历史及开出号码", thWallet: "中jang钱包", thType: "类型", thValue: "奖金",
-                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在 Polygon 和 BSC 网络上。仅限18岁以上。Chainlink VRF 链上 verifications。",
+                historyTitle: "中奖历史及开出号码", thWallet: "中奖钱包", thType: "类型", thValue: "奖金",
+                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在 Polygon 和 BSC 网络上。仅限18岁以上。Chainlink VRF 链上验证。",
                 btnApprove: "1. 授权 USDT", btnBuy: "2. 立即投注", liveTicket: "最新出票交易:"
             },
             fr: {
@@ -691,69 +683,42 @@
                     } catch(e) { break; }
                 }
 
-                const total = Math.max(ganhadores.length, Object.keys(SORTEIOS_CONFIRMADOS).length);
-                const activeNet = NETWORKS[currentChainId];
-
-                if (total === 0) {
+                if (ganhadores.length === 0) {
                     tableBody.innerHTML = `
                         <tr class="border-b border-white/10">
-                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum sorteio registrado ainda.</td>
+                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum sorteio registrado ainda nesta rede.</td>
                         </tr>
                     `;
                     return;
                 }
 
                 let linhasHtml = '';
+                const activeNet = NETWORKS[currentChainId];
 
-                for (let i = total - 1; i >= 0; i--) {
-                    let carteiraFmt = "Sem Vencedor";
-                    let rawWallet = "";
-                    let valorPremio = "0.00";
-                    let tipoTexto = "ACUMULOU";
-                    let tipoBadge = "bg-purple-500/20 text-purple-400 border border-purple-500/30";
+                for (let i = ganhadores.length - 1; i >= 0; i--) {
+                    const g = ganhadores[i];
+                    const rawWallet = g.carteira;
+                    const carteiraFmt = g.carteira.slice(0, 6) + "..." + g.carteira.slice(-4);
+                    const valorPremio = parseFloat(ethers.formatUnits(g.valor, 6)).toLocaleString('en-US', { 
+                        minimumFractionDigits: 2, 
+                        maximumFractionDigits: 2 
+                    });
+                    const tipoTexto = g.tipo || "PREMIADO";
+                    const tipoBadge = (tipoTexto === "JACKPOT" || tipoTexto.includes("15")) 
+                        ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
+                        : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
 
-                    if (ganhadores[i]) {
-                        const g = ganhadores[i];
-                        rawWallet = g.carteira;
-                        carteiraFmt = g.carteira.slice(0, 6) + "..." + g.carteira.slice(-4);
-                        valorPremio = parseFloat(ethers.formatUnits(g.valor, 6)).toLocaleString('en-US', { 
-                            minimumFractionDigits: 2, 
-                            maximumFractionDigits: 2 
-                        });
-                        tipoTexto = g.tipo || "PREMIADO";
-                        tipoBadge = (tipoTexto === "JACKPOT" || tipoTexto.includes("15")) 
-                            ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
-                            : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
-                    }
-
-                    let dezenasArray = [];
-                    if (SORTEIOS_CONFIRMADOS[i] !== undefined) {
-                        dezenasArray = descompactarMascara(SORTEIOS_CONFIRMADOS[i]);
-                    }
-
-                    let dezenasHtml = "";
-                    if (dezenasArray.length > 0) {
-                        dezenasHtml = `<div class="flex flex-wrap gap-1 max-w-[280px]">` + 
-                            dezenasArray.map(n => `<span class="bg-purple-950/70 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">${n}</span>`).join("") + 
-                            `</div>`;
-                    } else {
-                        dezenasHtml = `<span class="text-gray-500 text-[11px] italic">Aguardando oráculo / Tx manual</span>`;
-                    }
-
-                    let walletElement = `<span class="font-mono text-gray-400">${carteiraFmt}</span>`;
-                    if (rawWallet) {
-                        walletElement = `
-                            <a href="${activeNet.scanUrl}/address/${rawWallet}" target="_blank" rel="noopener noreferrer" class="font-mono text-purple-400 hover:text-white underline font-bold inline-flex items-center gap-1" title="Verificar no Explorer">
-                                ${carteiraFmt} ↗
-                            </a>
-                        `;
-                    }
+                    let walletElement = `
+                        <a href="${activeNet.scanUrl}/address/${rawWallet}" target="_blank" rel="noopener noreferrer" class="font-mono text-purple-400 hover:text-white underline font-bold inline-flex items-center gap-1" title="Verificar no Explorer">
+                            ${carteiraFmt} ↗
+                        </a>
+                    `;
 
                     linhasHtml += `
                         <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
                             <td class="py-3">${walletElement}</td>
                             <td class="py-3"><span class="${tipoBadge} px-2 py-0.5 rounded text-[9px] font-bold">${tipoTexto}</span></td>
-                            <td class="py-3">${dezenasHtml}</td>
+                            <td class="py-3"><span class="text-gray-500 text-[11px] italic">Sorteio On-Chain</span></td>
                             <td class="py-3 text-right font-bold text-white">$${valorPremio} USDT</td>
                         </tr>
                     `;
