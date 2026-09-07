@@ -525,7 +525,7 @@
         let lotteryContract, usdtContract;
         let modalWeb3Modal = null;
 
-        // Inicialização UMD blindada com o Project ID oficial e redes mapeadas
+        // Inicialização do Web3Modal Multicarteira com ID oficial
         try {
             if (window.Web3Modal && window.Web3Modal.createWeb3Modal) {
                 const projectId = 'c25fc20a251d0c4850783b60fbc7609a';
@@ -563,21 +563,23 @@
                 };
 
                 modalWeb3Modal = window.Web3Modal.createWeb3Modal({
-                    projectId,
+                    ethersConfig: window.Web3Modal.defaultConfig({ 
+                        metadata: { 
+                            name: 'MEGACRYPTO', 
+                            description: 'Telegram Web3 Lottery', 
+                            url: window.location.origin, 
+                            icons: ['https://avatars.githubusercontent.com/u/179229932'] 
+                        } 
+                    }),
                     chains: [polygonChain, bnbChain, arbitrumChain, baseChain],
-                    metadata: { 
-                        name: 'MEGACRYPTO', 
-                        description: 'Telegram Web3 Lottery', 
-                        url: window.location.origin, 
-                        icons: ['https://avatars.githubusercontent.com/u/179229932'] 
-                    },
+                    projectId,
                     themeMode: 'dark',
                     enableAnalytics: false,
                     allWallets: 'SHOW'
                 });
             }
         } catch (e) {
-            console.log("Aviso de inicialização do Web3Modal UMD:", e);
+            console.log("Web3Modal multichain notice:", e);
         }
 
         async function getPublicContract() {
@@ -592,13 +594,47 @@
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
 
+        // Força a abertura da modal multicarteira em vez de conectar direto no provedor injetado
         async function connectWallet() {
             try {
                 if (modalWeb3Modal) {
                     await modalWeb3Modal.open();
-                    const wProvider = modalWeb3Modal.getWalletProvider ? modalWeb3Modal.getWalletProvider() : null;
-                    if (wProvider) {
-                        provider = new ethers.BrowserProvider(wProvider);
+                } else {
+                    alert("A modal de multicarteira está carregando. Tente novamente em alguns segundos.");
+                }
+            } catch (error) {
+                console.log("Erro ao abrir modal:", error);
+            }
+        }
+
+        // REGISTRO DE SEGURANÇA (FALLBACK DA METAMASK DIRETA)
+        // Caso no futuro queira voltar para o sistema simples de conexão direta, basta substituir 
+        // a função "connectWallet" acima por este bloco abaixo:
+        /*
+        async function connectWalletSimpleDirect() {
+            const ethProvider = window.ethereum || window.coinbaseWalletExtension;
+            if (!ethProvider) {
+                alert("Nenhuma carteira Web3 detectada.");
+                return;
+            }
+            provider = new ethers.BrowserProvider(ethProvider);
+            await provider.send("eth_requestAccounts", []);
+            signer = await provider.getSigner();
+            userAddress = await signer.getAddress();
+            lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
+            usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+            updateConnectedUI(userAddress);
+            await carregarMinhasApostas();
+            await verificarPremioDisponivel();
+        }
+        */
+
+        // Listener reativo para capturar a carteira assim que o usuário seleciona na modal
+        if (modalWeb3Modal && typeof modalWeb3Modal.subscribeProvider === 'function') {
+            modalWeb3Modal.subscribeProvider(async (state) => {
+                if (state.isConnected && state.provider) {
+                    try {
+                        provider = new ethers.BrowserProvider(state.provider);
                         signer = await provider.getSigner();
                         userAddress = await signer.getAddress();
                         
@@ -609,39 +645,11 @@
                         await carregarMinhasApostas();
                         await verificarPremioDisponivel();
                         SoundEngine.successTx();
-                        return;
+                    } catch(err) {
+                        console.error("Erro ao sincronizar provedor selecionado:", err);
                     }
                 }
-
-                const ethProvider = window.ethereum || window.coinbaseWalletExtension;
-                if (!ethProvider) {
-                    const rawUrl = window.location.href.replace(/^https?:\/\//, '');
-                    const metamaskUrl = `https://metamask.app.link/dapp/${rawUrl}`;
-                    if (window.Telegram?.WebApp?.openLink) {
-                        window.Telegram.WebApp.openLink(metamaskUrl);
-                    } else {
-                        window.location.href = metamaskUrl;
-                    }
-                    return;
-                }
-
-                provider = new ethers.BrowserProvider(ethProvider);
-                await provider.send("eth_requestAccounts", []);
-                signer = await provider.getSigner();
-                userAddress = await signer.getAddress();
-
-                lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
-                usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
-
-                updateConnectedUI(userAddress);
-                await carregarMinhasApostas();
-                await verificarPremioDisponivel();
-                SoundEngine.successTx();
-
-            } catch (error) {
-                console.log("Conexão cancelada ou falhou", error);
-                SoundEngine.errorSound();
-            }
+            });
         }
 
         document.getElementById('connectBtn').onclick = connectWallet;
