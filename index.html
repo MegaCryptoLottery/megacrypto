@@ -12,8 +12,8 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     
-    <!-- Web3Modal Ethers Universal UMD Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/@web3modal/ethers@5.1.11/dist/index.umd.min.js"></script>
+    <!-- Web3Modal Ethers Universal UMD Bundle corrigido para evitar erros internos -->
+    <script src="https://cdn.jsdelivr.net/npm/@web3modal/ethers@5.1.7/dist/index.umd.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -438,7 +438,7 @@
                 winnerTitle: "🏆 ¡HAS GANADO!", winnerSub: "Tu premio está listo para ser retirado en USDT.",
                 playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
-                myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartir:",
+                myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartilhar:",
                 noBetsYet: "No hay apuestas activas registradas en este momento.",
                 howTitle: "Cómo Funciona", step1: "Conecta tu cartera Polygon (USDT).",
                 step2: "Elige tus 15 números ou usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
@@ -525,7 +525,7 @@
         let lotteryContract, usdtContract;
         let modalWeb3Modal = null;
 
-        // Inicialização do Web3Modal Multicarteira com ID oficial
+        // Inicialização com tratamento de erro e fallback seguro
         try {
             if (window.Web3Modal && window.Web3Modal.createWeb3Modal) {
                 const projectId = 'c25fc20a251d0c4850783b60fbc7609a';
@@ -579,7 +579,7 @@
                 });
             }
         } catch (e) {
-            console.log("Web3Modal multichain notice:", e);
+            console.log("Web3Modal initialization error caught:", e);
         }
 
         async function getPublicContract() {
@@ -594,13 +594,12 @@
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
 
-        // Função principal de abertura da modal unificada
+        // Função principal robusta para abrir a modal ou conectar via injetado
         async function connectWallet() {
             try {
-                if (modalWeb3Modal) {
+                if (modalWeb3Modal && typeof modalWeb3Modal.open === 'function') {
                     await modalWeb3Modal.open();
                 } else {
-                    // Fallback imediato para conexão direta caso o script externo demore a responder
                     const ethProvider = window.ethereum || window.coinbaseWalletExtension;
                     if (ethProvider) {
                         provider = new ethers.BrowserProvider(ethProvider);
@@ -615,9 +614,6 @@
                         await carregarMinhasApostas();
                         await verificarPremioDisponivel();
                         SoundEngine.successTx();
-                    } else {
-                        const rawUrl = window.location.href.replace(/^https?:\/\//, '');
-                        window.location.href = `https://metamask.app.link/dapp/${rawUrl}`;
                     }
                 }
             } catch (error) {
@@ -626,32 +622,7 @@
             }
         }
 
-        /* 
-        ========================================================================
-        REGISTRO DE SEGURANÇA: SISTEMA SIMPLES DE CONEXÃO DIRETA COM A METAMASK
-        Caso no futuro precise voltar ao sistema simples de conexão direta, 
-        basta substituir o corpo da função "connectWallet" acima por esta lógica:
-        
-        async function connectWalletSimpleDirect() {
-            const ethProvider = window.ethereum || window.coinbaseWalletExtension;
-            if (!ethProvider) {
-                alert("Nenhuma carteira Web3 detectada.");
-                return;
-            }
-            provider = new ethers.BrowserProvider(ethProvider);
-            await provider.send("eth_requestAccounts", []);
-            signer = await provider.getSigner();
-            userAddress = await signer.getAddress();
-            lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
-            usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
-            updateConnectedUI(userAddress);
-            await carregarMinhasApostas();
-            await verificarPremioDisponivel();
-        }
-        ========================================================================
-        */
-
-        // Listener reativo para capturar a carteira assim que o usuário seleciona na modal
+        // Listener reativo do Web3Modal
         if (modalWeb3Modal && typeof modalWeb3Modal.subscribeProvider === 'function') {
             modalWeb3Modal.subscribeProvider(async (state) => {
                 if (state.isConnected && state.provider) {
