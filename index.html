@@ -12,7 +12,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     
-    <!-- Web3Modal Ethers Universal UMD Bundle para Suporte Completo Mobile e Desktop -->
+    <!-- Web3Modal Ethers Universal UMD Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/@web3modal/ethers@5.1.11/dist/index.umd.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -486,7 +486,7 @@
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
                 rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Frais d'oracles Chainlink VRF.",
                 historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralizado", legalText: "MEGACRYPTO est un protocole autonome sur Polygon. 18+ únicamente. Jouez avec modération. Tirages prouvés équitables par Chainlink VRF.",
+                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO est un protocole autonome sur Polygon. 18+ únicamente. Jouez avec modération. Tirages prouvés équitables par Chainlink VRF.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
@@ -525,16 +525,41 @@
         let lotteryContract, usdtContract;
         let modalWeb3Modal = null;
 
-        // Inicialização robusta do Web3Modal para prover WalletConnect e conexões nativas mobile/desktop
+        // Configuração multirrede (Polygon principal + BNB Chain, Arbitrum e Base preparadas para o futuro)
         try {
             if (window.Web3Modal && window.Web3Modal.createWeb3Modal) {
                 const projectId = 'b56e18d47c72ab683b10814fe9495694';
+                
                 const polygonChain = {
                     chainId: 137,
                     name: 'Polygon Mainnet',
                     currency: 'POL',
                     explorerUrl: 'https://polygonscan.com',
                     rpcUrl: 'https://polygon-bor-rpc.publicnode.com'
+                };
+
+                const bnbChain = {
+                    chainId: 56,
+                    name: 'BNB Smart Chain',
+                    currency: 'BNB',
+                    explorerUrl: 'https://bscscan.com',
+                    rpcUrl: 'https://bsc-dataseed.binance.org'
+                };
+
+                const arbitrumChain = {
+                    chainId: 42161,
+                    name: 'Arbitrum One',
+                    currency: 'ETH',
+                    explorerUrl: 'https://arbiscan.io',
+                    rpcUrl: 'https://arb1.arbitrum.io/rpc'
+                };
+
+                const baseChain = {
+                    chainId: 8453,
+                    name: 'Base',
+                    currency: 'ETH',
+                    explorerUrl: 'https://basescan.org',
+                    rpcUrl: 'https://mainnet.base.org'
                 };
 
                 modalWeb3Modal = window.Web3Modal.createWeb3Modal({
@@ -546,7 +571,7 @@
                             icons: ['https://avatars.githubusercontent.com/u/179229932'] 
                         } 
                     }),
-                    chains: [polygonChain],
+                    chains: [polygonChain, bnbChain, arbitrumChain, baseChain],
                     projectId,
                     themeMode: 'dark',
                     enableAnalytics: false,
@@ -554,7 +579,7 @@
                 });
             }
         } catch (e) {
-            console.log("Web3Modal initialization notice:", e);
+            console.log("Web3Modal multichain notice:", e);
         }
 
         async function getPublicContract() {
@@ -569,7 +594,6 @@
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
 
-        // Função de Conexão Inteligente (Abre o modal universal para Telegram/Móvel e conecta direto no desktop)
         async function connectWallet() {
             try {
                 if (modalWeb3Modal) {
@@ -591,10 +615,8 @@
                     }
                 }
 
-                // Fallback inteligente para o ambiente Telegram sem modal de extensão
                 const ethProvider = window.ethereum || window.coinbaseWalletExtension;
                 if (!ethProvider) {
-                    // Se estiver no Telegram mobile sem injetor, abre o deeplink universal da MetaMask
                     const rawUrl = window.location.href.replace(/^https?:\/\//, '');
                     const metamaskUrl = `https://metamask.app.link/dapp/${rawUrl}`;
                     if (window.Telegram?.WebApp?.openLink) {
