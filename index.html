@@ -72,6 +72,12 @@
             </div>
             
             <div class="flex items-center gap-2">
+                <!-- Indicador de Rede Ativa -->
+                <div id="activeNetworkBadge" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-tech font-bold border border-white/10 bg-black/60">
+                    <span id="netDot" class="h-2 w-2 rounded-full bg-purple-400"></span>
+                    <span id="netName" class="text-gray-300">Polygon</span>
+                </div>
+
                 <button id="soundToggleBtn" class="bg-black/80 border border-white/20 rounded-lg p-2 text-xs hover:border-purple-400 transition-all text-gray-200" title="Alternar Som">
                     🔊
                 </button>
@@ -93,12 +99,14 @@
 
     <main class="max-w-4xl mx-auto px-4 pt-6">
         
+        <!-- Alerta de Rede Não Suportada -->
         <div id="networkWarningBanner" class="hidden mb-6 glass rounded-xl p-4 border-amber-500/50 bg-amber-500/10 text-center shadow-lg animate-pulse">
             <h4 class="text-amber-400 font-tech text-xs font-bold mb-1">⚠️ REDE NÃO SUPORTADA</h4>
-            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo exclusivamente na <b class="text-white">Polygon Mainnet</b>. Mude sua rede para interagir com o contrato.</p>
-            <button id="switchToPolygonBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md">
-                Mudar para a Polygon Mainnet agora
-            </button>
+            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo exclusivamente na <b class="text-white">Polygon (137)</b> e na <b class="text-white">BNB Smart Chain (56)</b>.</p>
+            <div class="flex justify-center gap-2">
+                <button onclick="switchNetwork(137)" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Ir para Polygon</button>
+                <button onclick="switchNetwork(56)" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Ir para BSC</button>
+            </div>
         </div>
 
         <div id="liveTicker" class="hidden mb-6 glass rounded-xl px-4 py-2.5 border-purple-500/30 flex items-center justify-between text-xs transition-all">
@@ -107,7 +115,7 @@
                 <span class="text-gray-400" data-i18n="liveTicket">Novo bilhete registrado:</span>
                 <span id="tickerWallet" class="font-mono text-purple-400 font-bold">0x00...0000</span>
             </div>
-            <a id="tickerLink" href="#" target="_blank" class="text-[10px] text-gray-500 hover:text-white underline">Polygonscan ↗</a>
+            <a id="tickerLink" href="#" target="_blank" class="text-[10px] text-gray-500 hover:text-white underline"><span id="scanName">Polygonscan</span> ↗</a>
         </div>
 
         <div class="glass rounded-2xl p-4 mb-6 text-center border-t border-purple-500/30">
@@ -222,7 +230,7 @@
                         <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
                         <span data-i18n="myBetsTitle">MINHAS APOSTAS REALIZADAS</span>
                     </h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5">Bilhetes ativos registrados na blockchain Polygon.</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Bilhetes ativos registrados on-chain.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] text-gray-400 font-tech uppercase tracking-wider" data-i18n="shareLabel">Compartilhar:</span>
@@ -247,7 +255,7 @@
             <div class="glass rounded-2xl p-6 border-l-2 border-purple-500">
                 <h4 data-i18n="howTitle" class="font-tech text-xs text-purple-400 mb-4 uppercase tracking-wider">Como Funciona</h4>
                 <ul class="space-y-3 text-[11px] text-gray-300 leading-relaxed">
-                    <li><b>01.</b> <span data-i18n="step1">Conecte sua carteira Polygon (USDT).</span></li>
+                    <li><b>01.</b> <span>Conecte sua carteira na Polygon ou BSC (USDT).</span></li>
                     <li><b>02.</b> <span data-i18n="step2">Escolha seus 15 números da sorte ou use a Surpresinha.</span></li>
                     <li><b>03.</b> <span data-i18n="step3">Aprove o contrato e confirme sua aposta de 5 USDT.</span></li>
                     <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo via Chainlink VRF.</span></li>
@@ -282,7 +290,7 @@
                     </thead>
                     <tbody id="historyBody">
                         <tr class="border-b border-white/10">
-                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Consultando blockchain Polygon...</td>
+                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Consultando blockchain...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -292,7 +300,7 @@
         <footer class="text-center border-t border-white/10 pt-8">
             <h5 data-i18n="legalTitle" class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
             <p data-i18n="legalText" class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
-                A MEGACRYPTO é um protocolo descentralizado operando na blockchain Polygon. Não possuímos custódia sobre fundos de premiação. O jogo de azar envolve risco financeiro. Ao utilizar este Mini App, você declara ser maior de 18 anos. Sorteios provadamente justos via Chainlink VRF.
+                A MEGACRYPTO é um protocolo descentralizado operando nas redes Polygon e BNB Smart Chain. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.
             </p>
         </footer>
     </main>
@@ -357,15 +365,27 @@
         };
         updateSoundBtn();
 
-        const CONTRACT_ADDRESS = "0x171cc5E40fDeF437DF062D36d082E92eE41b132C";
-        const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-        const POLYGON_CHAIN_ID = 137;
+        // CONFIGURAÇÃO MULTI-CHAIN (Polygon & BSC)
+        const NETWORKS = {
+            137: {
+                name: "Polygon",
+                contract: "0x171cc5E40fDeF437DF062D36d082E92eE41b132C",
+                usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                scanUrl: "https://polygonscan.com",
+                scanName: "Polygonscan",
+                rpc: "https://polygon-bor-rpc.publicnode.com"
+            },
+            56: {
+                name: "BNB Chain",
+                contract: "0xC190A715ab6D4B63fF59501460e9f27D16FfAC33",
+                usdt: "0x55d398326f99059fF775485246999027B3197955",
+                scanUrl: "https://bscscan.com",
+                scanName: "BscScan",
+                rpc: "https://bsc-dataseed.binance.org"
+            }
+        };
 
-        const RPC_URLS = [
-            "https://polygon-bor-rpc.publicnode.com",
-            "https://polygon-rpc.com",
-            "https://rpc.ankr.com/polygon"
-        ];
+        let currentChainId = 137; // Padrão inicial Polygon
 
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
@@ -405,13 +425,13 @@
                 quickPick: "Surpresinha", clearPick: "Limpar", cost: "Preço",
                 myBetsTitle: "MINHAS APOSTAS REALIZADAS", shareLabel: "Compartilhar:",
                 noBetsYet: "Nenhuma aposta ativa registrada no momento.",
-                howTitle: "Como Funciona", step1: "Conecte sua carteira Polygon (USDT).",
+                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon ou BSC).",
                 step2: "Escolha seus 15 números da sorte ou use a Surpresinha.", step3: "Aprove o contrato e confirme sua aposta de 5 USDT.",
                 step4: "Sorteio automático todo Domingo via Chainlink VRF.", rulesTitle: "Divisão Transparente (100%)",
                 rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
                 rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos Chainlink VRF.",
                 historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
-                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO é um protocolo descentralizado operando na blockchain Polygon. Não possuímos custódia sobre fundos de premiação. O jogo de azar envolve risco financeiro. Ao utilizar este Mini App, você declara ser maior de 18 anos. Sorteios provadamente justos via Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon e BSC. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.",
                 btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
             },
             en: {
@@ -425,13 +445,13 @@
                 quickPick: "Quick Pick", clearPick: "Clear", cost: "Price",
                 myBetsTitle: "MY PLACED BETS", shareLabel: "Share:",
                 noBetsYet: "No active bets registered right now.",
-                howTitle: "How It Works", step1: "Connect your Polygon wallet (USDT).",
+                howTitle: "How It Works", step1: "Connect your wallet on Polygon or BSC.",
                 step2: "Choose your 15 lucky numbers or use Quick Pick.", step3: "Approve the contract and confirm your 5 USDT bet.",
                 step4: "Automated draw every Sunday via Chainlink VRF.", rulesTitle: "Transparent Split (100%)",
                 rule1: "50% to the Mega Jackpot (15 hits).", rule2: "38% to the Weekly Prize (Highest score).",
                 rule3: "6% Maintenance and Infrastructure.", rule4: "6% Oracle Verification (Chainlink VRF).",
                 historyTitle: "WINNER HISTORY & DRAWN NUMBERS", thWallet: "Winning Wallet", thType: "Type", thValue: "Prize",
-                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO is a decentralized protocol on the Polygon blockchain. We do not hold custody of prize pools. Gambling involves risk. 18+ only. Provably fair draws via Chainlink VRF.",
+                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon and BSC. 18+ only. Provably fair draws via Chainlink VRF.",
                 btnApprove: "1. APPROVE USDT", btnBuy: "2. PLAY NOW", liveTicket: "New ticket confirmed:"
             },
             es: {
@@ -443,15 +463,15 @@
                 winnerTitle: "🏆 ¡HAS GANADO!", winnerSub: "Tu premio está listo para ser retirado en USDT.",
                 playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
-                myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartilhar:",
+                myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartir:",
                 noBetsYet: "No hay apuestas activas registradas en este momento.",
-                howTitle: "Cómo Funciona", step1: "Conecta tu cartera Polygon (USDT).",
+                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon o BSC.",
                 step2: "Elige tus 15 números ou usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
                 step4: "Sorteio automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
                 rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
                 rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos Chainlink VRF.",
                 historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
-                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO es un protocolo autónomo en Polygon. Solo +18. Juega con responsabilidad. Sorteos justos auditados por Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon y BSC. +18. Sorteos auditados por Chainlink VRF.",
                 btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo billete registrado:"
             },
             zh: {
@@ -465,13 +485,13 @@
                 quickPick: "机选号码", clearPick: "清空", cost: "票价",
                 myBetsTitle: "我的已下注彩票", shareLabel: "分享:",
                 noBetsYet: "当前暂无已生效投注记录。",
-                howTitle: "运作方式", step1: "连接您的 Polygon 钱包 (USDT)。",
+                howTitle: "运作方式", step1: "在 Polygon 或 BSC 连接您的钱包。",
                 step2: "自选 15 个幸运号码或使用机选功能。", step3: "授权并确认 5 USDT 投注交易。",
                 step4: "每周日由 Chainlink VRF 自动完成公正开奖。", rulesTitle: "透明资金分配 (100%)",
                 rule1: "50% 汇入超级大奖 (15个号码全中)。", rule2: "38% 汇入每周大奖 (最高分玩家平分)。",
                 rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于 Chainlink VRF 预言机开销。",
-                historyTitle: "中奖历史及开出号码", thWallet: "中奖钱包", thType: "类型", thValue: "奖金",
-                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 是部署在 Polygon 上的自主智能合约。我们不托管任何奖池。博彩有风险，仅限18周岁以上玩家参与。开奖经 Chainlink VRF 链上验证。",
+                historyTitle: "中奖历史及开出号码", thWallet: "中jang钱包", thType: "类型", thValue: "奖金",
+                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在 Polygon 和 BSC 网络上。仅限18岁以上。Chainlink VRF 链上 verifications。",
                 btnApprove: "1. 授权 USDT", btnBuy: "2. 立即投注", liveTicket: "最新出票交易:"
             },
             fr: {
@@ -485,13 +505,13 @@
                 quickPick: "Aléatoire", clearPick: "Effacer", cost: "Prix",
                 myBetsTitle: "MES PARIS EFFECTUÉS", shareLabel: "Partager:",
                 noBetsYet: "Aucun pari enregistré actuellement.",
-                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille Polygon (USDT).",
+                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon ou BSC.",
                 step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat et confirmez votre pari de 5 USDT.",
                 step4: "Tirage automatique chaque dimanche via Chainlink VRF.", rulesTitle: "Répartition Transparente (100%)",
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
                 rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Frais d'oracles Chainlink VRF.",
                 historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO est un protocole autonome sur Polygon. 18+ únicamente. Jouez avec modération. Tirages prouvés équitables via Chainlink VRF.",
+                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur Polygon et BSC. 18+.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
@@ -529,19 +549,17 @@
         let provider, signer, userAddress;
         let lotteryContract, usdtContract;
 
-        async function getPublicContract() {
-            for (let url of RPC_URLS) {
-                try {
-                    const p = new ethers.JsonRpcProvider(url);
-                    const c = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, p);
-                    await p.getBlockNumber();
-                    return c;
-                } catch(e) {}
-            }
-            return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
+        async function getPublicContract(chainId = 137) {
+            const net = NETWORKS[chainId] || NETWORKS[137];
+            try {
+                const p = new ethers.JsonRpcProvider(net.rpc);
+                const c = new ethers.Contract(net.contract, LOTTERY_ABI, p);
+                await p.getBlockNumber();
+                return c;
+            } catch(e) {}
+            return new ethers.Contract(net.contract, LOTTERY_ABI, new ethers.JsonRpcProvider(net.rpc));
         }
 
-        // Função de conexão com tratamento original estável para navegadores e Telegram
         async function connectWallet() {
             try {
                 const ethProvider = window.ethereum || window.coinbaseWalletExtension;
@@ -560,7 +578,7 @@
                 const network = await provider.getNetwork();
                 const chainId = Number(network.chainId);
 
-                if (chainId !== POLYGON_CHAIN_ID) {
+                if (!NETWORKS[chainId]) {
                     document.getElementById('networkWarningBanner').classList.remove('hidden');
                     SoundEngine.errorSound();
                     return; 
@@ -568,16 +586,21 @@
                     document.getElementById('networkWarningBanner').classList.add('hidden');
                 }
 
+                currentChainId = chainId;
+                updateNetworkBadge(chainId);
+
                 await provider.send("eth_requestAccounts", []);
                 signer = await provider.getSigner();
                 userAddress = await signer.getAddress();
                 
-                lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
-                usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+                const activeNet = NETWORKS[chainId];
+                lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
+                usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
 
                 updateConnectedUI(userAddress);
                 await carregarMinhasApostas();
                 await verificarPremioDisponivel();
+                await carregarDadosPublicos();
                 SoundEngine.successTx();
 
                 if (window.ethereum && window.ethereum.on) {
@@ -592,18 +615,39 @@
             }
         }
 
-        document.getElementById('switchToPolygonBtn').onclick = async () => {
+        async function switchNetwork(targetChainId) {
             try {
+                const hexChainId = '0x' + targetChainId.toString(16);
                 await window.ethereum.request({
                     method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: '0x89' }],
+                    params: [{ chainId: hexChainId }],
                 });
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 connectWallet();
             } catch (switchError) {
-                alert("Por favor, altere manualmente sua rede na carteira para a Polygon Mainnet.");
+                alert("Por favor, altere manualmente sua rede na carteira.");
             }
-        };
+        }
+
+        function updateNetworkBadge(chainId) {
+            const badge = document.getElementById('activeNetworkBadge');
+            const netName = document.getElementById('netName');
+            const netDot = document.getElementById('netDot');
+            const scanName = document.getElementById('scanName');
+            
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+            
+            if (chainId === 56) {
+                netName.innerText = "BSC";
+                netDot.className = "h-2 w-2 rounded-full bg-yellow-400 animate-pulse";
+                scanName.innerText = "BscScan";
+            } else {
+                netName.innerText = "Polygon";
+                netDot.className = "h-2 w-2 rounded-full bg-purple-400 animate-pulse";
+                scanName.innerText = "Polygonscan";
+            }
+        }
 
         document.getElementById('connectBtn').onclick = connectWallet;
 
@@ -616,7 +660,7 @@
 
         async function carregarDadosPublicos() {
             try {
-                const readLottery = await getPublicContract();
+                const readLottery = await getPublicContract(currentChainId);
                 
                 const [jackpotRaw, semanalRaw] = await Promise.all([
                     readLottery.jackpotAcumulado().catch(() => 0n),
@@ -648,6 +692,7 @@
                 }
 
                 const total = Math.max(ganhadores.length, Object.keys(SORTEIOS_CONFIRMADOS).length);
+                const activeNet = NETWORKS[currentChainId];
 
                 if (total === 0) {
                     tableBody.innerHTML = `
@@ -698,7 +743,7 @@
                     let walletElement = `<span class="font-mono text-gray-400">${carteiraFmt}</span>`;
                     if (rawWallet) {
                         walletElement = `
-                            <a href="https://polygonscan.com/address/${rawWallet}" target="_blank" rel="noopener noreferrer" class="font-mono text-purple-400 hover:text-white underline font-bold inline-flex items-center gap-1" title="Verificar na Polygonscan">
+                            <a href="${activeNet.scanUrl}/address/${rawWallet}" target="_blank" rel="noopener noreferrer" class="font-mono text-purple-400 hover:text-white underline font-bold inline-flex items-center gap-1" title="Verificar no Explorer">
                                 ${carteiraFmt} ↗
                             </a>
                         `;
@@ -815,8 +860,9 @@
                 btnApprove.innerText = "APPROVING...";
                 SoundEngine.playTone(440, 'sine', 0.15, 0.08);
 
+                const activeNet = NETWORKS[currentChainId];
                 const custoBilhete = ethers.parseUnits("5", 6);
-                const tx = await usdtContract.approve(CONTRACT_ADDRESS, custoBilhete);
+                const tx = await usdtContract.approve(activeNet.contract, custoBilhete);
                 await tx.wait();
 
                 SoundEngine.successTx();
@@ -829,7 +875,7 @@
             } catch (err) {
                 console.error("Erro no Approve:", err);
                 SoundEngine.errorSound();
-                alert("Erro ao aprovar USDT. Verifique seu saldo de POL para taxas.");
+                alert("Erro ao aprovar USDT. Verifique seu saldo para taxas de gás.");
                 const lang = localStorage.getItem('megacrypto_lang') || 'pt';
                 btnApprove.innerText = translations[lang].btnApprove;
                 btnApprove.disabled = false;
@@ -873,7 +919,7 @@
             } catch (err) {
                 console.error("Erro na Compra:", err);
                 SoundEngine.errorSound();
-                alert("Erro ao registrar aposta na Polygon: " + (err.reason || err.message));
+                alert("Erro ao registrar aposta: " + (err.reason || err.message));
                 const lang = localStorage.getItem('megacrypto_lang') || 'pt';
                 btnBuy.innerText = translations[lang].btnBuy;
                 btnBuy.disabled = false;
@@ -991,12 +1037,12 @@
             let textoMsg = "";
             if (isWinner) {
                 textoMsg = lang === 'pt' 
-                    ? "🏆 Ganhei na MEGACRYPTO Lottery! Sorteio 100% on-chain na Polygon. Confira:"
-                    : "🏆 I just won on MEGACRYPTO Lottery! 100% on-chain on Polygon. Check it out:";
+                    ? "🏆 Ganhei na MEGACRYPTO Lottery! Sorteio 100% on-chain. Confira:"
+                    : "🏆 I just won on MEGACRYPTO Lottery! 100% on-chain. Check it out:";
             } else {
                 textoMsg = lang === 'pt'
-                    ? "🎰 Registrei meus bilhetes na MEGACRYPTO Lottery na Polygon. Participe:"
-                    : "🎰 Placed my bets on MEGACRYPTO Lottery on Polygon. Join now:";
+                    ? "🎰 Registrei meus bilhetes na MEGACRYPTO Lottery. Participe:"
+                    : "🎰 Placed my bets on MEGACRYPTO Lottery. Join now:";
             }
 
             const pageUrl = window.location.href;
