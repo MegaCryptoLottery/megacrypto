@@ -486,7 +486,7 @@
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
                 rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Frais d'oracles Chainlink VRF.",
                 historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO est un protocole autonome sur Polygon. 18+ únicamente. Jouez avec modération. Tirages prouvés équitables par Chainlink VRF.",
+                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO est un protocole autonome sur Polygon. 18+ únicamente. Jouez avec modération. Tirages prouvés équitables via Chainlink VRF.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
@@ -594,23 +594,44 @@
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
 
-        // Força a abertura da modal multicarteira em vez de conectar direto no provedor injetado
+        // Função principal de abertura da modal unificada
         async function connectWallet() {
             try {
                 if (modalWeb3Modal) {
                     await modalWeb3Modal.open();
                 } else {
-                    alert("A modal de multicarteira está carregando. Tente novamente em alguns segundos.");
+                    // Fallback imediato para conexão direta caso o script externo demore a responder
+                    const ethProvider = window.ethereum || window.coinbaseWalletExtension;
+                    if (ethProvider) {
+                        provider = new ethers.BrowserProvider(ethProvider);
+                        await provider.send("eth_requestAccounts", []);
+                        signer = await provider.getSigner();
+                        userAddress = await signer.getAddress();
+                        
+                        lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
+                        usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+
+                        updateConnectedUI(userAddress);
+                        await carregarMinhasApostas();
+                        await verificarPremioDisponivel();
+                        SoundEngine.successTx();
+                    } else {
+                        const rawUrl = window.location.href.replace(/^https?:\/\//, '');
+                        window.location.href = `https://metamask.app.link/dapp/${rawUrl}`;
+                    }
                 }
             } catch (error) {
                 console.log("Erro ao abrir modal:", error);
+                SoundEngine.errorSound();
             }
         }
 
-        // REGISTRO DE SEGURANÇA (FALLBACK DA METAMASK DIRETA)
-        // Caso no futuro queira voltar para o sistema simples de conexão direta, basta substituir 
-        // a função "connectWallet" acima por este bloco abaixo:
-        /*
+        /* 
+        ========================================================================
+        REGISTRO DE SEGURANÇA: SISTEMA SIMPLES DE CONEXÃO DIRETA COM A METAMASK
+        Caso no futuro precise voltar ao sistema simples de conexão direta, 
+        basta substituir o corpo da função "connectWallet" acima por esta lógica:
+        
         async function connectWalletSimpleDirect() {
             const ethProvider = window.ethereum || window.coinbaseWalletExtension;
             if (!ethProvider) {
@@ -627,6 +648,7 @@
             await carregarMinhasApostas();
             await verificarPremioDisponivel();
         }
+        ========================================================================
         */
 
         // Listener reativo para capturar a carteira assim que o usuário seleciona na modal
