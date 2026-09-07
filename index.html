@@ -11,6 +11,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <!-- Web3Modal Ethers Standalone UMD Bundle para Suporte Multicarteira Perfeito -->
+    <script src="https://cdn.jsdelivr.net/npm/@web3modal/ethers@5.1.11/dist/index.umd.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -520,6 +522,30 @@
 
         let provider, signer, userAddress;
         let lotteryContract, usdtContract;
+        let modalWeb3Modal = null;
+
+        // Inicialização segura do Web3Modal Multicarteira (Coinbase, MetaMask, WalletConnect)
+        try {
+            if (window.Web3Modal && window.Web3Modal.createWeb3Modal) {
+                const projectId = 'b56e18d47c72ab683b10814fe9495694'; // Project ID padrão universal Web3
+                const polygonChain = {
+                    chainId: 137,
+                    name: 'Polygon Mainnet',
+                    currency: 'POL',
+                    explorerUrl: 'https://polygonscan.com',
+                    rpcUrl: 'https://polygon-bor-rpc.publicnode.com'
+                };
+
+                modalWeb3Modal = window.Web3Modal.createWeb3Modal({
+                    ethersConfig: window.Web3Modal.defaultConfig({ metadata: { name: 'MEGACRYPTO', description: 'Telegram Web3 Lottery', url: window.location.origin, icons: ['https://avatars.githubusercontent.com/u/179229932'] } }),
+                    chains: [polygonChain],
+                    projectId,
+                    themeMode: 'dark'
+                });
+            }
+        } catch (e) {
+            console.log("Web3Modal fallback ativo para injeção direta", e);
+        }
 
         async function getPublicContract() {
             for (let url of RPC_URLS) {
@@ -533,48 +559,40 @@
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
 
-        // Conexão direta e segura com a carteira injetada (MetaMask, Coinbase, etc.)
+        // Função de Conexão Unificada (Abre a modal de multicarteira ou faz fallback para MetaMask direta)
         async function connectWallet() {
             try {
-                const ethProvider = window.ethereum || window.coinbaseWalletExtension || window.ethereum?.providers?.find(p => p.isMetaMask);
-                
+                if (modalWeb3Modal) {
+                    await modalWeb3Modal.open();
+                    const wProvider = modalWeb3Modal.getWalletProvider ? modalWeb3Modal.getWalletProvider() : null;
+                    if (wProvider) {
+                        provider = new ethers.BrowserProvider(wProvider);
+                        signer = await provider.getSigner();
+                        userAddress = await signer.getAddress();
+                        
+                        lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
+                        usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+
+                        updateConnectedUI(userAddress);
+                        await carregarMinhasApostas();
+                        await verificarPremioDisponivel();
+                        SoundEngine.successTx();
+                        return;
+                    }
+                }
+
+                // Fallback direto caso a modal não abra instantaneamente
+                const ethProvider = window.ethereum || window.coinbaseWalletExtension;
                 if (!ethProvider) {
-                    alert("Nenhuma carteira Web3 detectada. Por favor, abra no navegador da MetaMask ou Coinbase Wallet.");
-                    const rawUrl = window.location.href.replace(/^https?:\/\//, '');
-                    window.location.href = `https://metamask.app.link/dapp/${rawUrl}`;
+                    alert("Nenhuma carteira detectada. Abra na MetaMask ou Coinbase Wallet.");
                     return;
                 }
 
                 provider = new ethers.BrowserProvider(ethProvider);
                 await provider.send("eth_requestAccounts", []);
-                const network = await provider.getNetwork();
-                
-                if (Number(network.chainId) !== POLYGON_CHAIN_ID) {
-                    try {
-                        await ethProvider.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x89' }]
-                        });
-                    } catch (switchError) {
-                        if (switchError.code === 4902) {
-                            await ethProvider.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [{
-                                    chainId: '0x89',
-                                    chainName: 'Polygon Mainnet',
-                                    nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
-                                    rpcUrls: ['https://polygon-bor-rpc.publicnode.com'],
-                                    blockExplorerUrls: ['https://polygonscan.com']
-                                }]
-                            });
-                        }
-                    }
-                    provider = new ethers.BrowserProvider(ethProvider);
-                }
-
                 signer = await provider.getSigner();
                 userAddress = await signer.getAddress();
-                
+
                 lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
                 usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
 
@@ -582,6 +600,7 @@
                 await carregarMinhasApostas();
                 await verificarPremioDisponivel();
                 SoundEngine.successTx();
+
             } catch (error) {
                 console.log("Conexão cancelada ou falhou", error);
                 SoundEngine.errorSound();
