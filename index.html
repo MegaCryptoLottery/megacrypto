@@ -368,6 +368,7 @@
                 name: "Polygon",
                 contract: "0x171cc5E40fDeF437DF062D36d082E92eE41b132C",
                 usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                decimals: 6,
                 scanUrl: "https://polygonscan.com",
                 scanName: "Polygonscan",
                 rpc: "https://polygon-bor-rpc.publicnode.com"
@@ -376,6 +377,7 @@
                 name: "BNB Chain",
                 contract: "0xC190A715ab6D4B63fF59501460e9f27D16FfAC33",
                 usdt: "0x55d398326f99059fF775485246999027B3197955",
+                decimals: 18,
                 scanUrl: "https://bscscan.com",
                 scanName: "BscScan",
                 rpc: "https://bsc-dataseed.binance.org"
@@ -423,7 +425,7 @@
                 rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
                 rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos Chainlink VRF.",
                 historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
-                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon e BSC. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon e BNB Smart Chain. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.",
                 btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
             },
             en: {
@@ -653,14 +655,15 @@
         async function carregarDadosPublicos() {
             try {
                 const readLottery = await getPublicContract(currentChainId);
+                const activeNet = NETWORKS[currentChainId];
                 
                 const [jackpotRaw, semanalRaw] = await Promise.all([
                     readLottery.jackpotAcumulado().catch(() => 0n),
                     readLottery.poolSemanal().catch(() => 0n)
                 ]);
 
-                document.getElementById('jackpotValue').innerText = parseFloat(ethers.formatUnits(jackpotRaw, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                document.getElementById('weeklyValue').innerText = parseFloat(ethers.formatUnits(semanalRaw, 6)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('jackpotValue').innerText = parseFloat(ethers.formatUnits(jackpotRaw, activeNet.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('weeklyValue').innerText = parseFloat(ethers.formatUnits(semanalRaw, activeNet.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                 await carregarHistoricoPublico(readLottery);
 
@@ -699,7 +702,7 @@
                     const g = ganhadores[i];
                     const rawWallet = g.carteira;
                     const carteiraFmt = g.carteira.slice(0, 6) + "..." + g.carteira.slice(-4);
-                    const valorPremio = parseFloat(ethers.formatUnits(g.valor, 6)).toLocaleString('en-US', { 
+                    const valorPremio = parseFloat(ethers.formatUnits(g.valor, activeNet.decimals)).toLocaleString('en-US', { 
                         minimumFractionDigits: 2, 
                         maximumFractionDigits: 2 
                     });
@@ -826,7 +829,7 @@
                 SoundEngine.playTone(440, 'sine', 0.15, 0.08);
 
                 const activeNet = NETWORKS[currentChainId];
-                const custoBilhete = ethers.parseUnits("5", 6);
+                const custoBilhete = ethers.parseUnits("5", activeNet.decimals);
                 const tx = await usdtContract.approve(activeNet.contract, custoBilhete);
                 await tx.wait();
 
