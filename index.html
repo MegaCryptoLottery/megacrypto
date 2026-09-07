@@ -123,6 +123,47 @@
             </div>
         </div>
 
+        <!-- Seção de Escolha e Comparação de Redes Multi-Chain -->
+        <section class="mb-6 glass rounded-[30px] p-6 border-t border-white/10">
+            <h3 class="text-sm font-tech font-bold mb-4 flex items-center gap-2 text-white">
+                <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
+                REDES DISPONÍVEIS E PRÊMIOS ACUMULADOS
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="multiChainCards">
+                
+                <!-- Card Polygon -->
+                <div id="cardNet-137" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-tech text-xs font-bold text-purple-300">Polygon Network (137)</span>
+                        <span id="statusNet-137" class="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase">Disponível</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-[10px] text-gray-400 uppercase font-tech">Jackpot Acumulado:</span>
+                        <div class="text-2xl font-tech font-bold text-white">$ <span id="jpNet-137">0.00</span> USDT</div>
+                    </div>
+                    <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-purple-500/30">
+                        Conectar / Ver Polygon
+                    </button>
+                </div>
+
+                <!-- Card BNB Smart Chain -->
+                <div id="cardNet-56" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-tech text-xs font-bold text-yellow-300">BNB Smart Chain (56)</span>
+                        <span id="statusNet-56" class="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase">Disponível</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-[10px] text-gray-400 uppercase font-tech">Jackpot Acumulado:</span>
+                        <div class="text-2xl font-tech font-bold text-white">$ <span id="jpNet-56">0.00</span> USDT</div>
+                    </div>
+                    <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-yellow-500/30">
+                        Conectar / Ver BSC
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
         <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div class="glass rounded-[28px] p-6 text-center border-t border-purple-500/40 neon-glow-p flex flex-col justify-between">
                 <div>
@@ -666,9 +707,50 @@
                 document.getElementById('weeklyValue').innerText = parseFloat(ethers.formatUnits(semanalRaw, activeNet.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                 await carregarHistoricoPublico(readLottery);
+                await atualizarCardsMultiChain();
 
             } catch (err) {
                 console.error("Erro ao carregar dados on-chain públicos:", err);
+            }
+        }
+
+        async function atualizarCardsMultiChain() {
+            for (const [chainIdStr, net] of Object.entries(NETWORKS)) {
+                const chainId = Number(chainIdStr);
+                try {
+                    const tempProvider = new ethers.JsonRpcProvider(net.rpc);
+                    const tempContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
+                    const jackpotRaw = await tempContract.jackpotAcumulado().catch(() => 0n);
+                    
+                    const el = document.getElementById(`jpNet-${chainId}`);
+                    if (el) {
+                        el.innerText = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }
+                } catch (e) {
+                    console.error(`Erro ao buscar dados da rede ${net.name}:`, e);
+                }
+
+                const card = document.getElementById(`cardNet-${chainId}`);
+                const statusBadge = document.getElementById(`statusNet-${chainId}`);
+                const btn = document.getElementById(`btnNet-${chainId}`);
+
+                if (chainId === currentChainId) {
+                    card.className = "glass rounded-2xl p-4 border border-purple-500 bg-purple-500/10 flex flex-col justify-between transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]";
+                    statusBadge.className = "text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase";
+                    statusBadge.innerText = "Conectado Ativo";
+                    btn.innerText = "Rede Atual";
+                    btn.disabled = true;
+                    btn.className = "w-full bg-emerald-600/20 text-emerald-400 font-bold text-xs py-2.5 rounded-xl border border-emerald-500/35 cursor-default";
+                } else {
+                    card.className = "glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all hover:border-purple-500/40";
+                    statusBadge.className = "text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase";
+                    statusBadge.innerText = "Disponível";
+                    btn.disabled = false;
+                    btn.innerText = `Mudar para ${net.name}`;
+                    btn.className = chainId === 56 
+                        ? "w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-yellow-500/30"
+                        : "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-purple-500/30";
+                }
             }
         }
 
