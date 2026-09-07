@@ -11,9 +11,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    
-    <!-- Web3Modal Ethers Universal UMD Bundle corrigido para evitar erros internos -->
-    <script src="https://cdn.jsdelivr.net/npm/@web3modal/ethers@5.1.7/dist/index.umd.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -96,6 +93,15 @@
 
     <main class="max-w-4xl mx-auto px-4 pt-6">
         
+        <!-- Banner de Alerta de Rede Incompatível -->
+        <div id="networkWarningBanner" class="hidden mb-6 glass rounded-xl p-4 border-amber-500/50 bg-amber-500/10 text-center">
+            <h4 class="text-amber-400 font-tech text-xs font-bold mb-1">⚠️ REDE NÃO SUPORTADA</h4>
+            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo exclusivamente na <b class="text-white">Polygon Mainnet</b> no momento. As demais redes estão em fase de implementação.</p>
+            <button id="switchToPolygonBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md">
+                Mudar para a Polygon Mainnet agora
+            </button>
+        </div>
+
         <div id="liveTicker" class="hidden mb-6 glass rounded-xl px-4 py-2.5 border-purple-500/30 flex items-center justify-between text-xs transition-all">
             <div class="flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-green-400 animate-ping"></span>
@@ -384,8 +390,8 @@
         ];
 
         const SORTEIOS_CONFIRMADOS = {
-            0: 14296958, // Concurso #1
-            1: 43957200  // Concurso #2
+            0: 14296958,
+            1: 43957200
         };
 
         const translations = {
@@ -438,7 +444,7 @@
                 winnerTitle: "🏆 ¡HAS GANADO!", winnerSub: "Tu premio está listo para ser retirado en USDT.",
                 playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
-                myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartilhar:",
+                myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartir:",
                 noBetsYet: "No hay apuestas activas registradas en este momento.",
                 howTitle: "Cómo Funciona", step1: "Conecta tu cartera Polygon (USDT).",
                 step2: "Elige tus 15 números ou usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
@@ -523,64 +529,6 @@
 
         let provider, signer, userAddress;
         let lotteryContract, usdtContract;
-        let modalWeb3Modal = null;
-
-        // Inicialização com tratamento de erro e fallback seguro
-        try {
-            if (window.Web3Modal && window.Web3Modal.createWeb3Modal) {
-                const projectId = 'c25fc20a251d0c4850783b60fbc7609a';
-                
-                const polygonChain = {
-                    chainId: 137,
-                    name: 'Polygon Mainnet',
-                    currency: 'POL',
-                    explorerUrl: 'https://polygonscan.com',
-                    rpcUrl: 'https://polygon-bor-rpc.publicnode.com'
-                };
-
-                const bnbChain = {
-                    chainId: 56,
-                    name: 'BNB Smart Chain',
-                    currency: 'BNB',
-                    explorerUrl: 'https://bscscan.com',
-                    rpcUrl: 'https://bsc-dataseed.binance.org'
-                };
-
-                const arbitrumChain = {
-                    chainId: 42161,
-                    name: 'Arbitrum One',
-                    currency: 'ETH',
-                    explorerUrl: 'https://arbiscan.io',
-                    rpcUrl: 'https://arb1.arbitrum.io/rpc'
-                };
-
-                const baseChain = {
-                    chainId: 8453,
-                    name: 'Base',
-                    currency: 'ETH',
-                    explorerUrl: 'https://basescan.org',
-                    rpcUrl: 'https://mainnet.base.org'
-                };
-
-                modalWeb3Modal = window.Web3Modal.createWeb3Modal({
-                    ethersConfig: window.Web3Modal.defaultConfig({ 
-                        metadata: { 
-                            name: 'MEGACRYPTO', 
-                            description: 'Telegram Web3 Lottery', 
-                            url: window.location.origin, 
-                            icons: ['https://avatars.githubusercontent.com/u/179229932'] 
-                        } 
-                    }),
-                    chains: [polygonChain, bnbChain, arbitrumChain, baseChain],
-                    projectId,
-                    themeMode: 'dark',
-                    enableAnalytics: false,
-                    allWallets: 'SHOW'
-                });
-            }
-        } catch (e) {
-            console.log("Web3Modal initialization error caught:", e);
-        }
 
         async function getPublicContract() {
             for (let url of RPC_URLS) {
@@ -594,56 +542,67 @@
             return new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, new ethers.JsonRpcProvider(RPC_URLS[0]));
         }
 
-        // Função principal robusta para abrir a modal ou conectar via injetado
+        // Conexão limpa, direta e universal compatível com qualquer dispositivo móvel e desktop
         async function connectWallet() {
             try {
-                if (modalWeb3Modal && typeof modalWeb3Modal.open === 'function') {
-                    await modalWeb3Modal.open();
-                } else {
-                    const ethProvider = window.ethereum || window.coinbaseWalletExtension;
-                    if (ethProvider) {
-                        provider = new ethers.BrowserProvider(ethProvider);
-                        await provider.send("eth_requestAccounts", []);
-                        signer = await provider.getSigner();
-                        userAddress = await signer.getAddress();
-                        
-                        lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
-                        usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
-
-                        updateConnectedUI(userAddress);
-                        await carregarMinhasApostas();
-                        await verificarPremioDisponivel();
-                        SoundEngine.successTx();
-                    }
+                const ethProvider = window.ethereum || window.coinbaseWalletExtension;
+                if (!ethProvider) {
+                    const rawUrl = window.location.href.replace(/^https?:\/\//, '');
+                    window.location.href = `https://metamask.app.link/dapp/${rawUrl}`;
+                    return;
                 }
+
+                provider = new ethers.BrowserProvider(ethProvider);
+                const network = await provider.getNetwork();
+                const chainId = Number(network.chainId);
+
+                // Trava de segurança automática de rede
+                if (chainId !== POLYGON_CHAIN_ID) {
+                    document.getElementById('networkWarningBanner').classList.remove('hidden');
+                    SoundEngine.errorSound();
+                    return;
+                } else {
+                    document.getElementById('networkWarningBanner').classList.add('hidden');
+                }
+
+                await provider.send("eth_requestAccounts", []);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
+                usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+
+                updateConnectedUI(userAddress);
+                await carregarMinhasApostas();
+                await verificarPremioDisponivel();
+                SoundEngine.successTx();
+
+                // Detecta mudança de rede em tempo real
+                if (window.ethereum && window.ethereum.on) {
+                    window.ethereum.on('chainChanged', () => {
+                        window.location.reload();
+                    });
+                }
+
             } catch (error) {
-                console.log("Erro ao abrir modal:", error);
+                console.log("Erro de conexão:", error);
                 SoundEngine.errorSound();
             }
         }
 
-        // Listener reativo do Web3Modal
-        if (modalWeb3Modal && typeof modalWeb3Modal.subscribeProvider === 'function') {
-            modalWeb3Modal.subscribeProvider(async (state) => {
-                if (state.isConnected && state.provider) {
-                    try {
-                        provider = new ethers.BrowserProvider(state.provider);
-                        signer = await provider.getSigner();
-                        userAddress = await signer.getAddress();
-                        
-                        lotteryContract = new ethers.Contract(CONTRACT_ADDRESS, LOTTERY_ABI, signer);
-                        usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
-
-                        updateConnectedUI(userAddress);
-                        await carregarMinhasApostas();
-                        await verificarPremioDisponivel();
-                        SoundEngine.successTx();
-                    } catch(err) {
-                        console.error("Erro ao sincronizar provedor selecionado:", err);
-                    }
-                }
-            });
-        }
+        // Botão para trocar automaticamente de rede na carteira do usuário
+        document.getElementById('switchToPolygonBtn').onclick = async () => {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x89' }], // 137 em Hexadecimal
+                });
+                document.getElementById('networkWarningBanner').classList.add('hidden');
+                connectWallet();
+            } catch (switchError) {
+                alert("Por favor, altere manualmente sua rede na carteira para a Polygon Mainnet.");
+            }
+        };
 
         document.getElementById('connectBtn').onclick = connectWallet;
 
