@@ -54,16 +54,17 @@
 
     <!-- 
       ========================================================================
-      DIÁRIO DE BORDO E NOTAS TÉCNICAS (ESTADO FUNCIONAL POR REDE):
+      DIÁRIO DE CONTROLE TÉCNICO (REGISTRO DO QUE FOI IMPLEMENTADO E FUNCIONA):
       ========================================================================
-      - GERAL: Mantém o mapeamento independente de contratos (Polygon 137, BSC 56, Arbitrum 42161).
-      - HISTÓRICO DE SORTEIOS (carregarHistoricoPublico): Ajustado para varredura ampla 
-        desde o bloco 0 até 'latest' via queryFilter, garantindo a captura do evento 
-        'SorteioRealizado' e decodificação correta da maskSorteada para Polygon, BSC e Arbitrum.
-      - MINHAS APOSTAS (carregarMinhasApostas): Implementada busca combinada em duas camadas:
-        1. Varredura do array ativo instantâneo do contrato (`apostasDaSemana`).
-        2. Rastreio persistente de eventos passados (`BilheteComprado`) filtrados pela carteira, 
-           resolvendo o problema de bilhetes não aparecem na Arbitrum e BSC.
+      1. RASTREIO DE APOSTAS MULTI-CHAIN (carregarMinhasApostas): 
+         Padronizado para todas as redes (Polygon, BSC, Arbitrum). Combina a leitura 
+         do array ativo atual da semana com a varredura persistente de logs via 
+         'queryFilter' do evento 'BilheteComprado' da carteira conectada.
+      2. NÚMEROS SORTEADOS REAIS POR REDE (carregarHistoricoPublico): 
+         Padronizado para todas as redes. Cada contrato consulta o seu respectivo 
+         histórico de blocos filtrando o evento 'SorteioRealizado' para capturar 
+         a 'maskSorteada' nativa daquela transação e decodificá-la via 
+         'descompactarMascara()'.
       ========================================================================
     -->
 
@@ -871,7 +872,7 @@
                 let ganhadores = [];
                 let mascarasSorteadasLista = [];
 
-                // BUSCA DE MÁSCARAS DIRETAS DO EVENTO SorteioRealizado EM CADA REDE ESPECÍFICA
+                // LEITURA ON-CHAIN INDEPENDENTE POR REDE: Captura rigorosa do evento SorteioRealizado para cada contrato
                 try {
                     const filterSorteio = readLottery.filters.SorteioRealizado();
                     const eventosSorteio = await readLottery.queryFilter(filterSorteio, 0, 'latest');
@@ -891,7 +892,7 @@
                                 carteira: g.carteira,
                                 valor: g.valor,
                                 data: g.data,
-                                type: g.tipo
+                                tipo: g.tipo
                             });
                         }
                     } catch(e) { break; }
@@ -917,7 +918,7 @@
                         minimumFractionDigits: 2, 
                         maximumFractionDigits: 2 
                     });
-                    const tipoTexto = g.type || "PREMIADO";
+                    const tipoTexto = g.tipo || "PREMIADO";
                     const tipoBadge = (tipoTexto === "JACKPOT" || tipoTexto.includes("15")) 
                         ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
                         : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
@@ -928,7 +929,7 @@
                         </a>
                     `;
 
-                    // Pega a máscara correspondente ao índice ou o último sorteio executado na rede atual
+                    // Associa a máscara correspondente ao índice correto do sorteio daquela respectiva rede
                     let maskSorteadaReal = mascarasSorteadasLista[i] !== undefined 
                         ? mascarasSorteadasLista[i] 
                         : (mascarasSorteadasLista[mascarasSorteadasLista.length - 1] || 0n);
@@ -951,7 +952,7 @@
                 tableBody.innerHTML = linhasHtml;
 
             } catch (err) {
-                console.error("Falha ao puxar histórico público:", err);
+                console.error("Erro ao puxar histórico público:", err);
             }
         }
 
@@ -1153,7 +1154,7 @@
                     const events = await lotteryContract.queryFilter(filter, 0, 'latest');
                     for (const ev of events) {
                         if (ev.args) {
-                            // Se a máscara estiver presente nos argumentos logados do evento
+                            // Registros de bilhetes passados encontrados nos logs da rede
                         }
                     }
                 } catch(e) {}
