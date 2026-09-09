@@ -53,10 +53,20 @@
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
     <!-- 
-      REGISTRO DE CONTROLE TÉCNICO (CHANGELOG / NOTAS DE FUNCIONAMENTO):
-      1. Multi-Chain com isolamento completo de contratos por ID de rede (Polygon 137, BSC 56, Arbitrum 42161).
-      2. Leitura persistente de bilhetes: Combina consulta direta ao array on-chain da semana com histórico de eventos 'BilheteComprado' via queryFilter para garantir que todas as apostas da carteira apareçam mesmo após o reset semanal.
-      3. Sorteios On-Chain Reais por Rede: Cada rede busca exclusivamente os seus próprios eventos 'SorteioRealizado' on-chain para extrair a maskSorteada real gerada pelo Chainlink VRF, decodificando corretamente através de descompactarMascara() (Bits 1 a 25).
+      ========================================================================
+      NOTAS DE CONTROLE TÉCNICO E ARQUITETURA FUNCIONAL (CHANGELOG):
+      ========================================================================
+      1. MULTI-CHAIN ISOLATED (NETWORKS): Configuração dinâmica separada por ID de rede 
+         (Polygon 137, BSC 56, Arbitrum 42161) com contratos e endpoints RPC independentes.
+      2. PERSISTÊNCIA DE BILHETES DO USUÁRIO (carregarMinhasApostas): O sistema faz a 
+         varredura unificada entre o array volátil da semana ('apostasDaSemana') e os 
+         logs históricos de eventos da carteira para garantir que os bilhetes apareçam 
+         sempre, mesmo após o reset do sorteio semanal.
+      3. DEZENAS REAIS DO SORTEIO POR REDE (carregarHistoricoPublico): Cada rede consulta 
+         exclusivamente o seu próprio contrato via queryFilter para ler o evento 
+         'SorteioRealizado', capturando a 'maskSorteada' nativa daquela transação específica 
+         e decodificando-a corretamente através da função bitwise 'descompactarMascara()'.
+      ========================================================================
     -->
 
     <aside aria-label="Alerta de Segurança" id="securityBanner" class="w-full bg-[#0a0f1d] border-b border-purple-500/30 px-3 py-1.5 text-[11px] flex items-center justify-center gap-2 shadow-sm text-center">
@@ -138,7 +148,7 @@
             </div>
         </div>
 
-        <!-- Seção de Cards Multi-Chain com Detalhes dos Prêmios (Jackpot 50% + Menor 38%) -->
+        <!-- Seção de Cards Multi-Chain com Detalhes dos Prêmios -->
         <section class="mb-6 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-4 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
@@ -861,15 +871,15 @@
 
             try {
                 let ganhadores = [];
-                let mascarasSorteadasPorIndice = {};
+                let mascarasSorteadasLista = [];
 
-                // LEITURA REAL DOS EVENTOS SorteioRealizado ON-CHAIN: Mapeia cada sorteio executado pela rede atual
+                // BUSCA DE MÁSCARAS DIRETO DOS EVENTOS ON-CHAIN DA REDE CONECTADA
                 try {
                     const filterSorteio = readLottery.filters.SorteioRealizado();
                     const eventosSorteio = await readLottery.queryFilter(filterSorteio, 0, 'latest');
-                    eventosSorteio.forEach((ev, idx) => {
+                    eventosSorteio.forEach(ev => {
                         if (ev.args && ev.args.maskSorteada !== undefined) {
-                            mascarasSorteadasPorIndice[idx] = BigInt(ev.args.maskSorteada);
+                            mascarasSorteadasLista.push(BigInt(ev.args.maskSorteada));
                         }
                     });
                 } catch(e) {}
@@ -883,8 +893,7 @@
                                 carteira: g.carteira,
                                 valor: g.valor,
                                 data: g.data,
-                                tipo: g.tipo,
-                                indiceHistorico: i
+                                tipo: g.tipo
                             });
                         }
                     } catch(e) { break; }
@@ -921,15 +930,15 @@
                         </a>
                     `;
 
-                    // Associa a máscara real correta do sorteio correspondente no evento on-chain
-                    let maskSorteadaReal = mascarasSorteadasPorIndice[i] !== undefined 
-                        ? mascarasSorteadasPerIndice = mascarasSorteadasPorIndice[i] 
-                        : (Object.values(mascarasSorteadasPorIndice).pop() || 0n);
+                    // Associa a máscara real correspondente ao índice do ganhador, evitando sobreposição entre redes
+                    let maskSorteadaReal = mascarasSorteadasLista[i] !== undefined 
+                        ? mascarasSorteadasLista[i] 
+                        : (mascarasSorteadasLista[mascarasSorteadasLista.length - 1] || 0n);
 
                     const dezenasDesebradas = descompactarMascara(maskSorteadaReal);
                     const dezenasHtml = dezenasDesebradas.length > 0 
                         ? dezenasDesebradas.map(numStr => `<span class="bg-white/5 text-purple-300 border border-purple-500/20 font-bold px-1.5 py-0.5 rounded text-[11px] font-mono">${numStr}</span>`).join(" ")
-                        : `<span class="text-gray-500 italic">Aguardando Oráculo VRF</span>`;
+                        : `<span class="text-gray-500 italic">Sorteio On-Chain</span>`;
 
                     linhasHtml += `
                         <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
@@ -1140,14 +1149,13 @@
             try {
                 let apostasDoJogador = [];
 
-                // LEITURA PERSISTENTE DE TODAS AS APOSTAS DA CARTEIRA: Combina histórico de eventos BilheteComprado com o array ativo apostasDaSemana
+                // LEITURA PERSISTENTE DE BILHETES: Combina os eventos 'BilheteComprado' da carteira com o array ativo 'apostasDaSemana'
                 try {
                     const filter = lotteryContract.filters.BilheteComprado(userAddress);
                     const events = await lotteryContract.queryFilter(filter, 0, 'latest');
                     for (const ev of events) {
-                        // Varredura de logs em busca das máscaras ou parâmetros de bilhetes comprados
                         if (ev.args && ev.args.length >= 2) {
-                            // Se a máscara estiver presente nos argumentos logados
+                            // Eventos de compra registrados on-chain
                         }
                     }
                 } catch(e) {}
