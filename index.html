@@ -552,7 +552,7 @@
                 noBetsYet: "No hay apuestas registradas en este momento.",
                 howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC o Arbitrum.",
                 step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
-                step4: "Sorteo automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
+                step4: "Sorteio automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
                 rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
                 rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos Chainlink VRF.",
                 historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
@@ -856,7 +856,7 @@
                 let ganhadores = [];
                 let mascarasSorteadasPorEvento = {};
 
-                // Resgata os eventos reais de sorteio on-chain para capturar a maskSorteada exata de cada execução do VRF
+                // Rastreio exclusivo e independente dos eventos de sorteio na rede conectada atual
                 try {
                     const filterSorteio = readLottery.filters.SorteioRealizado();
                     const eventosSorteio = await readLottery.queryFilter(filterSorteio, 0, 'latest');
@@ -913,7 +913,7 @@
                         </a>
                     `;
 
-                    // Decodificação exata da máscara real do sorteio obtida on-chain
+                    // Extração correta da máscara real correspondente ao sorteio on-chain desta rede
                     let maskSorteadaReal = 0n;
                     const chavesBlocos = Object.keys(mascarasSorteadasPorEvento);
                     if (chavesBlocos.length > 0) {
@@ -1134,16 +1134,18 @@
             try {
                 let apostasDoJogador = [];
 
-                // 1. Varredura completa de eventos passados e atuais (BilheteComprado) para garantir o histórico de todas as apostas feitas pela carteira
+                // Varredura rigorosa e persistente das apostas da carteira via eventos passados e array atual da rede
                 try {
                     const filter = lotteryContract.filters.BilheteComprado(userAddress);
                     const events = await lotteryContract.queryFilter(filter, 0, 'latest');
                     for (const ev of events) {
-                        // Opcional: extrair máscara do evento se emitido, ou complementar com o mapeamento on-chain
+                        if (ev.args && ev.args.mask !== undefined) {
+                            const m = BigInt(ev.args.mask);
+                            if (!apostasDoJogador.includes(m)) apostasDoJogador.push(m);
+                        }
                     }
                 } catch(e) {}
 
-                // 2. Varredura do array ativo atual da semana
                 const totalApostas = await lotteryContract.getApostasCount().catch(() => 0n);
                 for (let i = 0; i < Number(totalApostas); i++) {
                     try {
