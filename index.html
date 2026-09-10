@@ -56,8 +56,8 @@
       ========================================================================
       DIÁRIO DE CONTROLE TÉCNICO (REGISTRO DO QUE FOI IMPLEMENTADO E FUNCIONA):
       ========================================================================
-      1. SUPORTE MULTI-CHAIN INTEGRADO (Polygon, BSC, Arbitrum e Base): 
-         Configuração completa de contratos, RPCs e explorers para todas as 4 redes.
+      1. SUPORTE MULTI-CHAIN INTEGRADO (Polygon, BSC, Arbitrum, Base e Optimism): 
+         Configuração completa de contratos, RPCs e explorers para todas as 5 redes.
       2. RASTREIO DE APOSTAS MULTI-CHAIN (carregarMinhasApostas): 
          Combina o array ativo com logs persistentes para exibição contínua.
       3. NÚMEROS SORTEADOS REAIS (carregarHistoricoPublico): 
@@ -113,12 +113,13 @@
         
         <div id="networkWarningBanner" class="hidden mb-6 glass rounded-xl p-4 border-amber-500/50 bg-amber-500/10 text-center shadow-lg animate-pulse">
             <h4 class="text-amber-400 font-tech text-xs font-bold mb-1">⚠️ REDE NÃO SUPORTADA</h4>
-            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo na Polygon, BNB Chain, Arbitrum e Base.</p>
+            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo na Polygon, BSC, Arbitrum, Base e Optimism.</p>
             <div class="flex flex-wrap justify-center gap-2">
                 <button onclick="switchNetwork(137)" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Polygon</button>
                 <button onclick="switchNetwork(56)" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">BSC</button>
                 <button onclick="switchNetwork(42161)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Arbitrum</button>
                 <button onclick="switchNetwork(8453)" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Base</button>
+                <button onclick="switchNetwork(10)" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Optimism</button>
             </div>
         </div>
 
@@ -151,7 +152,7 @@
                 <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
                 REDES DISPONÍVEIS E PRÊMIOS ACUMULADOS
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="multiChainCards">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4" id="multiChainCards">
                 
                 <!-- Card Polygon -->
                 <div id="cardNet-137" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
@@ -162,14 +163,14 @@
                     <div class="space-y-2 mb-4">
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
                             <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
-                            <div class="text-base font-tech font-bold text-white">$ <span id="jpNet-137">0.00</span></div>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="jpNet-137">0.00</span></div>
                         </div>
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
                             <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
-                            <div class="text-base font-tech font-bold text-white">$ <span id="weeklyNet-137">0.00</span></div>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-137">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-purple-500/30">
+                    <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30">
                         Conectar Polygon
                     </button>
                 </div>
@@ -183,14 +184,14 @@
                     <div class="space-y-2 mb-4">
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
                             <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
-                            <div class="text-base font-tech font-bold text-white">$ <span id="jpNet-56">0.00</span></div>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="jpNet-56">0.00</span></div>
                         </div>
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
                             <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
-                            <div class="text-base font-tech font-bold text-white">$ <span id="weeklyNet-56">0.00</span></div>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-56">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-yellow-500/30">
+                    <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30">
                         Conectar BSC
                     </button>
                 </div>
@@ -204,14 +205,14 @@
                     <div class="space-y-2 mb-4">
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
                             <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
-                            <div class="text-base font-tech font-bold text-white">$ <span id="jpNet-42161">0.00</span></div>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="jpNet-42161">0.00</span></div>
                         </div>
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
                             <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
-                            <div class="text-base font-tech font-bold text-white">$ <span id="weeklyNet-42161">0.00</span></div>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-42161">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(42161)" id="btnNet-42161" class="w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-blue-500/30">
+                    <button onclick="switchNetwork(42161)" id="btnNet-42161" class="w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30">
                         Conectar Arbitrum
                     </button>
                 </div>
@@ -225,15 +226,36 @@
                     <div class="space-y-2 mb-4">
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
                             <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
-                            <div class="text-base font-tech font-bold text-white">$ <span id="jpNet-8453">0.00</span></div>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="jpNet-8453">0.00</span></div>
                         </div>
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
                             <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
-                            <div class="text-base font-tech font-bold text-white">$ <span id="weeklyNet-8453">0.00</span></div>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-8453">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(8453)" id="btnNet-8453" class="w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-sky-500/30">
+                    <button onclick="switchNetwork(8453)" id="btnNet-8453" class="w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30">
                         Conectar Base
+                    </button>
+                </div>
+
+                <!-- Card Optimism -->
+                <div id="cardNet-10" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-tech text-xs font-bold text-red-300">Optimism (10)</span>
+                        <span id="statusNet-10" class="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase">Disponível</span>
+                    </div>
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="jpNet-10">0.00</span></div>
+                        </div>
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-10">0.00</span></div>
+                        </div>
+                    </div>
+                    <button onclick="switchNetwork(10)" id="btnNet-10" class="w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30">
+                        Conectar Optimism
                     </button>
                 </div>
 
@@ -370,7 +392,7 @@
             <div class="glass rounded-2xl p-6 border-l-2 border-purple-500">
                 <h4 data-i18n="howTitle" class="font-tech text-xs text-purple-400 mb-4 uppercase tracking-wider">Como Funciona</h4>
                 <ul class="space-y-3 text-[11px] text-gray-300 leading-relaxed">
-                    <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC, Arbitrum ou Base (USDT).</span></li>
+                    <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC, Arbitrum, Base ou Optimism (USDT).</span></li>
                     <li><b>02.</b> <span data-i18n="step2">Escolha seus 15 números da sorte ou use a Surpresinha.</span></li>
                     <li><b>03.</b> <span data-i18n="step3">Aprove o contrato e confirme sua aposta de 5 USDT.</span></li>
                     <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo via Chainlink VRF.</span></li>
@@ -415,7 +437,7 @@
         <footer class="text-center border-t border-white/10 pt-8">
             <h5 data-i18n="legalTitle" class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
             <p data-i18n="legalText" class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
-                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One e Base. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.
+                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base e Optimism. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.
             </p>
         </footer>
     </main>
@@ -518,14 +540,14 @@
                 rpc: "https://mainnet.base.org"
             },
             10: {
-    name: "Optimism",
-    contract: "0x73B543CC94a03cb7e9DE38eb4EcAAA883b4804b0",
-    usdt: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-    decimals: 6,
-    scanUrl: "https://optimistic.etherscan.io",
-    scanName: "Optimistic Etherscan",
-    rpc: "https://mainnet.optimism.io"
-}
+                name: "Optimism",
+                contract: "0x73B543CC94a03cb7e9DE38eb4EcAAA883b4804b0",
+                usdt: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                decimals: 6,
+                scanUrl: "https://optimistic.etherscan.io",
+                scanName: "Optimistic Etherscan",
+                rpc: "https://mainnet.optimism.io"
+            }
         };
 
         let currentChainId = 137;
@@ -563,13 +585,13 @@
                 quickPick: "Surpresinha", clearPick: "Limpar", cost: "Preço",
                 myBetsTitle: "MINHAS APOSTAS REALIZADAS", shareLabel: "Compartilhar:",
                 noBetsYet: "Nenhuma aposta registrada no momento.",
-                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon, BSC, Arbitrum ou Base).",
+                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon, BSC, Arbitrum, Base ou Optimism).",
                 step2: "Escolha seus 15 números da sorte ou use a Surpresinha.", step3: "Aprove o contrato e confirme sua aposta de 5 USDT.",
                 step4: "Sorteio automático todo Domingo via Chainlink VRF.", rulesTitle: "Divisão Transparente (100%)",
                 rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
                 rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos Chainlink VRF.",
                 historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
-                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One e Base. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base e Optimism. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.",
                 btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
             },
             en: {
@@ -583,13 +605,13 @@
                 quickPick: "Quick Pick", clearPick: "Clear", cost: "Price",
                 myBetsTitle: "MY PLACED BETS", shareLabel: "Share:",
                 noBetsYet: "No bets registered right now.",
-                howTitle: "How It Works", step1: "Connect your wallet on Polygon, BSC, Arbitrum or Base.",
+                howTitle: "How It Works", step1: "Connect your wallet on Polygon, BSC, Arbitrum, Base or Optimism.",
                 step2: "Choose your 15 lucky numbers or use Quick Pick.", step3: "Approve the contract and confirm your 5 USDT bet.",
                 step4: "Automated draw every Sunday via Chainlink VRF.", rulesTitle: "Transparent Split (100%)",
                 rule1: "50% to the Mega Jackpot (15 hits).", rule2: "38% to the Weekly Prize (Highest score).",
                 rule3: "6% Maintenance and Infrastructure.", rule4: "6% Oracle Verification (Chainlink VRF).",
                 historyTitle: "WINNER HISTORY & DRAWN NUMBERS", thWallet: "Winning Wallet", thType: "Type", thValue: "Prize",
-                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon, BSC, Arbitrum One and Base. 18+ only. Provably fair draws via Chainlink VRF.",
+                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon, BSC, Arbitrum One, Base and Optimism. 18+ only. Provably fair draws via Chainlink VRF.",
                 btnApprove: "1. APPROVE USDT", btnBuy: "2. PLAY NOW", liveTicket: "New ticket confirmed:"
             },
             es: {
@@ -603,13 +625,13 @@
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
                 myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartir:",
                 noBetsYet: "No hay apuestas registradas en este momento.",
-                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC, Arbitrum o Base.",
+                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC, Arbitrum, Base o Optimism.",
                 step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
                 step4: "Sorteio automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
                 rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
                 rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos Chainlink VRF.",
                 historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
-                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC, Arbitrum One e Base. +18. Sorteos auditados por Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC, Arbitrum One, Base y Optimism. +18. Sorteos auditados por Chainlink VRF.",
                 btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo billete registrado:"
             },
             zh: {
@@ -623,13 +645,13 @@
                 quickPick: "机选号码", clearPick: "清空", cost: "票价",
                 myBetsTitle: "我的已下注彩票", shareLabel: "分享:",
                 noBetsYet: "当前暂无投注记录。",
-                howTitle: "运作方式", step1: "在 Polygon、BSC、Arbitrum 或 Base 连接您的钱包。",
+                howTitle: "运作方式", step1: "在 Polygon、BSC、Arbitrum、Base 或 Optimism 连接您的钱包。",
                 step2: "自选 15 个幸运号码或使用机选功能。", step3: "授权并确认 5 USDT 投注交易。",
                 step4: "每周日由 Chainlink VRF 自动完成公正开奖。", rulesTitle: "透明资金分配 (100%)",
                 rule1: "50% 汇入超级大奖 (15个号码全中)。", rule2: "38% 汇入每周大奖 (最高分玩家平分)。",
                 rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于 Chainlink VRF 预言机开销。",
                 historyTitle: "中奖历史及开出号码", thWallet: "中奖钱包", thType: "类型", thValue: "奖金",
-                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在 Polygon、BSC、Arbitrum One 和 Base 网络上。仅限18岁以上。",
+                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在 Polygon、BSC、Arbitrum One、Base 和 Optimism 网络上。仅限18岁以上。",
                 btnApprove: "1. 授权 USDT", btnBuy: "2. 立即投注", liveTicket: "最新出票交易:"
             },
             fr: {
@@ -643,13 +665,13 @@
                 quickPick: "Aléatoire", clearPick: "Effacer", cost: "Prix",
                 myBetsTitle: "MES PARIS EFFECTUÉS", shareLabel: "Partager:",
                 noBetsYet: "Aucun pari enregistré.",
-                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon, BSC, Arbitrum ou Base.",
+                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon, BSC, Arbitrum, Base ou Optimism.",
                 step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat et confirmez votre pari de 5 USDT.",
                 step4: "Tirage automatique chaque dimanche via Chainlink VRF.", rulesTitle: "Répartition Transparente (100%)",
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
                 rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Frais d'oracles Chainlink VRF.",
                 historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur Polygon, BSC, Arbitrum One et Base. 18+.",
+                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur Polygon, BSC, Arbitrum One, Base et Optimism. 18+.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
@@ -807,6 +829,10 @@
                 netName.innerText = "Base";
                 netDot.className = "h-2 w-2 rounded-full bg-sky-400 animate-pulse";
                 scanName.innerText = "Basescan";
+            } else if (chainId === 10) {
+                netName.innerText = "Optimism";
+                netDot.className = "h-2 w-2 rounded-full bg-red-400 animate-pulse";
+                scanName.innerText = "Optimistic Etherscan";
             } else {
                 netName.innerText = "Polygon";
                 netDot.className = "h-2 w-2 rounded-full bg-purple-400 animate-pulse";
@@ -882,21 +908,23 @@
                     statusBadge.innerText = "Conectado Ativo";
                     btn.innerText = "Rede Atual";
                     btn.disabled = true;
-                    btn.className = "w-full bg-emerald-600/20 text-emerald-400 font-bold text-xs py-2.5 rounded-xl border border-emerald-500/35 cursor-default";
+                    btn.className = "w-full bg-emerald-600/20 text-emerald-400 font-bold text-xs py-2 rounded-xl border border-emerald-500/35 cursor-default";
                 } else {
                     card.className = "glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all hover:border-purple-500/40";
                     statusBadge.className = "text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase";
                     statusBadge.innerText = "Disponível";
                     btn.disabled = false;
-                    btn.innerText = `Mudar para ${net.name}`;
+                    btn.innerText = `Conectar ${net.name}`;
                     if (chainId === 56) {
-                        btn.className = "w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-yellow-500/30";
+                        btn.className = "w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30";
                     } else if (chainId === 42161) {
-                        btn.className = "w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-blue-500/30";
+                        btn.className = "w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30";
                     } else if (chainId === 8453) {
-                        btn.className = "w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-sky-500/30";
+                        btn.className = "w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30";
+                    } else if (chainId === 10) {
+                        btn.className = "w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30";
                     } else {
-                        btn.className = "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-purple-500/30";
+                        btn.className = "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30";
                     }
                 }
             }
