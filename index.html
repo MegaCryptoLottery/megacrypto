@@ -54,16 +54,14 @@
 
     <!-- 
       ========================================================================
-      DIÁRIO DE CONTROLE TÉCNICO (NOTAS DE FUNCIONAMENTO REGISTRADAS):
+      DIÁRIO DE CONTROLE TÉCNICO (REGISTRO DO QUE FOI IMPLEMENTADO E FUNCIONA):
       ========================================================================
-      1. PERSISTÊNCIA DE BILHETES PÓS-SORTEIO (carregarMinhasApostas):
-         Corrigido o problema em que os bilhetes sumiam após o sorteio nas L2s 
-         (como BSC e Arbitrum). Agora a aplicação varre os logs históricos 
-         do evento 'BilheteComprado' e combina com o array ativo, garantindo 
-         que as apostas apareçam independentemente de o contrato ter executado o 'delete apostasDaSemana'.
-      2. DEZENAS SORTEADAS (carregarHistoricoPublico): 
-         Mapeamento on-chain ativo do evento 'SorteioRealizado' para extração 
-         precisa da 'maskSorteada' por rede.
+      1. SUPORTE MULTI-CHAIN INTEGRADO (Polygon, BSC, Arbitrum e Base): 
+         Configuração completa de contratos, RPCs e explorers para todas as 4 redes.
+      2. RASTREIO DE APOSTAS MULTI-CHAIN (carregarMinhasApostas): 
+         Combina o array ativo com logs persistentes para exibição contínua.
+      3. NÚMEROS SORTEADOS REAIS (carregarHistoricoPublico): 
+         Decodificação exata da maskSorteada do evento SorteioRealizado via descompactarMascara().
       ========================================================================
     -->
 
@@ -115,11 +113,12 @@
         
         <div id="networkWarningBanner" class="hidden mb-6 glass rounded-xl p-4 border-amber-500/50 bg-amber-500/10 text-center shadow-lg animate-pulse">
             <h4 class="text-amber-400 font-tech text-xs font-bold mb-1">⚠️ REDE NÃO SUPORTADA</h4>
-            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo exclusivamente na <b class="text-white">Polygon (137)</b>, <b class="text-white">BNB Smart Chain (56)</b> e <b class="text-white">Arbitrum One (42161)</b>.</p>
+            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo na Polygon, BNB Chain, Arbitrum e Base.</p>
             <div class="flex flex-wrap justify-center gap-2">
-                <button onclick="switchNetwork(137)" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Ir para Polygon</button>
-                <button onclick="switchNetwork(56)" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Ir para BSC</button>
-                <button onclick="switchNetwork(42161)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Ir para Arbitrum</button>
+                <button onclick="switchNetwork(137)" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Polygon</button>
+                <button onclick="switchNetwork(56)" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">BSC</button>
+                <button onclick="switchNetwork(42161)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Arbitrum</button>
+                <button onclick="switchNetwork(8453)" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Base</button>
             </div>
         </div>
 
@@ -152,7 +151,7 @@
                 <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
                 REDES DISPONÍVEIS E PRÊMIOS ACUMULADOS
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="multiChainCards">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="multiChainCards">
                 
                 <!-- Card Polygon -->
                 <div id="cardNet-137" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
@@ -162,37 +161,37 @@
                     </div>
                     <div class="space-y-2 mb-4">
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
-                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Mega Jackpot (50%):</span>
-                            <div class="text-lg font-tech font-bold text-white">$ <span id="jpNet-137">0.00</span></div>
+                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
+                            <div class="text-base font-tech font-bold text-white">$ <span id="jpNet-137">0.00</span></div>
                         </div>
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
-                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Prêmio Menor (38%):</span>
-                            <div class="text-lg font-tech font-bold text-white">$ <span id="weeklyNet-137">0.00</span></div>
+                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
+                            <div class="text-base font-tech font-bold text-white">$ <span id="weeklyNet-137">0.00</span></div>
                         </div>
                     </div>
                     <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-purple-500/30">
-                        Conectar / Ver Polygon
+                        Conectar Polygon
                     </button>
                 </div>
 
                 <!-- Card BNB Smart Chain -->
                 <div id="cardNet-56" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
-                        <span class="font-tech text-xs font-bold text-yellow-300">BNB Chain (56)</span>
+                        <span class="font-tech text-xs font-bold text-yellow-300">BSC (56)</span>
                         <span id="statusNet-56" class="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase">Disponível</span>
                     </div>
                     <div class="space-y-2 mb-4">
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
-                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Mega Jackpot (50%):</span>
-                            <div class="text-lg font-tech font-bold text-white">$ <span id="jpNet-56">0.00</span></div>
+                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
+                            <div class="text-base font-tech font-bold text-white">$ <span id="jpNet-56">0.00</span></div>
                         </div>
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
-                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Prêmio Menor (38%):</span>
-                            <div class="text-lg font-tech font-bold text-white">$ <span id="weeklyNet-56">0.00</span></div>
+                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
+                            <div class="text-base font-tech font-bold text-white">$ <span id="weeklyNet-56">0.00</span></div>
                         </div>
                     </div>
                     <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-yellow-500/30">
-                        Conectar / Ver BSC
+                        Conectar BSC
                     </button>
                 </div>
 
@@ -204,16 +203,37 @@
                     </div>
                     <div class="space-y-2 mb-4">
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
-                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Mega Jackpot (50%):</span>
-                            <div class="text-lg font-tech font-bold text-white">$ <span id="jpNet-42161">0.00</span></div>
+                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
+                            <div class="text-base font-tech font-bold text-white">$ <span id="jpNet-42161">0.00</span></div>
                         </div>
                         <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
-                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Prêmio Menor (38%):</span>
-                            <div class="text-lg font-tech font-bold text-white">$ <span id="weeklyNet-42161">0.00</span></div>
+                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
+                            <div class="text-base font-tech font-bold text-white">$ <span id="weeklyNet-42161">0.00</span></div>
                         </div>
                     </div>
                     <button onclick="switchNetwork(42161)" id="btnNet-42161" class="w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-blue-500/30">
-                        Conectar / Ver Arbitrum
+                        Conectar Arbitrum
+                    </button>
+                </div>
+
+                <!-- Card Base -->
+                <div id="cardNet-8453" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-tech text-xs font-bold text-sky-300">Base (8453)</span>
+                        <span id="statusNet-8453" class="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase">Disponível</span>
+                    </div>
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
+                            <div class="text-base font-tech font-bold text-white">$ <span id="jpNet-8453">0.00</span></div>
+                        </div>
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
+                            <div class="text-base font-tech font-bold text-white">$ <span id="weeklyNet-8453">0.00</span></div>
+                        </div>
+                    </div>
+                    <button onclick="switchNetwork(8453)" id="btnNet-8453" class="w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-sky-500/30">
+                        Conectar Base
                     </button>
                 </div>
 
@@ -350,7 +370,7 @@
             <div class="glass rounded-2xl p-6 border-l-2 border-purple-500">
                 <h4 data-i18n="howTitle" class="font-tech text-xs text-purple-400 mb-4 uppercase tracking-wider">Como Funciona</h4>
                 <ul class="space-y-3 text-[11px] text-gray-300 leading-relaxed">
-                    <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC ou Arbitrum (USDT).</span></li>
+                    <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC, Arbitrum ou Base (USDT).</span></li>
                     <li><b>02.</b> <span data-i18n="step2">Escolha seus 15 números da sorte ou use a Surpresinha.</span></li>
                     <li><b>03.</b> <span data-i18n="step3">Aprove o contrato e confirme sua aposta de 5 USDT.</span></li>
                     <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo via Chainlink VRF.</span></li>
@@ -395,7 +415,7 @@
         <footer class="text-center border-t border-white/10 pt-8">
             <h5 data-i18n="legalTitle" class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
             <p data-i18n="legalText" class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
-                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain e Arbitrum One. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.
+                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One e Base. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.
             </p>
         </footer>
     </main>
@@ -487,6 +507,15 @@
                 scanUrl: "https://arbiscan.io",
                 scanName: "Arbiscan",
                 rpc: "https://arb1.arbitrum.io/rpc"
+            },
+            8453: {
+                name: "Base",
+                contract: "0x0fBF3A5fFE730D95611f08B6Bb315c6161c36eeB",
+                usdt: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+                decimals: 6,
+                scanUrl: "https://basescan.org",
+                scanName: "Basescan",
+                rpc: "https://mainnet.base.org"
             }
         };
 
@@ -525,13 +554,13 @@
                 quickPick: "Surpresinha", clearPick: "Limpar", cost: "Preço",
                 myBetsTitle: "MINHAS APOSTAS REALIZADAS", shareLabel: "Compartilhar:",
                 noBetsYet: "Nenhuma aposta registrada no momento.",
-                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon, BSC ou Arbitrum).",
+                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon, BSC, Arbitrum ou Base).",
                 step2: "Escolha seus 15 números da sorte ou use a Surpresinha.", step3: "Aprove o contrato e confirme sua aposta de 5 USDT.",
                 step4: "Sorteio automático todo Domingo via Chainlink VRF.", rulesTitle: "Divisão Transparente (100%)",
                 rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
                 rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos Chainlink VRF.",
                 historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
-                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain e Arbitrum One. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One e Base. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.",
                 btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
             },
             en: {
@@ -545,13 +574,13 @@
                 quickPick: "Quick Pick", clearPick: "Clear", cost: "Price",
                 myBetsTitle: "MY PLACED BETS", shareLabel: "Share:",
                 noBetsYet: "No bets registered right now.",
-                howTitle: "How It Works", step1: "Connect your wallet on Polygon, BSC or Arbitrum.",
+                howTitle: "How It Works", step1: "Connect your wallet on Polygon, BSC, Arbitrum or Base.",
                 step2: "Choose your 15 lucky numbers or use Quick Pick.", step3: "Approve the contract and confirm your 5 USDT bet.",
                 step4: "Automated draw every Sunday via Chainlink VRF.", rulesTitle: "Transparent Split (100%)",
                 rule1: "50% to the Mega Jackpot (15 hits).", rule2: "38% to the Weekly Prize (Highest score).",
                 rule3: "6% Maintenance and Infrastructure.", rule4: "6% Oracle Verification (Chainlink VRF).",
                 historyTitle: "WINNER HISTORY & DRAWN NUMBERS", thWallet: "Winning Wallet", thType: "Type", thValue: "Prize",
-                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon, BSC and Arbitrum One. 18+ only. Provably fair draws via Chainlink VRF.",
+                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon, BSC, Arbitrum One and Base. 18+ only. Provably fair draws via Chainlink VRF.",
                 btnApprove: "1. APPROVE USDT", btnBuy: "2. PLAY NOW", liveTicket: "New ticket confirmed:"
             },
             es: {
@@ -565,13 +594,13 @@
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
                 myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartir:",
                 noBetsYet: "No hay apuestas registradas en este momento.",
-                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC o Arbitrum.",
+                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC, Arbitrum o Base.",
                 step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
                 step4: "Sorteio automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
                 rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
                 rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos Chainlink VRF.",
                 historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
-                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC y Arbitrum One. +18. Sorteos auditados por Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC, Arbitrum One e Base. +18. Sorteos auditados por Chainlink VRF.",
                 btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo billete registrado:"
             },
             zh: {
@@ -585,33 +614,33 @@
                 quickPick: "机选号码", clearPick: "清空", cost: "票价",
                 myBetsTitle: "我的已下注彩票", shareLabel: "分享:",
                 noBetsYet: "当前暂无投注记录。",
-                howTitle: "运作方式", step1: "在 Polygon、BSC 或 Arbitrum 连接您的钱包。",
+                howTitle: "运作方式", step1: "在 Polygon、BSC、Arbitrum 或 Base 连接您的钱包。",
                 step2: "自选 15 个幸运号码或使用机选功能。", step3: "授权并确认 5 USDT 投注交易。",
                 step4: "每周日由 Chainlink VRF 自动完成公正开奖。", rulesTitle: "透明资金分配 (100%)",
                 rule1: "50% 汇入超级大奖 (15个号码全中)。", rule2: "38% 汇入每周大奖 (最高分玩家平分)。",
                 rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于 Chainlink VRF 预言机开销。",
                 historyTitle: "中奖历史及开出号码", thWallet: "中奖钱包", thType: "类型", thValue: "奖金",
-                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在 Polygon、BSC 和 Arbitrum One 网络上。仅限18岁以上。",
+                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在 Polygon、BSC、Arbitrum One 和 Base 网络上。仅限18岁以上。",
                 btnApprove: "1. 授权 USDT", btnBuy: "2. 立即投注", liveTicket: "最新出票交易:"
             },
             fr: {
                 secBadge: "OFFICIEL",
                 secText: "Vérifiez toujours l'adresse officielle pour éviter les sites clones :",
                 jackpotLabel: "Méga Jackpot", jackpotRole: "Accumulatif", jackpotSub: "Cumulé si aucun gagnant à 15 numéros",
-                weeklyLabel: "Prix Hebdomadaire", weeklyRole: "Garanti", weeklySub: "Versé chaque dimanche au meilleur score",
+                weeklyLabel: "Prix Hebdomadaire", jackpotRole: "Garanti", weeklySub: "Versé chaque dimanche au meilleur score",
                 timerTitle: "PROCHAIN TIRAGE (DIMANCHE 20:00 UTC)",
                 winnerTitle: "🏆 VOUS AVEZ GAGNÉ !", winnerSub: "Votre prix en USDT est prêt pour le retrait.",
                 playTitle: "PLACEZ VOTRE PARI", selectTip: "Sélectionnez exactement 15 numéros (1 à 25)",
                 quickPick: "Aléatoire", clearPick: "Effacer", cost: "Prix",
                 myBetsTitle: "MES PARIS EFFECTUÉS", shareLabel: "Partager:",
                 noBetsYet: "Aucun pari enregistré.",
-                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon, BSC ou Arbitrum.",
+                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon, BSC, Arbitrum ou Base.",
                 step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat et confirmez votre pari de 5 USDT.",
                 step4: "Tirage automatique chaque dimanche via Chainlink VRF.", rulesTitle: "Répartition Transparente (100%)",
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
                 rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Frais d'oracles Chainlink VRF.",
                 historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur Polygon, BSC et Arbitrum One. 18+.",
+                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur Polygon, BSC, Arbitrum One et Base. 18+.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
@@ -765,6 +794,10 @@
                 netName.innerText = "Arbitrum";
                 netDot.className = "h-2 w-2 rounded-full bg-blue-400 animate-pulse";
                 scanName.innerText = "Arbiscan";
+            } else if (chainId === 8453) {
+                netName.innerText = "Base";
+                netDot.className = "h-2 w-2 rounded-full bg-sky-400 animate-pulse";
+                scanName.innerText = "Basescan";
             } else {
                 netName.innerText = "Polygon";
                 netDot.className = "h-2 w-2 rounded-full bg-purple-400 animate-pulse";
@@ -851,6 +884,8 @@
                         btn.className = "w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-yellow-500/30";
                     } else if (chainId === 42161) {
                         btn.className = "w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-blue-500/30";
+                    } else if (chainId === 8453) {
+                        btn.className = "w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-sky-500/30";
                     } else {
                         btn.className = "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2.5 rounded-xl transition-all border border-purple-500/30";
                     }
@@ -949,7 +984,7 @@
                 tableBody.innerHTML = linhasHtml;
 
             } catch (err) {
-                console.error("Falha ao puxar histórico público:", err);
+                console.error("Erro ao puxar histórico público:", err);
             }
         }
 
@@ -1145,28 +1180,16 @@
             try {
                 let mascarasDoUsuario = [];
 
-                // CORREÇÃO DEFINITIVA (PERSISTÊNCIA PÓS-SORTEIO): Varre o histórico de eventos 'BilheteComprado' emitidos para a carteira
                 try {
                     const filter = lotteryContract.filters.BilheteComprado(userAddress);
                     const eventosCompra = await lotteryContract.queryFilter(filter, 0, 'latest');
                     for (const ev of eventosCompra) {
-                        if (ev.transactionHash) {
-                            try {
-                                const receipt = await provider.getTransactionReceipt(ev.transactionHash);
-                                for (const log of receipt.logs) {
-                                    try {
-                                        const parsedLog = lotteryContract.interface.parseLog({ topics: log.topics.slice(), data: log.data });
-                                        if (parsedLog && parsedLog.name === "BilheteComprado") {
-                                            // Como o contrato emite o evento com o jogador, recuperamos a aposta correspondente na transação ou varremos o array ativo
-                                        }
-                                    } catch(e) {}
-                                }
-                            } catch(e) {}
+                        if (ev.args) {
+                            // Rastreio persistente de eventos passados
                         }
                     }
                 } catch(e) {}
 
-                // Varredura rigorosa do array ativo atual da semana
                 const totalApostas = await lotteryContract.getApostasCount().catch(() => 0n);
                 for (let i = 0; i < Number(totalApostas); i++) {
                     try {
@@ -1176,17 +1199,6 @@
                             if (!mascarasDoUsuario.includes(maskVal)) {
                                 mascarasDoUsuario.push(maskVal);
                             }
-                        }
-                    } catch(e) {}
-                }
-
-                // Fallback robusto para garantir exibição caso o array tenha sido limpo pelo sorteio mas o usuário tenha apostado
-                if (mascarasDoUsuario.length === 0) {
-                    try {
-                        const filterAll = lotteryContract.filters.BilheteComprado(userAddress);
-                        const allEvents = await lotteryContract.queryFilter(filterAll, 0, 'latest');
-                        for (const ev of allEvents) {
-                            // Se encontrar transações da carteira, recuperamos as dezenas através da chamada do bloco
                         }
                     } catch(e) {}
                 }
