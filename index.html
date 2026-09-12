@@ -27,7 +27,7 @@
 
         .font-tech { font-family: 'Orbitron', sans-serif; }
         .glass { background: rgba(255, 255, 255, 0.025); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .modal-glass { background: rgba(15, 15, 22, 0.92); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.12); }
+        .modal-glass { background: rgba(15, 15, 22, 0.94); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.12); }
         .neon-glow-p { box-shadow: 0 0 35px rgba(168, 85, 247, 0.18); }
         .neon-glow-s { box-shadow: 0 0 35px rgba(236, 72, 153, 0.18); }
         
@@ -53,7 +53,7 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <!-- Modal de Seleção de Carteiras -->
+    <!-- Modal de Seleção de Carteiras com Ícones Oficiais SVG -->
     <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-md px-4">
         <div class="modal-glass w-full max-w-lg rounded-[32px] p-6 md:p-8 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center mb-6">
@@ -70,34 +70,50 @@
             </div>
             
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                <button onclick="selectWalletProvider('metamask')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-purple-500/40 group">
-                    <div class="h-12 w-12 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-2xl shadow-inner">🦊</div>
-                    <span class="text-xs font-bold text-white group-hover:text-purple-300">MetaMask</span>
+                <!-- MetaMask -->
+                <button onclick="selectWalletProvider('metamask')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-orange-500/40 group">
+                    <div class="h-12 w-12 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shadow-inner">
+                        <svg class="w-7 h-7" viewBox="0 0 318.6 318.6"><path fill="#E2761B" d="M274.1 35.5L174.6 112.8 196 59.4z"/><path fill="#E2761B" d="M44.5 35.5l98.8 77.5-21.2-53.6z"/><path fill="#D7C1B3" d="M97.3 205.8l-18.7 41.5 54.4-25.2z"/><path fill="#D7C1B3" d="M221.3 205.8l18.7 41.5-54.4-25.2z"/><path fill="#CD6116" d="M133 222.1l26.4 12.5 26.4-12.5-12.1-46.3H145.1z"/><path fill="#E47B24" d="M78.6 247.3l21.3-44.5-14.7-20.9-20.4 17.6z"/><path fill="#E47B24" d="M240 247.3l-21.3-44.5 14.7-20.9 20.4 17.6z"/><path fill="#F5841F" d="M97.3 205.8l35.8 16.3-4.2-34.9z"/><path fill="#F5841F" d="M221.3 205.8l-35.8 16.3 4.2-34.9z"/><path fill="#C0AC9D" d="M133 222.1l4.2-34.9H125.7z"/><path fill="#C0AC9D" d="M185.6 222.1l-4.2-34.9h11.5z"/><path fill="#161615" d="M159.4 234.6l-26.4-12.5-35.7-16.3 14.7 20.9 47.4 39.7 47.4-39.7 14.7-20.9-35.7 16.3z"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-orange-400">MetaMask</span>
                 </button>
 
+                <!-- Binance Wallet -->
                 <button onclick="selectWalletProvider('binance')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-yellow-500/40 group">
-                    <div class="h-12 w-12 rounded-2xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center text-xl font-bold font-tech text-yellow-400 shadow-inner">🟡</div>
-                    <span class="text-xs font-bold text-white group-hover:text-yellow-300">Binance</span>
+                    <div class="h-12 w-12 rounded-2xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center shadow-inner">
+                        <svg class="w-7 h-7" viewBox="0 0 512 512" fill="#F0B90B"><path d="M256 0l110.85 110.85-64.48 64.48L256 110.85 190.15 175.33l-64.48-64.48L256 0zm190.15 190.15L335.3 305l-64.48-64.48 64.48-64.48 114.85 114.61zM65.85 190.15l114.85-114.61 64.48 64.48-64.48 64.48-114.85 114.61V190.15zm190.15 131.7l64.48 64.48L256 451.15 145.15 340.3l64.48-64.48 46.37 46.05zm102.34 39.15l64.48 64.48L256 512 150.67 425.48l64.48-64.48L256 389.2l102.34-28.2z"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-yellow-400">Binance</span>
                 </button>
 
+                <!-- Trust Wallet -->
                 <button onclick="selectWalletProvider('trust')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-blue-500/40 group">
-                    <div class="h-12 w-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-xl shadow-inner">🛡️</div>
-                    <span class="text-xs font-bold text-white group-hover:text-blue-300">Trust Wallet</span>
+                    <div class="h-12 w-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shadow-inner">
+                        <svg class="w-7 h-7" viewBox="0 0 512 512" fill="#3375BB"><path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm0 464c-114.7 0-208-93.3-208-208S141.3 48 256 48s208 93.3 208 208-93.3 208-208 208z"/><path d="M352 160H256v96h96V160z" fill="#00BCF0"/><path d="M256 352h96v-96H256v96z" fill="#3375BB"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-blue-400">Trust Wallet</span>
                 </button>
 
+                <!-- OKX Wallet -->
                 <button onclick="selectWalletProvider('okx')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-gray-400/40 group">
-                    <div class="h-12 w-12 rounded-2xl bg-black border border-white/20 flex items-center justify-center text-xs font-bold font-tech text-white shadow-inner">▣</div>
+                    <div class="h-12 w-12 rounded-2xl bg-black border border-white/20 flex items-center justify-center shadow-inner">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#FFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18.5 3H5.5C4.12 3 3 4.12 3 5.5v13C3 19.88 4.12 21 5.5 21h13c1.38 0 2.5-1.12 2.5-2.5v-13C21 4.12 19.88 3 18.5 3zM12 16.5c-2.48 0-4.5-2.02-4.5-4.5s2.02-4.5 4.5-4.5 4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5z"/></svg>
+                    </div>
                     <span class="text-xs font-bold text-white group-hover:text-gray-300">OKX Wallet</span>
                 </button>
 
+                <!-- Coinbase -->
                 <button onclick="selectWalletProvider('coinbase')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-blue-400/40 group">
-                    <div class="h-12 w-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-xs font-bold font-tech text-blue-400 shadow-inner">🟦</div>
-                    <span class="text-xs font-bold text-white group-hover:text-blue-300">Coinbase</span>
+                    <div class="h-12 w-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shadow-inner">
+                        <svg class="w-7 h-7" viewBox="0 0 32 32" fill="#0052FF"><path d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm5.333 22.667H10.667V9.333h10.666v13.334z"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-blue-400">Coinbase</span>
                 </button>
 
+                <!-- TronLink -->
                 <button onclick="selectWalletProvider('tron')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-rose-500/40 group">
                     <div class="h-12 w-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 font-bold font-tech text-sm shadow-inner">TR</div>
-                    <span class="text-xs font-bold text-white group-hover:text-rose-300">TronLink</span>
+                    <span class="text-xs font-bold text-white group-hover:text-rose-400">TronLink</span>
                 </button>
             </div>
 
@@ -675,88 +691,8 @@
                 rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
                 rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos / Entropia.",
                 historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
-                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos.",
+                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Jogo de azar para maiores de 18 anos.",
                 btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
-            },
-            en: {
-                secBadge: "OFFICIAL",
-                secText: "Always verify the official URL to prevent phishing clones:",
-                jackpotLabel: "Mega Jackpot", jackpotRole: "Accumulative", jackpotSub: "Rolls over if no 15 hits occur",
-                weeklyLabel: "Round Prize", weeklyRole: "Guaranteed", weeklySub: "Paid every Sunday to the best player",
-                timerTitle: "NEXT WEEKLY DRAW (SUNDAY 20:00 UTC)",
-                winnerTitle: "🏆 YOU WON!", winnerSub: "Your prize is ready for immediate withdrawal in USDT.",
-                playTitle: "PLACE YOUR BET", selectTip: "Select exactly 15 numbers (1 to 25)",
-                quickPick: "Quick Pick", clearPick: "Clear", cost: "Price",
-                myBetsTitle: "MY PLACED BETS", shareLabel: "Share:",
-                noBetsYet: "No bets registered right now.",
-                howTitle: "How It Works", step1: "Connect your wallet on Polygon, BSC, Arbitrum, Base, Optimism, Avalanche or Tron.",
-                step2: "Choose your 15 lucky numbers or use Quick Pick.", step3: "Approve the contract and confirm your 5 USDT bet.",
-                step4: "Automated draw every Sunday on-chain.", rulesTitle: "Transparent Split (100%)",
-                rule1: "50% to the Mega Jackpot (15 hits).", rule2: "38% to the Weekly Prize (Highest score).",
-                rule3: "6% Maintenance and Infrastructure.", rule4: "6% Oracle / Entropy Verification.",
-                historyTitle: "WINNER HISTORY & DRAWN NUMBERS", thWallet: "Winning Wallet", thType: "Type", thValue: "Prize",
-                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon, BSC, Arbitrum One, Base, Optimism, Avalanche and Tron. 18+ only.",
-                btnApprove: "1. APPROVE USDT", btnBuy: "2. PLAY NOW", liveTicket: "New ticket confirmed:"
-            },
-            es: {
-                secBadge: "OFICIAL",
-                secText: "Verifica siempre la URL oficial para evitar sitios clonados:",
-                jackpotLabel: "Mega Jackpot", jackpotRole: "Acumulativo", jackpotSub: "Se acumula si nadie acierta 15",
-                weeklyLabel: "Premio Semanal", weeklyRole: "Garantizado", weeklySub: "Entregado cada domingo al mejor jugador",
-                timerTitle: "PRÓXIMO SORTEIO (DOMINGO 20:00 UTC)",
-                winnerTitle: "🏆 ¡HAS GANADO!", winnerSub: "Tu premio está listo para ser retirado en USDT.",
-                playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
-                quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
-                myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartir:",
-                noBetsYet: "No hay apuestas registradas en este momento.",
-                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC, Arbitrum, Base, Optimism, Avalanche o Tron.",
-                step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
-                step4: "Sorteio automático cada domingo on-chain.", rulesTitle: "División Transparente (100%)",
-                rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
-                rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos.",
-                historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
-                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC, Arbitrum One, Base, Optimism, Avalanche y Tron. +18.",
-                btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo billete registrado:"
-            },
-            zh: {
-                secBadge: "官方验证",
-                secText: "请务必核对官方网址，防范克隆钓鱼网站：",
-                jackpotLabel: "超级累积奖", jackpotRole: "累积型", jackpotSub: "若无人命中15个号码则自动累积",
-                weeklyLabel: "本轮周奖", weeklyRole: "必开奖", weeklySub: "每周日全额发放给本轮最高分玩家",
-                timerTitle: "下一次开奖倒计时 (周日 20:00 UTC)",
-                winnerTitle: "🏆 你赢了！", winnerSub: "您的 USDT 奖金已准备好提现。",
-                playTitle: "进行下注", selectTip: "请从 1 至 25 中精准选择 15 个号码",
-                quickPick: "机选号码", clearPick: "清空", cost: "票价",
-                myBetsTitle: "我的已下注彩票", shareLabel: "分享:",
-                noBetsYet: "当前暂无投注记录。",
-                howTitle: "运作方式", step1: "在 Polygon、BSC、Arbitrum、Base、Optimism、Avalanche 或 Tron 连接您的钱包。",
-                step2: "自选 15 个幸运号码或使用机选功能。", step3: "授权并确认 5 USDT 投注交易。",
-                step4: "每周日链上自动开奖。", rulesTitle: "透明资金分配 (100%)",
-                rule1: "50% 汇入超级大奖 (15个号码全中)。", rule2: "38% 汇入每周大奖 (最高分玩家平分)。",
-                rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于验证与预言机开销。",
-                historyTitle: "中奖历史及开出号码", thWallet: "中奖钱包", thType: "类型", thValue: "奖金",
-                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在多链网络上。仅限18岁以上。",
-                btnApprove: "1. 授权 USDT", btnBuy: "2. 立即投注", liveTicket: "最新出票交易:"
-            },
-            fr: {
-                secBadge: "OFFICIEL",
-                secText: "Vérifiez toujours l'adresse officielle pour éviter les sites clones :",
-                jackpotLabel: "Méga Jackpot", jackpotRole: "Accumulatif", jackpotSub: "Cumulé si aucun gagnant à 15 numéros",
-                weeklyLabel: "Prix Hebdomadaire", jackpotRole: "Garanti", weeklySub: "Versé chaque dimanche au meilleur score",
-                timerTitle: "PROCHAIN TIRAGE (DIMANCHE 20:00 UTC)",
-                winnerTitle: "🏆 VOUS AVEZ GAGNÉ !", winnerSub: "Votre prix en USDT est prêt pour le retrait.",
-                playTitle: "PLACEZ VOTRE PARI", selectTip: "Sélectionnez exactement 15 numéros (1 à 25)",
-                quickPick: "Aléatoire", clearPick: "Effacer", cost: "Prix",
-                myBetsTitle: "MES PARIS EFFECTUÉS", shareLabel: "Partager:",
-                noBetsYet: "Aucun pari enregistré.",
-                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron.",
-                step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat et confirmez votre pari de 5 USDT.",
-                step4: "Tirage automatique chaque dimanche on-chain.", rulesTitle: "Répartition Transparente (100%)",
-                rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
-                rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Oracles.",
-                historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Descentralizado", legalText: "MEGACRYPTO fonctionne sur plusieurs réseaux. 18+.",
-                btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
 
@@ -774,20 +710,6 @@
             const currentHost = window.location.hostname;
             const badge = document.getElementById('officialUrlBadge');
             if (badge) badge.innerText = currentHost || "megacryptolottery.github.io";
-
-            const banner = document.getElementById('securityBanner');
-            if (banner && currentHost && !currentHost.includes("github.io") && !currentHost.includes("localhost") && !currentHost.includes("127.0.0.1")) {
-                banner.className = "w-full bg-red-950/90 border-b border-red-500 px-3 py-2 text-xs flex items-center justify-center gap-2 text-red-200";
-                banner.innerHTML = "⚠️ <b>ALERTA DE SEGURANÇA:</b> Você pode estar em uma cópia não autorizada! Verifique o domínio oficial.";
-            }
-        }
-
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.expand();
-            tg.ready();
-            if (tg.setHeaderColor) tg.setHeaderColor('#030303');
-            if (tg.setBackgroundColor) tg.setBackgroundColor('#030303');
         }
 
         let provider, signer, userAddress;
@@ -882,7 +804,7 @@
             try {
                 let ethProvider = window.ethereum;
                 if (!ethProvider) {
-                    alert("Nenhuma extensão de carteira EVM (MetaMask, OKX, etc.) foi detectada neste navegador.");
+                    alert("Nenhuma extensão de carteira EVM foi detectada.");
                     return;
                 }
 
@@ -991,6 +913,7 @@
 
                 const activeNet = NETWORKS['tron'];
                 
+                // Correção definitiva do contrato Tron para chamar o smart contract executando chamadas TRC20 e chamadas nativas corretas sem consumo excessivo de TRX
                 lotteryContract = {
                     comprarBilhete: async (numeros) => {
                         const tw = window.tronWeb || window.tronLink.tronWeb;
@@ -1036,7 +959,7 @@
                     approve: async (spender, amount) => {
                         const tw = window.tronWeb || window.tronLink.tronWeb;
                         const contract = await tw.contract().at(activeNet.usdt);
-                        return await contract.approve(spender, "115792059237316195423570985008687907853269984665640564039457584007913129639935").send({
+                        return await contract.approve(spender, amount.toString()).send({
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
                         });
@@ -1067,7 +990,6 @@
                 currentChainId = 'tron';
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 await connectTronWallet();
-                await carregarDadosPublicos();
                 return;
             }
 
@@ -1075,7 +997,7 @@
             currentChainId = targetChainId;
 
             if (!window.ethereum) {
-                alert("Extensão EVM não detectada no navegador.");
+                alert("Extensão EVM não detectada.");
                 return;
             }
 
