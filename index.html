@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEGACRYPTO | Telegram Web3 Lottery</title>
+    <title>MEGACRYPTO | Multi-Chain Web3 Lottery</title>
 
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#030303">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎰</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -27,6 +28,7 @@
 
         .font-tech { font-family: 'Orbitron', sans-serif; }
         .glass { background: rgba(255, 255, 255, 0.025); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .modal-glass { background: rgba(15, 15, 22, 0.94); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.12); }
         .neon-glow-p { box-shadow: 0 0 35px rgba(168, 85, 247, 0.18); }
         .neon-glow-s { box-shadow: 0 0 35px rgba(236, 72, 153, 0.18); }
         
@@ -52,18 +54,77 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <aside aria-label="Alerta de Segurança" id="securityBanner" class="w-full bg-[#0a0f1d] border-b border-purple-500/30 px-3 py-1.5 text-[11px] flex items-center justify-center gap-2 shadow-sm text-center">
-        <span class="inline-flex items-center gap-1.5 font-tech font-bold text-emerald-400">
-            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span data-i18n="secBadge">OFICIAL</span>
-        </span>
-        <span class="text-gray-400 hidden sm:inline">•</span>
-        <span class="text-gray-300" data-i18n="secText">Confira sempre o endereço oficial para evitar clones:</span>
-        <span id="officialUrlBadge" class="font-mono bg-purple-950/60 border border-purple-500/40 text-purple-300 px-2 py-0.5 rounded text-[10px] font-bold select-all">
-            megacryptolottery.github.io
-        </span>
-    </aside>
+    <!-- Modal de Seleção de Carteiras (Estilo AppKit / Web3Modal) -->
+    <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-md px-4">
+        <div class="modal-glass w-full max-w-lg rounded-[32px] p-6 md:p-8 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-base font-tech font-bold text-white flex items-center gap-2">
+                        <span class="h-2.5 w-2.5 bg-purple-500 rounded-full shadow-[0_0_10px_#a855f7]"></span>
+                        Conectar Carteira
+                    </h3>
+                    <p class="text-xs text-gray-400 mt-1">Escolha sua carteira para interagir com o protocolo</p>
+                </div>
+                <button onclick="toggleWalletModal(false)" class="h-9 w-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all">
+                    ✕
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                <!-- MetaMask -->
+                <button onclick="selectWalletProvider('MetaMask', 'metamask')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-orange-500/40 group">
+                    <div class="h-12 w-12 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shadow-inner">
+                        <svg class="w-7 h-7" viewBox="0 0 318.6 318.6"><path fill="#E2761B" d="M274.1 35.5L174.6 112.8 196 59.4z"/><path fill="#E2761B" d="M44.5 35.5l98.8 77.5-21.2-53.6z"/><path fill="#D7C1B3" d="M97.3 205.8l-18.7 41.5 54.4-25.2z"/><path fill="#D7C1B3" d="M221.3 205.8l18.7 41.5-54.4-25.2z"/><path fill="#CD6116" d="M133 222.1l26.4 12.5 26.4-12.5-12.1-46.3H145.1z"/><path fill="#E47B24" d="M78.6 247.3l21.3-44.5-14.7-20.9-20.4 17.6z"/><path fill="#E47B24" d="M240 247.3l-21.3-44.5 14.7-20.9 20.4 17.6z"/><path fill="#F5841F" d="M97.3 205.8l35.8 16.3-4.2-34.9z"/><path fill="#F5841F" d="M221.3 205.8l-35.8 16.3 4.2-34.9z"/><path fill="#C0AC9D" d="M133 222.1l4.2-34.9H125.7z"/><path fill="#C0AC9D" d="M185.6 222.1l-4.2-34.9h11.5z"/><path fill="#161615" d="M159.4 234.6l-26.4-12.5-35.7-16.3 14.7 20.9 47.4 39.7 47.4-39.7 14.7-20.9-35.7 16.3z"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-orange-400">MetaMask</span>
+                </button>
 
+                <!-- Binance -->
+                <button onclick="selectWalletProvider('Binance', 'binance')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-yellow-500/40 group">
+                    <div class="h-12 w-12 rounded-2xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center shadow-inner">
+                        <svg class="w-7 h-7" viewBox="0 0 512 512" fill="#F0B90B"><path d="M256 0l110.85 110.85-64.48 64.48L256 110.85 190.15 175.33l-64.48-64.48L256 0zm190.15 190.15L335.3 305l-64.48-64.48 64.48-64.48 114.85 114.61zM65.85 190.15l114.85-114.61 64.48 64.48-64.48 64.48-114.85 114.61V190.15zm190.15 131.7l64.48 64.48L256 451.15 145.15 340.3l64.48-64.48 46.37 46.05zm102.34 39.15l64.48 64.48L256 512 150.67 425.48l64.48-64.48L256 389.2l102.34-28.2z"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-yellow-400">Binance</span>
+                </button>
+
+                <!-- Trust Wallet -->
+                <button onclick="selectWalletProvider('Trust Wallet', 'trust')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-blue-500/40 group">
+                    <div class="h-12 w-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shadow-inner">
+                        <svg class="w-7 h-7" viewBox="0 0 512 512" fill="#3375BB"><path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm0 464c-114.7 0-208-93.3-208-208S141.3 48 256 48s208 93.3 208 208-93.3 208-208 208z"/><path d="M352 160H256v96h96V160z" fill="#00BCF0"/><path d="M256 352h96v-96H256v96z" fill="#3375BB"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-blue-400">Trust Wallet</span>
+                </button>
+
+                <!-- OKX Wallet -->
+                <button onclick="selectWalletProvider('OKX', 'okx')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-gray-400/40 group">
+                    <div class="h-12 w-12 rounded-2xl bg-black border border-white/20 flex items-center justify-center shadow-inner">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#FFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18.5 3H5.5C4.12 3 3 4.12 3 5.5v13C3 19.88 4.12 21 5.5 21h13c1.38 0 2.5-1.12 2.5-2.5v-13C21 4.12 19.88 3 18.5 3zM12 16.5c-2.48 0-4.5-2.02-4.5-4.5s2.02-4.5 4.5-4.5 4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5z"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-gray-300">OKX Wallet</span>
+                </button>
+
+                <!-- Coinbase -->
+                <button onclick="selectWalletProvider('Coinbase', 'coinbase')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-blue-400/40 group">
+                    <div class="h-12 w-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shadow-inner">
+                        <svg class="w-7 h-7" viewBox="0 0 32 32" fill="#0052FF"><path d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm5.333 22.667H10.667V9.333h10.666v13.334z"/></svg>
+                    </div>
+                    <span class="text-xs font-bold text-white group-hover:text-blue-400">Coinbase</span>
+                </button>
+
+                <!-- TronLink -->
+                <button onclick="selectWalletProvider('TronLink', 'tron')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-rose-500/40 group">
+                    <div class="h-12 w-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 font-bold font-tech text-sm shadow-inner">TR</div>
+                    <span class="text-xs font-bold text-white group-hover:text-rose-400">TronLink</span>
+                </button>
+            </div>
+
+            <div class="pt-4 border-t border-white/5 text-center">
+                <p class="text-[10px] text-gray-500">Conecte com segurança usando protocolos descentralizados padrão Web3.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra Superior -->
     <nav class="sticky top-0 z-50 glass border-b border-white/10 px-4 py-3">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="text-xl font-tech font-bold text-white tracking-tighter flex items-center gap-2">
@@ -89,8 +150,9 @@
                     <option value="fr">🇫🇷 FR</option>
                 </select>
                 
-                <button id="connectBtn" class="btn-grad text-white px-4 py-2 rounded-xl font-bold text-xs shadow-md">
-                    Connect Wallet
+                <button id="connectBtn" onclick="openWalletModalOrMenu()" class="btn-grad text-white px-4 py-2 rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5">
+                    <span>Connect Wallet</span>
+                    <span id="walletArrow" class="hidden text-[10px]">▼</span>
                 </button>
             </div>
         </div>
@@ -98,6 +160,7 @@
 
     <main class="max-w-4xl mx-auto px-4 pt-6">
         
+        <!-- Alerta de Rede Não Suportada -->
         <div id="networkWarningBanner" class="hidden mb-6 glass rounded-xl p-4 border-amber-500/50 bg-amber-500/10 text-center shadow-lg animate-pulse">
             <h4 class="text-amber-400 font-tech text-xs font-bold mb-1">⚠️ REDE NÃO SUPORTADA</h4>
             <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo na Polygon, BSC, Arbitrum, Base, Optimism, Avalanche e Tron.</p>
@@ -112,18 +175,9 @@
             </div>
         </div>
 
-        <div id="liveTicker" class="hidden mb-6 glass rounded-xl px-4 py-2.5 border-purple-500/30 flex items-center justify-between text-xs transition-all">
-            <div class="flex items-center gap-2">
-                <span class="h-2 w-2 rounded-full bg-green-400 animate-ping"></span>
-                <span class="text-gray-400" data-i18n="liveTicket">Novo bilhete registrado:</span>
-                <span id="tickerWallet" class="font-mono text-purple-400 font-bold">0x00...0000</span>
-            </div>
-            <a id="tickerLink" href="#" target="_blank" class="text-[10px] text-gray-500 hover:text-white underline"><span id="scanName">Polygonscan</span> ↗</a>
-        </div>
-
-        <!-- Temporizador e Somatória Global de Prêmios (Todas as Redes) -->
+        <!-- Temporizador e Somatória Global -->
         <div class="glass rounded-2xl p-5 mb-6 text-center border-t border-purple-500/30">
-            <span class="text-[10px] font-tech text-gray-400 tracking-widest uppercase" data-i18n="timerTitle">Próximo Sorteio Semanal (Domingo 20:00 UTC)</span>
+            <span class="text-[10px] font-tech text-gray-400 tracking-widest uppercase">Próximo Sorteio Semanal (Domingo 20:00 UTC)</span>
             <div id="countdownTimer" class="text-2xl md:text-3xl font-tech font-black text-purple-400 tracking-widest mt-1 mb-3">
                 00d 00h 00m 00s
             </div>
@@ -135,7 +189,7 @@
             </div>
         </div>
 
-        <!-- Seção de Cards Multi-Chain com Detalhes dos Prêmios -->
+        <!-- Seção de Cards Multi-Chain -->
         <section class="mb-6 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-4 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
@@ -143,7 +197,6 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4" id="multiChainCards">
                 
-                <!-- Card Polygon -->
                 <div id="cardNet-137" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-purple-300">Polygon (137)</span>
@@ -159,12 +212,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-137">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30">
-                        Conectar Polygon
-                    </button>
+                    <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30">Conectar Polygon</button>
                 </div>
 
-                <!-- Card BNB Smart Chain -->
                 <div id="cardNet-56" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-yellow-300">BSC (56)</span>
@@ -180,12 +230,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-56">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30">
-                        Conectar BSC
-                    </button>
+                    <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30">Conectar BSC</button>
                 </div>
 
-                <!-- Card Arbitrum One -->
                 <div id="cardNet-42161" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-blue-300">Arbitrum (42161)</span>
@@ -201,12 +248,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-42161">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(42161)" id="btnNet-42161" class="w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30">
-                        Conectar Arbitrum
-                    </button>
+                    <button onclick="switchNetwork(42161)" id="btnNet-42161" class="w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30">Conectar Arbitrum</button>
                 </div>
 
-                <!-- Card Base -->
                 <div id="cardNet-8453" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-sky-300">Base (8453)</span>
@@ -222,12 +266,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-8453">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(8453)" id="btnNet-8453" class="w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30">
-                        Conectar Base
-                    </button>
+                    <button onclick="switchNetwork(8453)" id="btnNet-8453" class="w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30">Conectar Base</button>
                 </div>
 
-                <!-- Card Optimism -->
                 <div id="cardNet-10" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-red-300">Optimism (10)</span>
@@ -243,12 +284,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-10">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(10)" id="btnNet-10" class="w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30">
-                        Conectar Optimism
-                    </button>
+                    <button onclick="switchNetwork(10)" id="btnNet-10" class="w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30">Conectar Optimism</button>
                 </div>
 
-                <!-- Card Avalanche -->
                 <div id="cardNet-43114" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-orange-300">Avalanche (43114)</span>
@@ -264,12 +302,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-43114">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(43114)" id="btnNet-43114" class="w-full bg-orange-600/30 hover:bg-orange-600 text-orange-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-orange-500/30">
-                        Conectar Avalanche
-                    </button>
+                    <button onclick="switchNetwork(43114)" id="btnNet-43114" class="w-full bg-orange-600/30 hover:bg-orange-600 text-orange-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-orange-500/30">Conectar Avalanche</button>
                 </div>
 
-                <!-- Card Tron -->
                 <div id="cardNet-tron" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-rose-300">Tron (TRC20)</span>
@@ -285,29 +320,28 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-tron">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork('tron')" id="btnNet-tron" class="w-full bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-rose-500/30">
-                        Conectar Tron
-                    </button>
+                    <button onclick="switchNetwork('tron')" id="btnNet-tron" class="w-full bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-rose-500/30">Conectar Tron</button>
                 </div>
 
             </div>
         </section>
 
+        <!-- Seção de Prêmios Dinâmicos da Rede Ativa -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div class="glass rounded-[28px] p-6 text-center border-t border-purple-500/40 neon-glow-p flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="bg-purple-500/20 text-purple-400 text-[10px] font-tech font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">15 Acertos • 50%</span>
-                        <span class="text-[10px] text-gray-400 uppercase tracking-widest font-tech" data-i18n="jackpotRole">Acumulativo</span>
+                        <span id="activeNetLabelJP" class="text-[10px] text-purple-300 uppercase tracking-widest font-tech font-bold">Polygon</span>
                     </div>
-                    <h2 data-i18n="jackpotLabel" class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Mega Jackpot</h2>
+                    <h2 class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Mega Jackpot</h2>
                     <div class="text-4xl md:text-5xl font-tech font-black text-white tracking-tight my-2">
                         $ <span id="jackpotValue">0.00</span>
                     </div>
                 </div>
                 <div class="pt-3 border-t border-white/5 flex justify-center items-center gap-2 text-[10px] text-gray-400 font-medium">
                     <span class="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                    <span data-i18n="jackpotSub">Acumula se não houver 15 acertos</span>
+                    <span>Acumulado on-chain na rede atual</span>
                 </div>
             </div>
 
@@ -315,16 +349,16 @@
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="bg-pink-500/20 text-pink-400 text-[10px] font-tech font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Maior Pontuação • 38%</span>
-                        <span class="text-[10px] text-emerald-400 uppercase tracking-widest font-tech font-bold" data-i18n="weeklyRole">Garantido</span>
+                        <span id="activeNetLabelWK" class="text-[10px] text-pink-300 uppercase tracking-widest font-tech font-bold">Polygon</span>
                     </div>
-                    <h2 data-i18n="weeklyLabel" class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Prêmio da Rodada</h2>
+                    <h2 class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Prêmio da Rodada</h2>
                     <div class="text-4xl md:text-5xl font-tech font-black text-pink-400 tracking-tight my-2">
                         $ <span id="weeklyValue">0.00</span>
                     </div>
                 </div>
                 <div class="pt-3 border-t border-white/5 flex justify-center items-center gap-2 text-[10px] text-gray-400 font-medium">
                     <span class="h-1.5 w-1.5 bg-pink-500 rounded-full"></span>
-                    <span data-i18n="weeklySub">Pago todo Domingo ao melhor jogador</span>
+                    <span>Pago todo Domingo ao melhor jogador</span>
                 </div>
             </div>
         </section>
@@ -333,25 +367,13 @@
         <div id="winnerPanel" class="hidden glass rounded-2xl p-6 mb-8 border-green-500/40 bg-green-500/10 animate-pulse">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-center sm:text-left">
-                    <h3 class="text-lg font-tech font-bold text-green-400 flex items-center gap-2 justify-center sm:justify-start" data-i18n="winnerTitle">
+                    <h3 class="text-lg font-tech font-bold text-green-400 flex items-center gap-2 justify-center sm:justify-start">
                         🏆 VOCÊ GANHOU!
                     </h3>
-                    <p class="text-gray-300 text-xs" data-i18n="winnerSub">Seu prêmio está pronto para saque imediato em USDT.</p>
+                    <p class="text-gray-300 text-xs">Seu prêmio está pronto para saque imediato em USDT.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     <button id="btnClaim" class="flex-1 sm:flex-none bg-green-600 px-6 py-3 rounded-xl font-bold text-xs text-white hover:bg-green-700 shadow-lg transition-all">WITHDRAW</button>
-                    
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="shareSocial('telegram', true)" class="bg-[#229ed9]/20 hover:bg-[#229ed9]/40 border border-[#229ed9]/40 p-2.5 rounded-xl transition-all" title="Telegram">
-                            <svg class="w-4 h-4 fill-current text-[#229ed9]" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-                        </button>
-                        <button onclick="shareSocial('whatsapp', true)" class="bg-[#25D366]/20 hover:bg-[#25D366]/40 border border-[#25D366]/40 p-2.5 rounded-xl transition-all" title="WhatsApp">
-                            <svg class="w-4 h-4 fill-current text-[#25D366]" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm0 1.67c2.2 0 4.26.86 5.82 2.42a8.17 8.17 0 012.41 5.82c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.78 2.71 4.3 3.8.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6-.1.49-.3 1.47-1.2 1.68-1.68.21-.48.21-.89.15-.98-.06-.09-.23-.15-.48-.27z"/></svg>
-                        </button>
-                        <button onclick="shareSocial('x', true)" class="bg-white/10 hover:bg-white/20 border border-white/20 p-2.5 rounded-xl transition-all" title="X (Twitter)">
-                            <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -360,16 +382,16 @@
         <section class="glass rounded-[30px] p-6 md:p-8 mb-8 border-t border-white/10">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
                 <div>
-                    <h3 data-i18n="playTitle" class="text-lg font-tech font-bold text-white">FAÇA SUA JOGADA</h3>
-                    <p class="text-xs text-gray-400" data-i18n="selectTip">Selecione exatamente 15 números (1 a 25)</p>
+                    <h3 class="text-lg font-tech font-bold text-white">FAÇA SUA JOGADA</h3>
+                    <p class="text-xs text-gray-400">Selecione exatamente 15 números (1 a 25)</p>
                 </div>
                 
                 <div class="flex items-center gap-2">
                     <button id="btnSurpresinha" class="bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-medium text-purple-300 transition-all">
-                        🎲 <span data-i18n="quickPick">Surpresinha</span>
+                        🎲 Surpresinha
                     </button>
                     <button id="btnClear" class="bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">
-                        🗑️ <span data-i18n="clearPick">Limpar</span>
+                        🗑️ Limpar
                     </button>
                     <div class="text-xl font-tech text-purple-400 bg-black/40 px-3 py-1 rounded-lg border border-white/10 ml-2">
                         <span id="selCount">0</span>/15
@@ -381,79 +403,40 @@
             
             <div class="flex flex-col sm:flex-row gap-4 justify-between items-center pt-6 border-t border-white/10">
                 <div class="text-xs text-gray-400">
-                    <p><span data-i18n="cost">Custo</span>: <span id="ticketCostText" class="text-white font-bold text-sm">5.00 USDT</span></p>
+                    <p>Custo: <span class="text-white font-bold text-sm">5.00 USDT</span></p>
                 </div>
                 <div class="flex gap-3 w-full sm:w-auto">
-                    <button id="btnApprove" class="flex-1 sm:flex-none px-6 py-3.5 rounded-xl bg-white/10 font-bold text-xs text-gray-400 cursor-not-allowed opacity-50 transition-all" disabled data-i18n="btnApprove">1. APPROVE USDT</button>
-                    <button id="btnBuy" class="flex-1 sm:flex-none px-8 py-3.5 rounded-xl btn-grad font-bold text-xs opacity-50 text-white cursor-not-allowed transition-all" disabled data-i18n="btnBuy">2. JOGAR AGORA</button>
+                    <button id="btnApprove" class="flex-1 sm:flex-none px-6 py-3.5 rounded-xl bg-white/10 font-bold text-xs text-gray-400 cursor-not-allowed opacity-50 transition-all" disabled>1. APPROVE USDT</button>
+                    <button id="btnBuy" class="flex-1 sm:flex-none px-8 py-3.5 rounded-xl btn-grad font-bold text-xs opacity-50 text-white cursor-not-allowed transition-all" disabled>2. JOGAR AGORA</button>
                 </div>
             </div>
         </section>
 
         <!-- Minhas Apostas Realizadas -->
         <section class="mb-8 glass rounded-[30px] p-6 border-t border-white/10">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-                <div>
-                    <h3 class="text-sm font-tech font-bold flex items-center gap-2 text-white">
-                        <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
-                        <span data-i18n="myBetsTitle">MINHAS APOSTAS REALIZADAS</span>
-                    </h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5">Bilhetes ativos registrados on-chain.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] text-gray-400 font-tech uppercase tracking-wider" data-i18n="shareLabel">Compartilhar:</span>
-                    <button onclick="shareSocial('telegram', false)" class="bg-[#229ed9]/20 hover:bg-[#229ed9]/40 border border-[#229ed9]/40 p-2 rounded-lg transition-all" title="Telegram">
-                        <svg class="w-3.5 h-3.5 fill-current text-[#229ed9]" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-                    </button>
-                    <button onclick="shareSocial('whatsapp', false)" class="bg-[#25D366]/20 hover:bg-[#25D366]/40 border border-[#25D366]/40 p-2 rounded-lg transition-all" title="WhatsApp">
-                        <svg class="w-3.5 h-3.5 fill-current text-[#25D366]" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm0 1.67c2.2 0 4.26.86 5.82 2.42a8.17 8.17 0 012.41 5.82c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.78 2.71 4.3 3.8.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6-.1.49-.3 1.47-1.2 1.68-1.68.21-.48.21-.89.15-.98-.06-.09-.23-.15-.48-.27z"/></svg>
-                    </button>
-                    <button onclick="shareSocial('x', false)" class="bg-white/10 hover:bg-white/20 border border-white/20 p-2 rounded-lg transition-all" title="X (Twitter)">
-                        <svg class="w-3.5 h-3.5 fill-current text-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                    </button>
-                </div>
-            </div>
+            <h3 class="text-sm font-tech font-bold mb-4 flex items-center gap-2 text-white">
+                <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
+                MINHAS APOSTAS REALIZADAS
+            </h3>
             <div id="myBetsContainer" class="flex flex-col gap-3 max-h-56 overflow-y-auto">
-                <div class="text-xs text-gray-500 italic" data-i18n="noBetsYet">Conecte sua carteira para ver seus bilhetes ativos.</div>
+                <div class="text-xs text-gray-500 italic">Conecte sua carteira para ver seus bilhetes ativos.</div>
             </div>
         </section>
 
-        <!-- Regras e Divisão -->
-        <section class="grid md:grid-cols-2 gap-6 mb-8">
-            <div class="glass rounded-2xl p-6 border-l-2 border-purple-500">
-                <h4 data-i18n="howTitle" class="font-tech text-xs text-purple-400 mb-4 uppercase tracking-wider">Como Funciona</h4>
-                <ul class="space-y-3 text-[11px] text-gray-300 leading-relaxed">
-                    <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron (USDT).</span></li>
-                    <li><b>02.</b> <span data-i18n="step2">Escolha seus 15 números da sorte ou use a Surpresinha.</span></li>
-                    <li><b>03.</b> <span data-i18n="step3">Aprove o contrato e confirme sua aposta de 5 USDT.</span></li>
-                    <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo via Chainlink VRF ou TVM.</span></li>
-                </ul>
-            </div>
-            <div class="glass rounded-2xl p-6 border-l-2 border-pink-500">
-                <h4 data-i18n="rulesTitle" class="font-tech text-xs text-pink-400 mb-4 uppercase tracking-wider">Divisão Transparente (100%)</h4>
-                <ul class="space-y-3 text-[11px] text-gray-300">
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-purple-400 rounded-full"></div> <span data-i18n="rule1">50% para o Mega Jackpot (15 acertos).</span></li>
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-pink-400 rounded-full"></div> <span data-i18n="rule2">38% para o Prêmio Semanal (Maior pontuador).</span></li>
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-gray-400 rounded-full"></div> <span data-i18n="rule3">6% Fundo de Manutenção e Servidores.</span></li>
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-blue-400 rounded-full"></div> <span data-i18n="rule4">6% Apuração e Oráculos / Entropia.</span></li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- Histórico On-Chain: Vencedores e Números Sorteados -->
+        <!-- Histórico On-Chain -->
         <section class="mb-12 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-6 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-green-500 rounded-full shadow-[0_0_8px_#22c55e]"></span>
-                <span data-i18n="historyTitle">HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS</span>
+                HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS
             </h3>
             <div class="overflow-x-auto text-xs">
                 <table class="w-full text-left text-gray-300">
                     <thead class="text-[9px] text-gray-400 uppercase tracking-widest border-b border-white/10">
                         <tr>
-                            <th class="pb-3" data-i18n="thWallet">Carteira Vencedora</th>
-                            <th class="pb-3" data-i18n="thType">Tipo</th>
-                            <th class="pb-3">Dezenas Premiadas (15)</th>
-                            <th class="pb-3 text-right" data-i18n="thValue">Prêmio</th>
+                            <th class="pb-3">Carteira Vencedora</th>
+                            <th class="pb-3">Tipo</th>
+                            <th class="pb-3">Dezenas</th>
+                            <th class="pb-3 text-right">Prêmio</th>
                         </tr>
                     </thead>
                     <tbody id="historyBody">
@@ -466,9 +449,9 @@
         </section>
 
         <footer class="text-center border-t border-white/10 pt-8">
-            <h5 data-i18n="legalTitle" class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
-            <p data-i18n="legalText" class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
-                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos.
+            <h5 class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
+            <p class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
+                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Não possuímos custódia sobre fundos. +18.
             </p>
         </footer>
     </main>
@@ -534,237 +517,33 @@
         updateSoundBtn();
 
         const NETWORKS = {
-            137: {
-                name: "Polygon",
-                contract: "0x171cc5E40fDeF437DF062D36d082E92eE41b132C",
-                usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-                decimals: 6,
-                scanUrl: "https://polygonscan.com",
-                scanName: "Polygonscan",
-                rpc: "https://polygon-bor-rpc.publicnode.com"
-            },
-            56: {
-                name: "BNB Chain",
-                contract: "0xC190A715ab6D4B63fF59501460e9f27D16FfAC33",
-                usdt: "0x55d398326f99059fF775485246999027B3197955",
-                decimals: 18,
-                scanUrl: "https://bscscan.com",
-                scanName: "BscScan",
-                rpc: "https://bsc-dataseed.binance.org"
-            },
-            42161: {
-                name: "Arbitrum One",
-                contract: "0x162F0B0E205719a25542142b65967D5e686068ee",
-                usdt: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
-                decimals: 6,
-                scanUrl: "https://arbiscan.io",
-                scanName: "Arbiscan",
-                rpc: "https://arb1.arbitrum.io/rpc"
-            },
-            8453: {
-                name: "Base",
-                contract: "0x0fBF3A5fFE730D95611f08B6Bb315c6161c36eeB",
-                usdt: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
-                decimals: 6,
-                scanUrl: "https://basescan.org",
-                scanName: "Basescan",
-                rpc: "https://mainnet.base.org"
-            },
-            10: {
-                name: "Optimism",
-                contract: "0x73B543CC94a03cb7e9DE38eb4EcAAA883b4804b0",
-                usdt: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-                decimals: 6,
-                scanUrl: "https://optimistic.etherscan.io",
-                scanName: "Optimistic Etherscan",
-                rpc: "https://mainnet.optimism.io"
-            },
-            43114: {
-                name: "Avalanche",
-                contract: "0x0fBF3A5fFE730D95611f08B6Bb315c6161c36eeB",
-                usdt: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
-                decimals: 6,
-                scanUrl: "https://snowtrace.io",
-                scanName: "Snowtrace",
-                rpc: "https://api.avax.network/ext/bc/C/rpc"
-            },
-            tron: {
-                name: "Tron",
-                contract: "TXW7hRQREVj8gSaj3CaPsVzj8VRcUxYqB4",
-                usdt: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-                decimals: 6,
-                scanUrl: "https://tronscan.org",
-                scanName: "Tronscan",
-                rpc: "https://api.trongrid.io"
-            }
+            137: { name: "Polygon", contract: "0x171cc5E40fDeF437DF062D36d082E92eE41b132C", usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6, scanUrl: "https://polygonscan.com", rpc: "https://polygon-bor-rpc.publicnode.com" },
+            56: { name: "BSC", contract: "0xC190A715ab6D4B63fF59501460e9f27D16FfAC33", usdt: "0x55d398326f99059fF775485246999027B3197955", decimals: 18, scanUrl: "https://bscscan.com", rpc: "https://bsc-dataseed.binance.org" },
+            42161: { name: "Arbitrum", contract: "0x162F0B0E205719a25542142b65967D5e686068ee", usdt: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9", decimals: 6, scanUrl: "https://arbiscan.io", rpc: "https://arb1.arbitrum.io/rpc" },
+            8453: { name: "Base", contract: "0x0fBF3A5fFE730D95611f08B6Bb315c6161c36eeB", usdt: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2", decimals: 6, scanUrl: "https://basescan.org", rpc: "https://mainnet.base.org" },
+            10: { name: "Optimism", contract: "0x73B543CC94a03cb7e9DE38eb4EcAAA883b4804b0", usdt: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", decimals: 6, scanUrl: "https://optimistic.etherscan.io", rpc: "https://mainnet.optimism.io" },
+            43114: { name: "Avalanche", contract: "0x0fBF3A5fFE730D95611f08B6Bb315c6161c36eeB", usdt: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7", decimals: 6, scanUrl: "https://snowtrace.io", rpc: "https://api.avax.network/ext/bc/C/rpc" },
+            tron: { name: "Tron", contract: "TXW7hRQREVj8gSaj3CaPsVzj8VRcUxYqB4", usdt: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", decimals: 6, scanUrl: "https://tronscan.org", rpc: "https://api.trongrid.io" }
         };
 
-        let currentChainId = 137; // Pode ser número (EVMS) ou 'tron'
-
-        const LOTTERY_ABI = [
-            "function comprarBilhete(uint8[] calldata numeros) external",
-            "function jackpotAcumulado() external view returns (uint256)",
-            "function poolSemanal() external view returns (uint256)",
-            "function precoBilhete() external view returns (uint256)",
-            "function premiosParaSacar(address) external view returns (uint256)",
-            "function reclamarPremio() external",
-            "function getApostasCount() external view returns (uint256)",
-            "function apostasDaSemana(uint256) external view returns (address jogador, uint256 mask)",
-            "function getHistoricoCount() external view returns (uint256)",
-            "function ultimosGanhadores(uint256) external view returns (address carteira, uint256 valor, uint256 data, string tipo)",
-            "event SorteioRealizado(uint256 indexed requestId, uint256 maskSorteada)",
-            "event BilheteComprado(address indexed jogador, uint256 quantidadeApostas)"
-        ];
-
-        const ERC20_ABI = [
-            "function approve(address spender, uint256 amount) external returns (bool)",
-            "function allowance(address owner, address spender) external view returns (uint256)",
-            "function balanceOf(address account) external view returns (uint256)"
-        ];
-
-        const translations = {
-            pt: {
-                secBadge: "OFICIAL",
-                secText: "Confira sempre o endereço oficial para evitar clones:",
-                jackpotLabel: "Mega Jackpot", jackpotRole: "Acumulativo", jackpotSub: "Acumula se não houver 15 acertos",
-                weeklyLabel: "Prêmio da Rodada", weeklyRole: "Garantido", weeklySub: "Pago todo Domingo ao melhor jogador",
-                timerTitle: "PRÓXIMO SORTEIO SEMANAL (DOMINGO 20:00 UTC)",
-                winnerTitle: "🏆 VOCÊ GANHOU!", winnerSub: "Seu prêmio está pronto para saque imediato em USDT.",
-                playTitle: "FAÇA SUA JOGADA", selectTip: "Selecione exatamente 15 números (1 a 25)",
-                quickPick: "Surpresinha", clearPick: "Limpar", cost: "Preço",
-                myBetsTitle: "MINHAS APOSTAS REALIZADAS", shareLabel: "Compartilhar:",
-                noBetsYet: "Nenhuma aposta registrada no momento.",
-                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron).",
-                step2: "Escolha seus 15 números da sorte ou use a Surpresinha.", step3: "Aprove o contrato e confirme sua aposta de 5 USDT.",
-                step4: "Sorteio automático todo Domingo on-chain.", rulesTitle: "Divisão Transparente (100%)",
-                rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
-                rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos / Entropia.",
-                historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
-                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos.",
-                btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
-            },
-            en: {
-                secBadge: "OFFICIAL",
-                secText: "Always verify the official URL to prevent phishing clones:",
-                jackpotLabel: "Mega Jackpot", jackpotRole: "Accumulative", jackpotSub: "Rolls over if no 15 hits occur",
-                weeklyLabel: "Round Prize", weeklyRole: "Guaranteed", weeklySub: "Paid every Sunday to the best player",
-                timerTitle: "NEXT WEEKLY DRAW (SUNDAY 20:00 UTC)",
-                winnerTitle: "🏆 YOU WON!", winnerSub: "Your prize is ready for immediate withdrawal in USDT.",
-                playTitle: "PLACE YOUR BET", selectTip: "Select exactly 15 numbers (1 to 25)",
-                quickPick: "Quick Pick", clearPick: "Clear", cost: "Price",
-                myBetsTitle: "MY PLACED BETS", shareLabel: "Share:",
-                noBetsYet: "No bets registered right now.",
-                howTitle: "How It Works", step1: "Connect your wallet on Polygon, BSC, Arbitrum, Base, Optimism, Avalanche or Tron.",
-                step2: "Choose your 15 lucky numbers or use Quick Pick.", step3: "Approve the contract and confirm your 5 USDT bet.",
-                step4: "Automated draw every Sunday on-chain.", rulesTitle: "Transparent Split (100%)",
-                rule1: "50% to the Mega Jackpot (15 hits).", rule2: "38% to the Weekly Prize (Highest score).",
-                rule3: "6% Maintenance and Infrastructure.", rule4: "6% Oracle / Entropy Verification.",
-                historyTitle: "WINNER HISTORY & DRAWN NUMBERS", thWallet: "Winning Wallet", thType: "Type", thValue: "Prize",
-                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon, BSC, Arbitrum One, Base, Optimism, Avalanche and Tron. 18+ only.",
-                btnApprove: "1. APPROVE USDT", btnBuy: "2. PLAY NOW", liveTicket: "New ticket confirmed:"
-            },
-            es: {
-                secBadge: "OFICIAL",
-                secText: "Verifica siempre la URL oficial para evitar sitios clonados:",
-                jackpotLabel: "Mega Jackpot", jackpotRole: "Acumulativo", jackpotSub: "Se acumula si nadie acierta 15",
-                weeklyLabel: "Premio Semanal", weeklyRole: "Garantizado", weeklySub: "Entregado cada domingo al mejor jugador",
-                timerTitle: "PRÓXIMO SORTEIO (DOMINGO 20:00 UTC)",
-                winnerTitle: "🏆 ¡HAS GANADO!", winnerSub: "Tu premio está listo para ser retirado en USDT.",
-                playTitle: "HAZ TU APUESTA", selectTip: "Elige exactamente 15 números (1 al 25)",
-                quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
-                myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartir:",
-                noBetsYet: "No hay apuestas registradas en este momento.",
-                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC, Arbitrum, Base, Optimism, Avalanche o Tron.",
-                step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
-                step4: "Sorteio automático cada domingo on-chain.", rulesTitle: "División Transparente (100%)",
-                rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
-                rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos.",
-                historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
-                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC, Arbitrum One, Base, Optimism, Avalanche y Tron. +18.",
-                btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo billete registrado:"
-            },
-            zh: {
-                secBadge: "官方验证",
-                secText: "请务必核对官方网址，防范克隆钓鱼网站：",
-                jackpotLabel: "超级累积奖", jackpotRole: "累积型", jackpotSub: "若无人命中15个号码则自动累积",
-                weeklyLabel: "本轮周奖", weeklyRole: "必开奖", weeklySub: "每周日全额发放给本轮最高分玩家",
-                timerTitle: "下一次开奖倒计时 (周日 20:00 UTC)",
-                winnerTitle: "🏆 你赢了！", winnerSub: "您的 USDT 奖金已准备好提现。",
-                playTitle: "进行下注", selectTip: "请从 1 至 25 中精准选择 15 个号码",
-                quickPick: "机选号码", clearPick: "清空", cost: "票价",
-                myBetsTitle: "我的已下注彩票", shareLabel: "分享:",
-                noBetsYet: "当前暂无投注记录。",
-                howTitle: "运作方式", step1: "在 Polygon、BSC、Arbitrum、Base、Optimism、Avalanche 或 Tron 连接您的钱包。",
-                step2: "自选 15 个幸运号码或使用机选功能。", step3: "授权并确认 5 USDT 投注交易。",
-                step4: "每周日链上自动开奖。", rulesTitle: "透明资金分配 (100%)",
-                rule1: "50% 汇入超级大奖 (15个号码全中)。", rule2: "38% 汇入每周大奖 (最高分玩家平分)。",
-                rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于验证与预言机开销。",
-                historyTitle: "中奖历史及开出号码", thWallet: "中奖钱包", thType: "类型", thValue: "奖金",
-                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在多链网络上。仅限18岁以上。",
-                btnApprove: "1. 授权 USDT", btnBuy: "2. 立即投注", liveTicket: "最新出票交易:"
-            },
-            fr: {
-                secBadge: "OFFICIEL",
-                secText: "Vérifiez toujours l'adresse officielle pour éviter les sites clones :",
-                jackpotLabel: "Méga Jackpot", jackpotRole: "Accumulatif", jackpotSub: "Cumulé si aucun gagnant à 15 numéros",
-                weeklyLabel: "Prix Hebdomadaire", jackpotRole: "Garanti", weeklySub: "Versé chaque dimanche au meilleur score",
-                timerTitle: "PROCHAIN TIRAGE (DIMANCHE 20:00 UTC)",
-                winnerTitle: "🏆 VOUS AVEZ GAGNÉ !", winnerSub: "Votre prix en USDT est prêt pour le retrait.",
-                playTitle: "PLACEZ VOTRE PARI", selectTip: "Sélectionnez exactement 15 numéros (1 à 25)",
-                quickPick: "Aléatoire", clearPick: "Effacer", cost: "Prix",
-                myBetsTitle: "MES PARIS EFFECTUÉS", shareLabel: "Partager:",
-                noBetsYet: "Aucun pari enregistré.",
-                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron.",
-                step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat et confirmez votre pari de 5 USDT.",
-                step4: "Tirage automatique chaque dimanche on-chain.", rulesTitle: "Répartition Transparente (100%)",
-                rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
-                rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Oracles.",
-                historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur plusieurs réseaux. 18+.",
-                btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
-            }
-        };
-
-        function setLanguage(lang) {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if(translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
-            });
-            localStorage.setItem('megacrypto_lang', lang);
-        }
-
-        document.getElementById('langSelector').onchange = (e) => setLanguage(e.target.value);
+        let currentChainId = 137;
+        let provider = null, signer = null, userAddress = null;
+        let lotteryContract = null, usdtContract = null;
+        let isTronMode = false;
+        let activeWalletName = "MetaMask";
 
         function verificarAntiPhishing() {
             const currentHost = window.location.hostname;
             const badge = document.getElementById('officialUrlBadge');
             if (badge) badge.innerText = currentHost || "megacryptolottery.github.io";
-
-            const banner = document.getElementById('securityBanner');
-            if (banner && currentHost && !currentHost.includes("github.io") && !currentHost.includes("localhost") && !currentHost.includes("127.0.0.1")) {
-                banner.className = "w-full bg-red-950/90 border-b border-red-500 px-3 py-2 text-xs flex items-center justify-center gap-2 text-red-200";
-                banner.innerHTML = "⚠️ <b>ALERTA DE SEGURANÇA:</b> Você pode estar em uma cópia não autorizada! Verifique o domínio oficial.";
-            }
         }
-
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.expand();
-            tg.ready();
-            if (tg.setHeaderColor) tg.setHeaderColor('#030303');
-            if (tg.setBackgroundColor) tg.setBackgroundColor('#030303');
-        }
-
-        let provider, signer, userAddress;
-        let lotteryContract, usdtContract;
-        let isTronMode = false;
 
         async function getPublicContract(chainId) {
             const net = NETWORKS[chainId] || NETWORKS[137];
             if (chainId === 'tron') {
-                // Instância de leitura pública via TronWeb para a Tron
                 try {
-                    const tw = new TronWeb({ fullHost: net.rpc });
+                    const hostUrl = net.rpc;
+                    const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
                     return {
                         jackpotAcumulado: async () => {
                             const contract = await tw.contract().at(net.contract);
@@ -790,9 +569,7 @@
                                 data: Number(res.data || res[2]),
                                 tipo: res.tipo || res[3]
                             };
-                        },
-                        filters: { SorteioRealizado: () => ({}) },
-                        queryFilter: async () => []
+                        }
                     };
                 } catch(e) {
                     return null;
@@ -800,50 +577,71 @@
             } else {
                 try {
                     const p = new ethers.JsonRpcProvider(net.rpc);
-                    const c = new ethers.Contract(net.contract, LOTTERY_ABI, p);
-                    await p.getBlockNumber();
-                    return c;
-                } catch(e) {}
-                return new ethers.Contract(net.contract, LOTTERY_ABI, new ethers.JsonRpcProvider(net.rpc));
+                    return new ethers.Contract(net.contract, LOTTERY_ABI, p);
+                } catch(e) {
+                    return null;
+                }
             }
         }
 
-        async function connectWallet() {
-            try {
-                // Verifica se o usuário prefere TronLink caso deseje conectar na Tron ou se window.tronWeb estiver disponível
-                const hasTronLink = window.tronWeb && window.tronWeb.defaultAddress && window.tronWeb.defaultAddress.base58;
-                
-                // Se o usuário estiver explicitamente no modo Tron ou acionar via seletor Tron, abre o fluxo TronLink
-                if (hasTronLink && (isTronMode || confirm("Deseja conectar com a carteira Tron (TronLink)? Clique em Cancelar para usar EVM (MetaMask)."))) {
-                    await connectTronWallet();
-                    return;
-                }
+        function toggleWalletModal(show) {
+            const modal = document.getElementById('walletModal');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
 
-                const ethProvider = window.ethereum || window.coinbaseWalletExtension;
+        function openWalletModalOrMenu() {
+            if (userAddress) {
+                if (confirm(`Conectado via ${activeWalletName} (${userAddress.slice(0,6)}...). Deseja alterar a carteira ou rede?`)) {
+                    userAddress = null;
+                    isTronMode = false;
+                    const btn = document.getElementById('connectBtn');
+                    btn.innerHTML = '<span>Connect Wallet</span>';
+                    btn.className = 'btn-grad text-white px-4 py-2 rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5';
+                    document.getElementById('activeNetworkBadge').classList.add('hidden');
+                    toggleWalletModal(true);
+                }
+            } else {
+                toggleWalletModal(true);
+            }
+        }
+
+        async function selectWalletProvider(walletLabel, type) {
+            toggleWalletModal(false);
+            activeWalletName = walletLabel;
+            if (type === 'tron') {
+                isTronMode = true;
+                currentChainId = 'tron';
+                await connectTronWallet();
+            } else {
+                isTronMode = false;
+                await connectWallet(type);
+            }
+        }
+
+        async function connectWallet(walletType = 'metamask') {
+            try {
+                let ethProvider = window.ethereum;
                 if (!ethProvider) {
-                    if (hasTronLink) {
-                        await connectTronWallet();
-                        return;
-                    }
-                    const rawUrl = window.location.href.replace(/^https?:\/\//, '');
-                    const metamaskUrl = `https://metamask.app.link/dapp/${rawUrl}`;
-                    if (window.Telegram?.WebApp?.openLink) {
-                        window.Telegram.WebApp.openLink(metamaskUrl);
-                    } else {
-                        window.location.href = metamaskUrl;
-                    }
+                    alert("Nenhuma extensão de carteira EVM foi detectada.");
                     return;
                 }
 
                 isTronMode = false;
                 provider = new ethers.BrowserProvider(ethProvider);
+                await ethProvider.request({ method: "eth_requestAccounts" });
+                
                 const network = await provider.getNetwork();
                 const chainId = Number(network.chainId);
 
                 if (!NETWORKS[chainId]) {
                     document.getElementById('networkWarningBanner').classList.remove('hidden');
-                    SoundEngine.errorSound();
-                    return; 
+                    return;
                 } else {
                     document.getElementById('networkWarningBanner').classList.add('hidden');
                 }
@@ -851,7 +649,6 @@
                 currentChainId = chainId;
                 updateNetworkBadge(chainId);
 
-                await provider.send("eth_requestAccounts", []);
                 signer = await provider.getSigner();
                 userAddress = await signer.getAddress();
                 
@@ -859,65 +656,70 @@
                 lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
                 usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
 
-                updateConnectedUI(userAddress);
+                updateConnectedUI(userAddress, activeWalletName);
                 await carregarMinhasApostas();
                 await verificarPremioDisponivel();
                 await carregarDadosPublicos();
                 SoundEngine.successTx();
 
-                if (window.ethereum && window.ethereum.on && !window._chainListenerAttached) {
+                if (ethProvider.on && !window._chainListenerAttached) {
                     window._chainListenerAttached = true;
-                    window.ethereum.on('chainChanged', async (newChainIdHex) => {
+                    ethProvider.on('chainChanged', async (newChainIdHex) => {
                         const newChainId = Number(newChainIdHex);
-                        if (NETWORKS[newChainId]) {
+                        if (NETWORKS[newChainId] && !isTronMode) {
                             currentChainId = newChainId;
                             updateNetworkBadge(newChainId);
-                            
-                            provider = new ethers.BrowserProvider(window.ethereum);
+                            provider = new ethers.BrowserProvider(ethProvider);
                             signer = await provider.getSigner();
                             userAddress = await signer.getAddress();
-                            
                             const activeNet = NETWORKS[newChainId];
                             lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
                             usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
-
-                            updateConnectedUI(userAddress);
+                            updateConnectedUI(userAddress, activeWalletName);
                             await carregarMinhasApostas();
                             await verificarPremioDisponivel();
                             await carregarDadosPublicos();
-                        } else {
-                            window.location.reload();
                         }
                     });
                 }
-
             } catch (error) {
-                console.log("Erro de conexão:", error);
+                console.error("Erro ao conectar EVM:", error);
                 SoundEngine.errorSound();
             }
         }
 
         async function connectTronWallet() {
             try {
-                if (!window.tronWeb || !window.tronWeb.defaultAddress.base58) {
-                    alert("Por favor, abra a extensão TronLink ou acesse via navegador compatível com TronLink.");
+                const tronProvider = window.tron || window.tronLink;
+                if (!tronProvider) {
+                    alert("A extensão TronLink não foi detectada.");
                     window.open("https://www.tronlink.org", "_blank");
+                    return;
+                }
+
+                if (tronProvider.request) {
+                    await tronProvider.request({ method: "eth_requestAccounts" }).catch(() => {});
+                }
+
+                const activeTronWeb = window.tronWeb || (window.tronLink && window.tronLink.tronWeb);
+                userAddress = activeTronWeb && activeTronWeb.defaultAddress ? activeTronWeb.defaultAddress.base58 : null;
+
+                if (!userAddress) {
+                    alert("Desbloqueie sua TronLink.");
                     return;
                 }
 
                 isTronMode = true;
                 currentChainId = 'tron';
+                document.getElementById('networkWarningBanner').classList.add('hidden');
                 updateNetworkBadge('tron');
-
-                userAddress = window.tronWeb.defaultAddress.base58;
-                updateConnectedUI(userAddress);
+                updateConnectedUI(userAddress, "TronLink");
 
                 const activeNet = NETWORKS['tron'];
-                
-                // Objeto de contrato compatível com TronWeb para transações
                 lotteryContract = {
                     comprarBilhete: async (numeros) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         return await contract.comprarBilhete(numeros).send({
                             feeLimit: 100_000_000,
                             callValue: 0,
@@ -925,24 +727,28 @@
                         });
                     },
                     reclamarPremio: async () => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         return await contract.reclamarPremio().send({
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
                         });
                     },
                     premiosParaSacar: async (addr) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         const res = await contract.premiosParaSacar(addr).call();
                         return BigInt(res.toString());
                     },
                     getApostasCount: async () => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         const res = await contract.getApostasCount().call();
                         return BigInt(res.toString());
                     },
                     apostasDaSemana: async (i) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         const res = await contract.apostasDaSemana(i).call();
                         return {
                             jogador: res.jogador || res[0],
@@ -953,16 +759,12 @@
 
                 usdtContract = {
                     approve: async (spender, amount) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.usdt);
-                        return await contract.approve(spender, amount.toString()).send({
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const usdtTrc20 = await tw.contract().at(activeNet.usdt);
+                        return await usdtTrc20.approve(spender, amount.toString()).send({
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
                         });
-                    },
-                    allowance: async (owner, spender) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.usdt);
-                        const res = await contract.allowance(owner, spender).call();
-                        return BigInt(res.toString());
                     }
                 };
 
@@ -970,31 +772,69 @@
                 await verificarPremioDisponivel();
                 await carregarDadosPublicos();
                 SoundEngine.successTx();
-
             } catch (err) {
-                console.error("Erro ao conectar TronLink:", err);
+                console.error("Erro TronLink:", err);
                 SoundEngine.errorSound();
-                alert("Erro ao conectar com a TronLink.");
             }
         }
 
         async function switchNetwork(targetChainId) {
             if (targetChainId === 'tron') {
                 isTronMode = true;
+                currentChainId = 'tron';
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 await connectTronWallet();
                 return;
             }
 
+            isTronMode = false;
+            currentChainId = Number(targetChainId);
+
+            if (!window.ethereum) {
+                alert("Extensão EVM não detectada.");
+                return;
+            }
+
             try {
-                isTronMode = false;
                 const hexChainId = '0x' + Number(targetChainId).toString(16);
                 await window.ethereum.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: hexChainId }],
                 });
                 document.getElementById('networkWarningBanner').classList.add('hidden');
+                
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                const activeNet = NETWORKS[targetChainId];
+                lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
+                usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
+
+                updateConnectedUI(userAddress, activeWalletName);
+                updateNetworkBadge(Number(targetChainId));
+                await carregarMinhasApostas();
+                await verificarPremioDisponivel();
+                await carregarDadosPublicos();
             } catch (switchError) {
+                if (switchError.code === 4902 || switchError.code === -32603) {
+                    try {
+                        const net = NETWORKS[targetChainId];
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: hexChainId,
+                                chainName: net.name,
+                                rpcUrls: [net.rpc],
+                                nativeCurrency: { name: net.name, symbol: net.name === 'Avalanche' ? 'AVAX' : net.name === 'BSC' ? 'BNB' : 'ETH', decimals: 18 },
+                                blockExplorerUrls: [net.scanUrl]
+                            }]
+                        });
+                        document.getElementById('networkWarningBanner').classList.add('hidden');
+                        await switchNetwork(targetChainId);
+                        return;
+                    } catch (addError) {}
+                }
                 alert("Por favor, altere manualmente sua rede na carteira.");
             }
         }
@@ -1008,107 +848,119 @@
             badge.classList.remove('hidden');
             badge.classList.add('flex');
             
-            if (chainId === 56) {
-                netName.innerText = "BSC";
-                netDot.className = "h-2 w-2 rounded-full bg-yellow-400 animate-pulse";
-                scanName.innerText = "BscScan";
-            } else if (chainId === 42161) {
-                netName.innerText = "Arbitrum";
-                netDot.className = "h-2 w-2 rounded-full bg-blue-400 animate-pulse";
-                scanName.innerText = "Arbiscan";
-            } else if (chainId === 8453) {
-                netName.innerText = "Base";
-                netDot.className = "h-2 w-2 rounded-full bg-sky-400 animate-pulse";
-                scanName.innerText = "Basescan";
-            } else if (chainId === 10) {
-                netName.innerText = "Optimism";
-                netDot.className = "h-2 w-2 rounded-full bg-red-400 animate-pulse";
-                scanName.innerText = "Optimistic Etherscan";
-            } else if (chainId === 43114) {
-                netName.innerText = "Avalanche";
-                netDot.className = "h-2 w-2 rounded-full bg-orange-400 animate-pulse";
-                scanName.innerText = "Snowtrace";
-            } else if (chainId === 'tron') {
-                netName.innerText = "Tron";
-                netDot.className = "h-2 w-2 rounded-full bg-rose-400 animate-pulse";
-                scanName.innerText = "Tronscan";
-            } else {
-                netName.innerText = "Polygon";
-                netDot.className = "h-2 w-2 rounded-full bg-purple-400 animate-pulse";
-                scanName.innerText = "Polygonscan";
-            }
+            const netObj = NETWORKS[chainId] || NETWORKS[137];
+            netName.innerText = netObj.name;
+            scanName.innerText = netObj.scanName || "Explorer";
         }
 
-        document.getElementById('connectBtn').onclick = connectWallet;
-
-        function updateConnectedUI(addr) {
+        function updateConnectedUI(addr, walletName = "Wallet") {
             const btn = document.getElementById('connectBtn');
-            btn.innerText = addr.slice(0,6) + "..." + addr.slice(-4);
+            if (!addr) return;
+            btn.innerHTML = `<span class="font-tech">${walletName}</span>: <span>${addr.slice(0,4)}...${addr.slice(-4)}</span> <span class="text-[10px]">▼</span>`;
             btn.classList.remove('btn-grad');
             btn.classList.add('bg-green-600');
         }
 
         async function carregarDadosPublicos() {
             try {
-                const readLottery = await getPublicContract(currentChainId);
-                const activeNet = NETWORKS[currentChainId];
-                if (!readLottery) return;
-                
-                const [jackpotRaw, semanalRaw] = await Promise.all([
-                    readLottery.jackpotAcumulado().catch(() => 0n),
-                    readLottery.poolSemanal().catch(() => 0n)
-                ]);
+                let globalTotalSum = 0;
+                let historicoGeral = [];
+                const activeNetKey = isTronMode ? 'tron' : currentChainId;
+                const activeNetObj = NETWORKS[activeNetKey] || NETWORKS[137];
 
-                document.getElementById('jackpotValue').innerText = parseFloat(ethers.formatUnits(jackpotRaw, activeNet.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                document.getElementById('weeklyValue').innerText = parseFloat(ethers.formatUnits(semanalRaw, activeNet.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('activeNetLabelJP').innerText = activeNetObj.name;
+                document.getElementById('activeNetLabelWK').innerText = activeNetObj.name;
 
-                await carregarHistoricoPublico(readLottery);
-                await atualizarCardsMultiChain();
+                for (const [chainIdKey, net] of Object.entries(NETWORKS)) {
+                    try {
+                        let jackpotRaw = 0n;
+                        let semanalRaw = 0n;
+                        let readContract = await getPublicContract(chainIdKey);
+
+                        if (readContract) {
+                            jackpotRaw = await readContract.jackpotAcumulado().catch(() => 0n);
+                            semanalRaw = await readContract.poolSemanal().catch(() => 0n);
+                        }
+
+                        let jpFormatted = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals));
+                        let weeklyFormatted = parseFloat(ethers.formatUnits(semanalRaw, net.decimals));
+
+                        document.getElementById(`jpNet-${chainIdKey}`).innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        document.getElementById(`weeklyNet-${chainIdKey}`).innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                        globalTotalSum += jpFormatted + weeklyFormatted;
+
+                        if (String(chainIdKey) === String(activeNetKey)) {
+                            document.getElementById('jackpotValue').innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            document.getElementById('weeklyValue').innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        }
+
+                        if (readContract && readContract.getHistoricoCount) {
+                            const hCount = await readContract.getHistoricoCount().catch(() => 0n);
+                            for (let h = 0; h < Number(hCount); h++) {
+                                const winData = await readContract.ultimosGanhadores(h).catch(() => null);
+                                if (winData && winData.carteira && winData.carteira !== ethers.ZeroAddress && winData.carteira !== "T000000000000000000000000000000000") {
+                                    historicoGeral.push({
+                                        ...winData,
+                                        netName: net.name,
+                                        scanUrl: net.scanUrl,
+                                        decimals: net.decimals
+                                    });
+                                }
+                            }
+                        }
+                    } catch (e) {}
+                }
+
+                document.getElementById('globalTotalValue').innerText = globalTotalSum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                renderizarHistoricoGlobal(historicoGeral);
+                atualizarCardsStatusRedes();
 
             } catch (err) {
-                console.error("Erro ao carregar dados on-chain públicos:", err);
+                console.error("Erro ao carregar dados públicos:", err);
             }
         }
 
-        async function atualizarCardsMultiChain() {
-            let globalTotalSum = 0;
+        function renderizarHistoricoGlobal(historico) {
+            const tableBody = document.getElementById('historyBody');
+            if (!tableBody) return;
 
+            if (historico.length === 0) {
+                tableBody.innerHTML = `
+                    <tr class="border-b border-white/10">
+                        <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum vencedor registrado globalmente.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = historico.map(item => {
+                const carteiraFmt = item.carteira.slice(0, 6) + "..." + item.carteira.slice(-4);
+                const valorFmt = parseFloat(ethers.formatUnits(item.valor, item.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                return `
+                    <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
+                        <td class="py-3">
+                            <a href="${item.scanUrl}/address/${item.carteira}" target="_blank" class="font-mono text-purple-400 hover:text-white underline font-bold">
+                                ${carteiraFmt} ↗
+                            </a>
+                        </td>
+                        <td class="py-3"><span class="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded text-[9px] font-bold">${item.tipo || 'JACKPOT'} (${item.netName})</span></td>
+                        <td class="py-3 text-gray-300 font-mono text-[11px]">Sorteio On-Chain</td>
+                        <td class="py-3 text-right font-bold text-white">$${valorFmt} USDT</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function atualizarCardsStatusRedes() {
             for (const [chainIdKey, net] of Object.entries(NETWORKS)) {
-                let jpFormatted = 0;
-                let weeklyFormatted = 0;
-
-                try {
-                    let jackpotRaw = 0n;
-                    let semanalRaw = 0n;
-
-                    if (chainIdKey === 'tron') {
-                        const tw = new TronWeb({ fullHost: net.rpc });
-                        const contract = await tw.contract().at(net.contract);
-                        jackpotRaw = BigInt((await contract.jackpotAcumulado().call()).toString());
-                        semanalRaw = BigInt((await contract.poolSemanal().call()).toString());
-                    } else {
-                        const tempProvider = new ethers.JsonRpcProvider(net.rpc);
-                        const tempContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
-                        jackpotRaw = await tempContract.jackpotAcumulado().catch(() => 0n);
-                        semanalRaw = await tempContract.poolSemanal().catch(() => 0n);
-                    }
-                    
-                    jpFormatted = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals));
-                    weeklyFormatted = parseFloat(ethers.formatUnits(semanalRaw, net.decimals));
-
-                    document.getElementById(`jpNet-${chainIdKey}`).innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    document.getElementById(`weeklyNet-${chainIdKey}`).innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-                    globalTotalSum += jpFormatted + weeklyFormatted;
-                } catch (e) {
-                    console.error(`Erro ao buscar dados da rede ${net.name}:`, e);
-                }
-
                 const card = document.getElementById(`cardNet-${chainIdKey}`);
                 const statusBadge = document.getElementById(`statusNet-${chainIdKey}`);
                 const btn = document.getElementById(`btnNet-${chainIdKey}`);
 
-                if (chainIdKey === String(currentChainId)) {
+                const isCurrentActive = (isTronMode && chainIdKey === 'tron') || (!isTronMode && String(currentChainId) === chainIdKey);
+
+                if (isCurrentActive && userAddress) {
                     card.className = "glass rounded-2xl p-4 border border-purple-500 bg-purple-500/10 flex flex-col justify-between transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]";
                     statusBadge.className = "text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase";
                     statusBadge.innerText = "Conectado Ativo";
@@ -1121,119 +973,8 @@
                     statusBadge.innerText = "Disponível";
                     btn.disabled = false;
                     btn.innerText = `Conectar ${net.name}`;
-                    if (chainIdKey === '56') {
-                        btn.className = "w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30";
-                    } else if (chainIdKey === '42161') {
-                        btn.className = "w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30";
-                    } else if (chainIdKey === '8453') {
-                        btn.className = "w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30";
-                    } else if (chainIdKey === '10') {
-                        btn.className = "w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30";
-                    } else if (chainIdKey === '43114') {
-                        btn.className = "w-full bg-orange-600/30 hover:bg-orange-600 text-orange-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-orange-500/30";
-                    } else if (chainIdKey === 'tron') {
-                        btn.className = "w-full bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-rose-500/30";
-                    } else {
-                        btn.className = "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30";
-                    }
+                    btn.className = "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30";
                 }
-            }
-
-            const globalEl = document.getElementById('globalTotalValue');
-            if (globalEl) {
-                globalEl.innerText = globalTotalSum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
-        }
-
-        async function carregarHistoricoPublico(readLottery) {
-            const tableBody = document.getElementById('historyBody');
-            if (!tableBody || !readLottery) return;
-
-            try {
-                let ganhadores = [];
-                let mascarasSorteadasLista = [];
-
-                if (currentChainId !== 'tron') {
-                    try {
-                        const filterSorteio = readLottery.filters.SorteioRealizado();
-                        const eventosSorteio = await readLottery.queryFilter(filterSorteio, 0, 'latest');
-                        eventosSorteio.forEach(ev => {
-                            if (ev.args && ev.args.maskSorteada !== undefined) {
-                                mascarasSorteadasLista.push(BigInt(ev.args.maskSorteada));
-                            }
-                        });
-                    } catch(e) {}
-                }
-
-                const count = await readLottery.getHistoricoCount().catch(() => 0n);
-                for (let i = 0; i < Number(count); i++) {
-                    try {
-                        const g = await readLottery.ultimosGanhadores(i);
-                        if (g && g.carteira && g.carteira !== "T000000000000000000000000000000000" && g.carteira !== ethers.ZeroAddress) {
-                            ganhadores.push({
-                                carteira: g.carteira,
-                                valor: g.valor,
-                                data: g.data,
-                                tipo: g.tipo
-                            });
-                        }
-                    } catch(e) { break; }
-                }
-
-                if (ganhadores.length === 0) {
-                    tableBody.innerHTML = `
-                        <tr class="border-b border-white/10">
-                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum sorteio registrado ainda nesta rede.</td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                let linhasHtml = '';
-                const activeNet = NETWORKS[currentChainId];
-
-                for (let i = ganhadores.length - 1; i >= 0; i--) {
-                    const g = ganhadores[i];
-                    const rawWallet = g.carteira;
-                    const carteiraFmt = g.carteira.slice(0, 6) + "..." + g.carteira.slice(-4);
-                    const valorPremio = parseFloat(ethers.formatUnits(g.valor, activeNet.decimals)).toLocaleString('en-US', { 
-                        minimumFractionDigits: 2, 
-                        maximumFractionDigits: 2 
-                    });
-                    const tipoTexto = g.tipo || "PREMIADO";
-                    const tipoBadge = (tipoTexto === "JACKPOT" || tipoTexto.includes("15")) 
-                        ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
-                        : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
-
-                    let walletElement = `
-                        <a href="${activeNet.scanUrl}/address/${rawWallet}" target="_blank" rel="noopener noreferrer" class="font-mono text-purple-400 hover:text-white underline font-bold inline-flex items-center gap-1" title="Verificar no Explorer">
-                            ${carteiraFmt} ↗
-                        </a>
-                    `;
-
-                    let maskSorteadaReal = mascarasSorteadasLista[i] !== undefined 
-                        ? mascarasSorteadasLista[i] 
-                        : (mascarasSorteadasLista[mascarasSorteadasLista.length - 1] || 0n);
-
-                    const dezenasDesebradas = descompactarMascara(maskSorteadaReal);
-                    const dezenasHtml = dezenasDesebradas.length > 0 
-                        ? dezenasDesebradas.map(numStr => `<span class="bg-white/5 text-purple-300 border border-purple-500/20 font-bold px-1.5 py-0.5 rounded text-[11px] font-mono">${numStr}</span>`).join(" ")
-                        : `<span class="text-gray-500 italic">Sorteio On-Chain</span>`;
-
-                    linhasHtml += `
-                        <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
-                            <td class="py-3">${walletElement}</td>
-                            <td class="py-3"><span class="${tipoBadge} px-2 py-0.5 rounded text-[9px] font-bold">${tipoTexto}</span></td>
-                            <td class="py-3"><div class="flex flex-wrap gap-1">${dezenasHtml}</div></td>
-                            <td class="py-3 text-right font-bold text-white">$${valorPremio} USDT</td>
-                        </tr>
-                    `;
-                }
-
-                tableBody.innerHTML = linhasHtml;
-
-            } catch (err) {
-                console.error("Erro ao puxar histórico público:", err);
             }
         }
 
@@ -1320,7 +1061,7 @@
 
         document.getElementById('btnApprove').onclick = async () => {
             if (!signer && !isTronMode) {
-                await connectWallet();
+                openWalletModalOrMenu();
                 if (!signer && !isTronMode) return;
             }
             const btnApprove = document.getElementById('btnApprove');
@@ -1331,12 +1072,12 @@
                 btnApprove.innerText = "APPROVING...";
                 SoundEngine.playTone(440, 'sine', 0.15, 0.08);
 
-                const activeNet = NETWORKS[currentChainId];
+                const activeNet = NETWORKS[isTronMode ? 'tron' : currentChainId];
                 const custoBilhete = ethers.parseUnits("5", activeNet.decimals);
                 
                 let tx;
                 if (isTronMode) {
-                    tx = await usdtContract.approve(activeNet.contract, custoBilhete);
+                    tx = await usdtContract.approve(activeNet.contract, 5000000n);
                 } else {
                     tx = await usdtContract.approve(activeNet.contract, custoBilhete);
                     await tx.wait();
@@ -1352,7 +1093,7 @@
             } catch (err) {
                 console.error("Erro no Approve:", err);
                 SoundEngine.errorSound();
-                alert("Erro ao aprovar USDT. Verifique seu saldo para taxas de gás.");
+                alert("Erro ao aprovar USDT. Verifique se há saldo suficiente.");
                 const lang = localStorage.getItem('megacrypto_lang') || 'pt';
                 btnApprove.innerText = translations[lang].btnApprove;
                 btnApprove.disabled = false;
@@ -1411,7 +1152,7 @@
 
         document.getElementById('btnClaim').onclick = async () => {
             if (!signer && !isTronMode) {
-                await connectWallet();
+                openWalletModalOrMenu();
                 if (!signer && !isTronMode) return;
             }
             const btnClaim = document.getElementById('btnClaim');
