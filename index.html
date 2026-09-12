@@ -995,10 +995,10 @@
                 currentChainId = 'tron';
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 await connectTronWallet();
+                await carregarDadosPublicos();
                 return;
             }
 
-            // Transição direta de Tron para EVM sem prompts desnecessários
             isTronMode = false;
             currentChainId = targetChainId;
 
