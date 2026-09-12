@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEGACRYPTO | Telegram Web3 Lottery</title>
+    <title>MEGACRYPTO | Multi-Chain Web3 Lottery</title>
 
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#030303">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎰</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -53,7 +54,7 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <!-- Modal de Seleção com Logos Oficiais Oficiais SVG -->
+    <!-- Modal de Seleção de Carteiras com Identificação Visual Oficial -->
     <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-md px-4">
         <div class="modal-glass w-full max-w-lg rounded-[32px] p-6 md:p-8 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center mb-6">
@@ -78,7 +79,7 @@
                     <span class="text-xs font-bold text-white group-hover:text-orange-400">MetaMask</span>
                 </button>
 
-                <!-- Binance Wallet -->
+                <!-- Binance Web3 Wallet -->
                 <button onclick="selectWalletProvider('binance')" class="glass hover:bg-white/10 p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all border border-white/5 hover:border-yellow-500/40 group">
                     <div class="h-12 w-12 rounded-2xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center shadow-inner">
                         <svg class="w-7 h-7" viewBox="0 0 512 512" fill="#F0B90B"><path d="M256 0l110.85 110.85-64.48 64.48L256 110.85 190.15 175.33l-64.48-64.48L256 0zm190.15 190.15L335.3 305l-64.48-64.48 64.48-64.48 114.85 114.61zM65.85 190.15l114.85-114.61 64.48 64.48-64.48 64.48-114.85 114.61V190.15zm190.15 131.7l64.48 64.48L256 451.15 145.15 340.3l64.48-64.48 46.37 46.05zm102.34 39.15l64.48 64.48L256 512 150.67 425.48l64.48-64.48L256 389.2l102.34-28.2z"/></svg>
@@ -686,6 +687,7 @@
         let provider, signer, userAddress;
         let lotteryContract, usdtContract;
         let isTronMode = false;
+        let activeWalletName = "MetaMask";
 
         async function getPublicContract(chainId) {
             const net = NETWORKS[chainId] || NETWORKS[137];
@@ -749,7 +751,7 @@
 
         function openWalletModalOrMenu() {
             if (userAddress) {
-                if (confirm("Deseja alterar a carteira ou rede conectada?")) {
+                if (confirm(`Conectado via ${activeWalletName} (${userAddress.slice(0,6)}...). Deseja alterar a carteira ou rede?`)) {
                     userAddress = null;
                     const btn = document.getElementById('connectBtn');
                     btn.innerHTML = '<span>Connect Wallet</span>';
@@ -764,6 +766,7 @@
 
         async function selectWalletProvider(type) {
             toggleWalletModal(false);
+            activeWalletName = type.toUpperCase();
             if (type === 'tron') {
                 await connectTronWallet();
             } else {
@@ -803,7 +806,7 @@
                 lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
                 usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
 
-                updateConnectedUI(userAddress);
+                updateConnectedUI(userAddress, activeWalletName);
                 await carregarMinhasApostas();
                 await verificarPremioDisponivel();
                 await carregarDadosPublicos();
@@ -826,7 +829,7 @@
                             lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
                             usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
 
-                            updateConnectedUI(userAddress);
+                            updateConnectedUI(userAddress, activeWalletName);
                             await carregarMinhasApostas();
                             await verificarPremioDisponivel();
                             await carregarDadosPublicos();
@@ -880,7 +883,7 @@
                 currentChainId = 'tron';
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 updateNetworkBadge('tron');
-                updateConnectedUI(userAddress);
+                updateConnectedUI(userAddress, "TRONLINK");
 
                 const activeNet = NETWORKS['tron'];
                 
@@ -928,8 +931,8 @@
                 usdtContract = {
                     approve: async (spender, amount) => {
                         const tw = window.tronWeb || window.tronLink.tronWeb;
-                        // Vinculação correta ao contrato do token USDT (TRC20) na Tron para evitar erro de método
                         const usdtTrc20 = await tw.contract().at(activeNet.usdt);
+                        // Define o valor de 5 USDT exatos em base 6 (5,000,000) preenchendo automaticamente sem input manual
                         return await usdtTrc20.approve(spender, amount.toString()).send({
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
@@ -961,12 +964,11 @@
                 currentChainId = 'tron';
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 await connectTronWallet();
-                await carregarDadosPublicos();
                 return;
             }
 
             isTronMode = false;
-            currentChainId = targetChainId;
+            currentChainId = Number(targetChainId);
 
             if (!window.ethereum) {
                 alert("Extensão EVM não detectada.");
@@ -989,7 +991,7 @@
                 lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
                 usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
 
-                updateConnectedUI(userAddress);
+                updateConnectedUI(userAddress, activeWalletName);
                 updateNetworkBadge(Number(targetChainId));
                 await carregarMinhasApostas();
                 await verificarPremioDisponivel();
@@ -1018,7 +1020,7 @@
                         lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
                         usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
 
-                        updateConnectedUI(userAddress);
+                        updateConnectedUI(userAddress, activeWalletName);
                         updateNetworkBadge(Number(targetChainId));
                         await carregarMinhasApostas();
                         await verificarPremioDisponivel();
@@ -1070,78 +1072,129 @@
             }
         }
 
-        function updateConnectedUI(addr) {
+        function updateConnectedUI(addr, walletName = "WALLET") {
             const btn = document.getElementById('connectBtn');
             if (!addr) return;
-            btn.innerHTML = `<span>${addr.slice(0,6)}...${addr.slice(-4)}</span> <span class="text-[10px]">▼</span>`;
+            btn.innerHTML = `<span class="font-tech">${walletName}</span>: <span>${addr.slice(0,4)}...${addr.slice(-4)}</span> <span class="text-[10px]">▼</span>`;
             btn.classList.remove('btn-grad');
             btn.classList.add('bg-green-600');
         }
 
         async function carregarDadosPublicos() {
             try {
-                const readLottery = await getPublicContract(currentChainId);
-                const activeNet = NETWORKS[currentChainId];
-                if (!readLottery) return;
+                let globalTotalSum = 0;
+                let historicoGeral = [];
+
+                for (const [chainIdKey, net] of Object.entries(NETWORKS)) {
+                    try {
+                        let jackpotRaw = 0n;
+                        let semanalRaw = 0n;
+                        let readContract = null;
+
+                        if (chainIdKey === 'tron') {
+                            const hostUrl = net.rpc;
+                            const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
+                            const contract = await tw.contract().at(net.contract);
+                            jackpotRaw = BigInt((await contract.jackpotAcumulado().call()).toString());
+                            semanalRaw = BigInt((await contract.poolSemanal().call()).toString());
+                            readContract = {
+                                getHistoricoCount: async () => BigInt((await contract.getHistoricoCount().call()).toString()),
+                                ultimosGanhadores: async (i) => {
+                                    const res = await contract.ultimosGanhadores(i).call();
+                                    return {
+                                        carteira: res.carteira || res[0],
+                                        valor: BigInt((res.valor || res[1]).toString()),
+                                        data: Number(res.data || res[2]),
+                                        tipo: res.tipo || res[3]
+                                    };
+                                }
+                            };
+                        } else {
+                            const tempProvider = new ethers.JsonRpcProvider(net.rpc);
+                            readContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
+                            jackpotRaw = await readContract.jackpotAcumulado().catch(() => 0n);
+                            semanalRaw = await readContract.poolSemanal().catch(() => 0n);
+                        }
+
+                        let jpFormatted = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals));
+                        let weeklyFormatted = parseFloat(ethers.formatUnits(semanalRaw, net.decimals));
+
+                        document.getElementById(`jpNet-${chainIdKey}`).innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        document.getElementById(`weeklyNet-${chainIdKey}`).innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                        globalTotalSum += jpFormatted + weeklyFormatted;
+
+                        // Coleta histórico intercalado de vencedores de todas as redes
+                        if (readContract && readContract.getHistoricoCount) {
+                            const hCount = await readContract.getHistoricoCount().catch(() => 0n);
+                            for (let h = 0; h < Number(hCount); h++) {
+                                const winData = await readContract.ultimosGanhadores(h).catch(() => null);
+                                if (winData && winData.carteira && winData.carteira !== ethers.ZeroAddress && winData.carteira !== "T000000000000000000000000000000000") {
+                                    historicoGeral.push({
+                                        ...winData,
+                                        netName: net.name,
+                                        scanUrl: net.scanUrl,
+                                        decimals: net.decimals
+                                    });
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error(`Erro ao carregar dados da rede ${net.name}:`, e);
+                    }
+                }
+
+                document.getElementById('globalTotalValue').innerText = globalTotalSum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 
-                const [jackpotRaw, semanalRaw] = await Promise.all([
-                    readLottery.jackpotAcumulado().catch(() => 0n),
-                    readLottery.poolSemanal().catch(() => 0n)
-                ]);
-
-                document.getElementById('jackpotValue').innerText = parseFloat(ethers.formatUnits(jackpotRaw, activeNet.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                document.getElementById('weeklyValue').innerText = parseFloat(ethers.formatUnits(semanalRaw, activeNet.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-                await carregarHistoricoPublico(readLottery);
-                await atualizarCardsMultiChain();
+                // Exibe o histórico unificado e intercalado na tabela
+                renderizarHistoricoGlobal(historicoGeral);
+                atualizarCardsStatusRedes();
 
             } catch (err) {
-                console.error("Erro ao carregar dados on-chain públicos:", err);
+                console.error("Erro geral ao carregar dados públicos:", err);
             }
         }
 
-        async function atualizarCardsMultiChain() {
-            let globalTotalSum = 0;
+        function renderizarHistoricoGlobal(historico) {
+            const tableBody = document.getElementById('historyBody');
+            if (!tableBody) return;
 
+            if (historico.length === 0) {
+                tableBody.innerHTML = `
+                    <tr class="border-b border-white/10">
+                        <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum vencedor registrado globalmente no momento.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = historico.map(item => {
+                const carteiraFmt = item.carteira.slice(0, 6) + "..." + item.carteira.slice(-4);
+                const valorFmt = parseFloat(ethers.formatUnits(item.valor, item.decimals)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                return `
+                    <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
+                        <td class="py-3">
+                            <a href="${item.scanUrl}/address/${item.carteira}" target="_blank" class="font-mono text-purple-400 hover:text-white underline font-bold">
+                                ${carteiraFmt} ↗
+                            </a>
+                        </td>
+                        <td class="py-3"><span class="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded text-[9px] font-bold">${item.type || 'JACKPOT'} (${item.netName})</span></td>
+                        <td class="py-3 text-gray-300 font-mono text-[11px]">Sorteio On-Chain</td>
+                        <td class="py-3 text-right font-bold text-white">$${valorFmt} USDT</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function atualizarCardsStatusRedes() {
             for (const [chainIdKey, net] of Object.entries(NETWORKS)) {
-                let jpFormatted = 0;
-                let weeklyFormatted = 0;
-
-                try {
-                    let jackpotRaw = 0n;
-                    let semanalRaw = 0n;
-
-                    if (chainIdKey === 'tron') {
-                        const hostUrl = net.rpc;
-                        const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
-                        const contract = await tw.contract().at(net.contract);
-                        jackpotRaw = BigInt((await contract.jackpotAcumulado().call()).toString());
-                        semanalRaw = BigInt((await contract.poolSemanal().call()).toString());
-                    } else {
-                        const tempProvider = new ethers.JsonRpcProvider(net.rpc);
-                        const tempContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
-                        jackpotRaw = await tempContract.jackpotAcumulado().catch(() => 0n);
-                        semanalRaw = await tempContract.poolSemanal().catch(() => 0n);
-                    }
-                    
-                    jpFormatted = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals));
-                    weeklyFormatted = parseFloat(ethers.formatUnits(semanalRaw, net.decimals));
-
-                    document.getElementById(`jpNet-${chainIdKey}`).innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    document.getElementById(`weeklyNet-${chainIdKey}`).innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-                    globalTotalSum += jpFormatted + weeklyFormatted;
-                } catch (e) {
-                    console.error(`Erro ao buscar dados da rede ${net.name}:`, e);
-                }
-
                 const card = document.getElementById(`cardNet-${chainIdKey}`);
                 const statusBadge = document.getElementById(`statusNet-${chainIdKey}`);
                 const btn = document.getElementById(`btnNet-${chainIdKey}`);
 
                 const isCurrentActive = (isTronMode && chainIdKey === 'tron') || (!isTronMode && String(currentChainId) === chainIdKey);
 
-                if (isCurrentActive) {
+                if (isCurrentActive && userAddress) {
                     card.className = "glass rounded-2xl p-4 border border-purple-500 bg-purple-500/10 flex flex-col justify-between transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]";
                     statusBadge.className = "text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase";
                     statusBadge.innerText = "Conectado Ativo";
@@ -1154,119 +1207,8 @@
                     statusBadge.innerText = "Disponível";
                     btn.disabled = false;
                     btn.innerText = `Conectar ${net.name}`;
-                    if (chainIdKey === '56') {
-                        btn.className = "w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30";
-                    } else if (chainIdKey === '42161') {
-                        btn.className = "w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30";
-                    } else if (chainIdKey === '8453') {
-                        btn.className = "w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30";
-                    } else if (chainIdKey === '10') {
-                        btn.className = "w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30";
-                    } else if (chainIdKey === '43114') {
-                        btn.className = "w-full bg-orange-600/30 hover:bg-orange-600 text-orange-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-orange-500/30";
-                    } else if (chainIdKey === 'tron') {
-                        btn.className = "w-full bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-rose-500/30";
-                    } else {
-                        btn.className = "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30";
-                    }
+                    btn.className = "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30";
                 }
-            }
-
-            const globalEl = document.getElementById('globalTotalValue');
-            if (globalEl) {
-                globalEl.innerText = globalTotalSum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
-        }
-
-        async function carregarHistoricoPublico(readLottery) {
-            const tableBody = document.getElementById('historyBody');
-            if (!tableBody || !readLottery) return;
-
-            try {
-                let ganhadores = [];
-                let mascarasSorteadasLista = [];
-
-                if (currentChainId !== 'tron') {
-                    try {
-                        const filterSorteio = readLottery.filters.SorteioRealizado();
-                        const eventosSorteio = await readLottery.queryFilter(filterSorteio, 0, 'latest');
-                        eventosSorteio.forEach(ev => {
-                            if (ev.args && ev.args.maskSorteada !== undefined) {
-                                mascarasSorteadasLista.push(BigInt(ev.args.maskSorteada));
-                            }
-                        });
-                    } catch(e) {}
-                }
-
-                const count = await readLottery.getHistoricoCount().catch(() => 0n);
-                for (let i = 0; i < Number(count); i++) {
-                    try {
-                        const g = await readLottery.ultimosGanhadores(i);
-                        if (g && g.carteira && g.carteira !== "T000000000000000000000000000000000" && g.carteira !== ethers.ZeroAddress) {
-                            ganhadores.push({
-                                carteira: g.carteira,
-                                valor: g.valor,
-                                data: g.data,
-                                tipo: g.tipo
-                            });
-                        }
-                    } catch(e) { break; }
-                }
-
-                if (ganhadores.length === 0) {
-                    tableBody.innerHTML = `
-                        <tr class="border-b border-white/10">
-                            <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum sorteio registrado ainda nesta rede.</td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                let linhasHtml = '';
-                const activeNet = NETWORKS[currentChainId];
-
-                for (let i = ganhadores.length - 1; i >= 0; i--) {
-                    const g = ganhadores[i];
-                    const rawWallet = g.carteira;
-                    const carteiraFmt = g.carteira.slice(0, 6) + "..." + g.carteira.slice(-4);
-                    const valorPremio = parseFloat(ethers.formatUnits(g.valor, activeNet.decimals)).toLocaleString('en-US', { 
-                        minimumFractionDigits: 2, 
-                        maximumFractionDigits: 2 
-                    });
-                    const tipoTexto = g.tipo || "PREMIADO";
-                    const tipoBadge = (tipoTexto === "JACKPOT" || tipoTexto.includes("15")) 
-                        ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
-                        : "bg-pink-500/20 text-pink-400 border border-pink-500/30";
-
-                    let walletElement = `
-                        <a href="${activeNet.scanUrl}/address/${rawWallet}" target="_blank" rel="noopener noreferrer" class="font-mono text-purple-400 hover:text-white underline font-bold inline-flex items-center gap-1" title="Verificar no Explorer">
-                            ${carteiraFmt} ↗
-                        </a>
-                    `;
-
-                    let maskSorteadaReal = mascarasSorteadasLista[i] !== undefined 
-                        ? mascarasSorteadasLista[i] 
-                        : (mascarasSorteadasLista[mascarasSorteadasLista.length - 1] || 0n);
-
-                    const dezenasDesebradas = descompactarMascara(maskSorteadaReal);
-                    const dezenasHtml = dezenasDesebradas.length > 0 
-                        ? dezenasDesebradas.map(numStr => `<span class="bg-white/5 text-purple-300 border border-purple-500/20 font-bold px-1.5 py-0.5 rounded text-[11px] font-mono">${numStr}</span>`).join(" ")
-                        : `<span class="text-gray-500 italic">Sorteio On-Chain</span>`;
-
-                    linhasHtml += `
-                        <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
-                            <td class="py-3">${walletElement}</td>
-                            <td class="py-3"><span class="${tipoBadge} px-2 py-0.5 rounded text-[9px] font-bold">${tipoTexto}</span></td>
-                            <td class="py-3"><div class="flex flex-wrap gap-1">${dezenasHtml}</div></td>
-                            <td class="py-3 text-right font-bold text-white">$${valorPremio} USDT</td>
-                        </tr>
-                    `;
-                }
-
-                tableBody.innerHTML = linhasHtml;
-
-            } catch (err) {
-                console.error("Erro ao puxar histórico público:", err);
             }
         }
 
@@ -1369,7 +1311,8 @@
                 
                 let tx;
                 if (isTronMode) {
-                    tx = await usdtContract.approve(activeNet.contract, custoBilhete);
+                    // Valor exato de 5 USDT preenchido de forma automática sem requerer input manual do usuário
+                    tx = await usdtContract.approve(activeNet.contract, 5000000n);
                 } else {
                     tx = await usdtContract.approve(activeNet.contract, custoBilhete);
                     await tx.wait();
