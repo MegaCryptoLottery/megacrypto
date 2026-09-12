@@ -12,6 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -54,7 +55,7 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <!-- Modal de Seleção de Carteiras (Estilo AppKit / Web3Modal) -->
+    <!-- Modal Profissional de Seleção de Carteiras (AppKit Style) -->
     <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-md px-4">
         <div class="modal-glass w-full max-w-lg rounded-[32px] p-6 md:p-8 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center mb-6">
@@ -370,7 +371,7 @@
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="bg-purple-500/20 text-purple-400 text-[10px] font-tech font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">15 Acertos • 50%</span>
-                        <span id="activeNetLabelJP" class="text-[10px] text-purple-300 uppercase tracking-widest font-tech font-bold">Polygon</span>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest font-tech" data-i18n="jackpotRole">Acumulativo</span>
                     </div>
                     <h2 data-i18n="jackpotLabel" class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Mega Jackpot</h2>
                     <div class="text-4xl md:text-5xl font-tech font-black text-white tracking-tight my-2">
@@ -387,7 +388,7 @@
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="bg-pink-500/20 text-pink-400 text-[10px] font-tech font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Maior Pontuação • 38%</span>
-                        <span id="activeNetLabelWK" class="text-[10px] text-pink-300 uppercase tracking-widest font-tech font-bold">Polygon</span>
+                        <span class="text-[10px] text-emerald-400 uppercase tracking-widest font-tech font-bold" data-i18n="weeklyRole">Garantido</span>
                     </div>
                     <h2 data-i18n="weeklyLabel" class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Prêmio da Rodada</h2>
                     <div class="text-4xl md:text-5xl font-tech font-black text-pink-400 tracking-tight my-2">
@@ -698,7 +699,7 @@
             if (chainId === 'tron') {
                 try {
                     const hostUrl = net.rpc;
-                    const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
+                    const tw = new TronWeb({ fullHost: hostUrl });
                     return {
                         jackpotAcumulado: async () => {
                             const contract = await tw.contract().at(net.contract);
@@ -782,8 +783,7 @@
 
         async function connectWallet(walletType = 'metamask') {
             try {
-                // Isola estritamente o provedor EVM real, ignorando qualquer interferência da TronLink
-                const ethProvider = window.ethereum;
+                let ethProvider = window.ethereum;
                 if (!ethProvider) {
                     alert("Nenhuma extensão de carteira EVM foi detectada no navegador.");
                     return;
@@ -1025,9 +1025,6 @@
                 const activeNetKey = isTronMode ? 'tron' : currentChainId;
                 const activeNetObj = NETWORKS[activeNetKey] || NETWORKS[137];
 
-                document.getElementById('activeNetLabelJP').innerText = activeNetObj.name;
-                document.getElementById('activeNetLabelWK').innerText = activeNetObj.name;
-
                 for (const [chainIdKey, net] of Object.entries(NETWORKS)) {
                     try {
                         let jackpotRaw = 0n;
@@ -1232,7 +1229,7 @@
 
         document.getElementById('btnApprove').onclick = async () => {
             if (!signer && !isTronMode) {
-                toggleWalletModal(true);
+                openWalletModalOrMenu();
                 if (!signer && !isTronMode) return;
             }
             const btnApprove = document.getElementById('btnApprove');
@@ -1323,7 +1320,7 @@
 
         document.getElementById('btnClaim').onclick = async () => {
             if (!signer && !isTronMode) {
-                toggleWalletModal(true);
+                openWalletModalOrMenu();
                 if (!signer && !isTronMode) return;
             }
             const btnClaim = document.getElementById('btnClaim');
@@ -1411,66 +1408,6 @@
                 }
             }
             return dezenas.sort((a, b) => Number(a) - Number(b));
-        }
-
-        function iniciarRelogio() {
-            function atualizar() {
-                const agora = new Date();
-                const domingo = new Date();
-                domingo.setUTCHours(20, 0, 0, 0);
-                domingo.setUTCDate(agora.getUTCDate() + ((7 - agora.getUTCDay()) % 7));
-
-                if (agora >= domingo) domingo.setUTCDate(domingo.getUTCDate() + 7);
-
-                const diff = domingo - agora;
-                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const m = Math.floor((diff / 1000 / 60) % 60);
-                const s = Math.floor((diff / 1000) % 60);
-
-                document.getElementById('countdownTimer').innerText = 
-                    `${String(d).padStart(2,'0')}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
-            }
-            setInterval(atualizar, 1000);
-            atualizar();
-        }
-
-        function shareSocial(network, isWinner = false) {
-            const lang = localStorage.getItem('megacrypto_lang') || 'pt';
-            
-            let textoMsg = "";
-            if (isWinner) {
-                textoMsg = lang === 'pt' 
-                    ? "🏆 Ganhei na MEGACRYPTO Lottery! Sorteio 100% on-chain. Confira:"
-                    : "🏆 I just won on MEGACRYPTO Lottery! 100% on-chain. Check it out:";
-            } else {
-                textoMsg = lang === 'pt'
-                    ? "🎰 Registrei meus bilhetes na MEGACRYPTO Lottery. Participe:"
-                    : "🎰 Placed my bets on MEGACRYPTO Lottery. Join now:";
-            }
-
-            const pageUrl = window.location.href;
-            let shareUrl = "";
-
-            if (network === 'telegram') {
-                if (window.Telegram?.WebApp?.openTelegramLink) {
-                    window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(textoMsg)}`);
-                    return;
-                }
-                shareUrl = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(textoMsg)}`;
-            } else if (network === 'whatsapp') {
-                shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoMsg + " " + pageUrl)}`;
-            } else if (network === 'x') {
-                shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(textoMsg)}&url=${encodeURIComponent(pageUrl)}`;
-            }
-
-            const link = document.createElement('a');
-            link.href = shareUrl;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
         window.onload = () => {
