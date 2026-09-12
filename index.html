@@ -53,7 +53,7 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <!-- Modal de Seleção de Carteiras com Ícones Oficiais SVG -->
+    <!-- Modal de Seleção com Logos Oficiais Oficiais SVG -->
     <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-md px-4">
         <div class="modal-glass w-full max-w-lg rounded-[32px] p-6 md:p-8 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center mb-6">
@@ -673,38 +673,9 @@
             "function balanceOf(address account) external view returns (uint256)"
         ];
 
-        const translations = {
-            pt: {
-                secBadge: "OFICIAL",
-                secText: "Confira sempre o endereço oficial para evitar clones:",
-                jackpotLabel: "Mega Jackpot", jackpotRole: "Acumulativo", jackpotSub: "Acumula se não houver 15 acertos",
-                weeklyLabel: "Prêmio da Rodada", weeklyRole: "Garantido", weeklySub: "Pago todo Domingo ao melhor jogador",
-                timerTitle: "PRÓXIMO SORTEIO SEMANAL (DOMINGO 20:00 UTC)",
-                winnerTitle: "🏆 VOCÊ GANHOU!", winnerSub: "Seu prêmio está pronto para saque imediato em USDT.",
-                playTitle: "FAÇA SUA JOGADA", selectTip: "Selecione exatamente 15 números (1 a 25)",
-                quickPick: "Surpresinha", clearPick: "Limpar", cost: "Preço",
-                myBetsTitle: "MINHAS APOSTAS REALIZADAS", shareLabel: "Compartilhar:",
-                noBetsYet: "Nenhuma aposta registrada no momento.",
-                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron).",
-                step2: "Escolha seus 15 números da sorte ou use a Surpresinha.", step3: "Aprove o contrato e confirme sua aposta de 5 USDT.",
-                step4: "Sorteio automático todo Domingo on-chain.", rulesTitle: "Divisão Transparente (100%)",
-                rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
-                rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos / Entropia.",
-                historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
-                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Jogo de azar para maiores de 18 anos.",
-                btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
-            }
-        };
-
         function setLanguage(lang) {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if(translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
-            });
             localStorage.setItem('megacrypto_lang', lang);
         }
-
-        document.getElementById('langSelector').onchange = (e) => setLanguage(e.target.value);
 
         function verificarAntiPhishing() {
             const currentHost = window.location.hostname;
@@ -913,7 +884,6 @@
 
                 const activeNet = NETWORKS['tron'];
                 
-                // Correção definitiva do contrato Tron para chamar o smart contract executando chamadas TRC20 e chamadas nativas corretas sem consumo excessivo de TRX
                 lotteryContract = {
                     comprarBilhete: async (numeros) => {
                         const tw = window.tronWeb || window.tronLink.tronWeb;
@@ -958,16 +928,17 @@
                 usdtContract = {
                     approve: async (spender, amount) => {
                         const tw = window.tronWeb || window.tronLink.tronWeb;
-                        const contract = await tw.contract().at(activeNet.usdt);
-                        return await contract.approve(spender, amount.toString()).send({
+                        // Vinculação correta ao contrato do token USDT (TRC20) na Tron para evitar erro de método
+                        const usdtTrc20 = await tw.contract().at(activeNet.usdt);
+                        return await usdtTrc20.approve(spender, amount.toString()).send({
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
                         });
                     },
                     allowance: async (owner, spender) => {
                         const tw = window.tronWeb || window.tronLink.tronWeb;
-                        const contract = await tw.contract().at(activeNet.usdt);
-                        const res = await contract.allowance(owner, spender).call();
+                        const usdtTrc20 = await tw.contract().at(activeNet.usdt);
+                        const res = await usdtTrc20.allowance(owner, spender).call();
                         return BigInt(res.toString());
                     }
                 };
@@ -990,6 +961,7 @@
                 currentChainId = 'tron';
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 await connectTronWallet();
+                await carregarDadosPublicos();
                 return;
             }
 
