@@ -426,7 +426,7 @@
                     <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron (USDT).</span></li>
                     <li><b>02.</b> <span data-i18n="step2">Escolha seus 15 números da sorte ou use a Surpresinha.</span></li>
                     <li><b>03.</b> <span data-i18n="step3">Aprove o contrato e confirme sua aposta de 5 USDT.</span></li>
-                    <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo via Chainlink VRF ou TVM.</span></li>
+                    <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo on-chain.</span></li>
                 </ul>
             </div>
             <div class="glass rounded-2xl p-6 border-l-2 border-pink-500">
@@ -599,7 +599,7 @@
             }
         };
 
-        let currentChainId = 137; // Pode ser número (EVMS) ou 'tron'
+        let currentChainId = 137;
 
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
@@ -762,7 +762,6 @@
         async function getPublicContract(chainId) {
             const net = NETWORKS[chainId] || NETWORKS[137];
             if (chainId === 'tron') {
-                // Instância de leitura pública via TronWeb para a Tron
                 try {
                     const tw = new TronWeb({ fullHost: net.rpc });
                     return {
@@ -810,21 +809,15 @@
 
         async function connectWallet() {
             try {
-                // Verifica se o usuário prefere TronLink caso deseje conectar na Tron ou se window.tronWeb estiver disponível
-                const hasTronLink = window.tronWeb && window.tronWeb.defaultAddress && window.tronWeb.defaultAddress.base58;
+                const hasTronLink = (window.tron || window.tronLink);
                 
-                // Se o usuário estiver explicitamente no modo Tron ou acionar via seletor Tron, abre o fluxo TronLink
-                if (hasTronLink && (isTronMode || confirm("Deseja conectar com a carteira Tron (TronLink)? Clique em Cancelar para usar EVM (MetaMask)."))) {
+                if (isTronMode || hasTronLink) {
                     await connectTronWallet();
                     return;
                 }
 
                 const ethProvider = window.ethereum || window.coinbaseWalletExtension;
                 if (!ethProvider) {
-                    if (hasTronLink) {
-                        await connectTronWallet();
-                        return;
-                    }
                     const rawUrl = window.location.href.replace(/^https?:\/\//, '');
                     const metamaskUrl = `https://metamask.app.link/dapp/${rawUrl}`;
                     if (window.Telegram?.WebApp?.openLink) {
@@ -899,25 +892,49 @@
 
         async function connectTronWallet() {
             try {
-                if (!window.tronWeb || !window.tronWeb.defaultAddress.base58) {
-                    alert("Por favor, abra a extensão TronLink ou acesse via navegador compatível com TronLink.");
+                const tronProvider = window.tron || window.tronLink;
+                
+                if (!tronProvider) {
+                    alert("A extensão TronLink não foi detectada. Por favor, instale ou abra a TronLink.");
                     window.open("https://www.tronlink.org", "_blank");
+                    return;
+                }
+
+                let accounts = [];
+                if (tronProvider.request) {
+                    try {
+                        accounts = await tronProvider.request({ method: "eth_requestAccounts" });
+                    } catch (e) {
+                        if (window.tronLink && window.tronLink.request) {
+                            await window.tronLink.request({ method: 'tron_requestAccounts' });
+                        }
+                    }
+                }
+
+                const activeTronWeb = window.tronWeb || (window.tronLink && window.tronLink.tronWeb);
+                
+                if (!activeTronWeb || !activeTronWeb.defaultAddress || !activeTronWeb.defaultAddress.base58) {
+                    userAddress = accounts[0] || (activeTronWeb && activeTronWeb.defaultAddress && activeTronWeb.defaultAddress.base58);
+                } else {
+                    userAddress = activeTronWeb.defaultAddress.base58;
+                }
+
+                if (!userAddress) {
+                    alert("Não foi possível obter o endereço da TronLink. Certifique-se de que a carteira está desbloqueada.");
                     return;
                 }
 
                 isTronMode = true;
                 currentChainId = 'tron';
                 updateNetworkBadge('tron');
-
-                userAddress = window.tronWeb.defaultAddress.base58;
                 updateConnectedUI(userAddress);
 
                 const activeNet = NETWORKS['tron'];
                 
-                // Objeto de contrato compatível com TronWeb para transações
                 lotteryContract = {
                     comprarBilhete: async (numeros) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         return await contract.comprarBilhete(numeros).send({
                             feeLimit: 100_000_000,
                             callValue: 0,
@@ -925,24 +942,28 @@
                         });
                     },
                     reclamarPremio: async () => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         return await contract.reclamarPremio().send({
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
                         });
                     },
                     premiosParaSacar: async (addr) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         const res = await contract.premiosParaSacar(addr).call();
                         return BigInt(res.toString());
                     },
                     getApostasCount: async () => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         const res = await contract.getApostasCount().call();
                         return BigInt(res.toString());
                     },
                     apostasDaSemana: async (i) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.contract);
                         const res = await contract.apostasDaSemana(i).call();
                         return {
                             jogador: res.jogador || res[0],
@@ -953,14 +974,16 @@
 
                 usdtContract = {
                     approve: async (spender, amount) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.usdt);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.usdt);
                         return await contract.approve(spender, amount.toString()).send({
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
                         });
                     },
                     allowance: async (owner, spender) => {
-                        const contract = await window.tronWeb.contract().at(activeNet.usdt);
+                        const tw = window.tronWeb || window.tronLink.tronWeb;
+                        const contract = await tw.contract().at(activeNet.usdt);
                         const res = await contract.allowance(owner, spender).call();
                         return BigInt(res.toString());
                     }
@@ -974,7 +997,7 @@
             } catch (err) {
                 console.error("Erro ao conectar TronLink:", err);
                 SoundEngine.errorSound();
-                alert("Erro ao conectar com a TronLink.");
+                alert("Erro ao conectar com a TronLink. Verifique se a extensão está desbloqueada.");
             }
         }
 
