@@ -720,7 +720,7 @@
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
                 rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Oracles.",
                 historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur plusieurs réseaux. 18+.",
+                legalTitle: "Protocole Décentralizado", legalText: "MEGACRYPTO fonctionne sur plusieurs réseaux. 18+.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
@@ -1131,7 +1131,10 @@
                 const statusBadge = document.getElementById(`statusNet-${chainIdKey}`);
                 const btn = document.getElementById(`btnNet-${chainIdKey}`);
 
-                if (chainIdKey === String(currentChainId)) {
+                // Correção aplicada: Verifica se o card atual corresponde estritamente ao ID ativo ou ao modo Tron
+                const isCurrentActive = (isTronMode && chainIdKey === 'tron') || (!isTronMode && String(currentChainId) === chainIdKey);
+
+                if (isCurrentActive) {
                     card.className = "glass rounded-2xl p-4 border border-purple-500 bg-purple-500/10 flex flex-col justify-between transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]";
                     statusBadge.className = "text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase";
                     statusBadge.innerText = "Conectado Ativo";
