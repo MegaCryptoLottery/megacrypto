@@ -720,7 +720,7 @@
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
                 rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Oracles.",
                 historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralizado", legalText: "MEGACRYPTO fonctionne sur plusieurs réseaux. 18+.",
+                legalTitle: "Protocole Descentralizado", legalText: "MEGACRYPTO fonctionne sur plusieurs réseaux. 18+.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
@@ -809,22 +809,9 @@
 
         async function connectWallet() {
             try {
-                const hasTronLink = (window.tron || window.tronLink);
-                
-                if (isTronMode || hasTronLink) {
-                    await connectTronWallet();
-                    return;
-                }
-
                 const ethProvider = window.ethereum || window.coinbaseWalletExtension;
                 if (!ethProvider) {
-                    const rawUrl = window.location.href.replace(/^https?:\/\//, '');
-                    const metamaskUrl = `https://metamask.app.link/dapp/${rawUrl}`;
-                    if (window.Telegram?.WebApp?.openLink) {
-                        window.Telegram.WebApp.openLink(metamaskUrl);
-                    } else {
-                        window.location.href = metamaskUrl;
-                    }
+                    await connectTronWallet();
                     return;
                 }
 
@@ -1006,11 +993,16 @@
                 isTronMode = true;
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 await connectTronWallet();
+                await carregarDadosPublicos();
                 return;
             }
 
-            try {
+            // Se o usuário estava na Tron e clicou em uma rede EVM, reseta o modo Tron e conecta na EVM
+            if (isTronMode) {
                 isTronMode = false;
+            }
+
+            try {
                 const hexChainId = '0x' + Number(targetChainId).toString(16);
                 await window.ethereum.request({
                     method: 'wallet_switchEthereumChain',
@@ -1018,6 +1010,24 @@
                 });
                 document.getElementById('networkWarningBanner').classList.add('hidden');
             } catch (switchError) {
+                // Caso a rede não esteja cadastrada na carteira EVM, tenta adicionar automaticamente
+                if (switchError.code === 4902 || switchError.code === -32603) {
+                    try {
+                        const net = NETWORKS[targetChainId];
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: hexChainId,
+                                chainName: net.name,
+                                rpcUrls: [net.rpc],
+                                nativeCurrency: { name: net.name, symbol: net.name === 'Avalanche' ? 'AVAX' : net.name === 'BSC' ? 'BNB' : 'ETH', decimals: 18 },
+                                blockExplorerUrls: [net.scanUrl]
+                            }]
+                        });
+                        document.getElementById('networkWarningBanner').classList.add('hidden');
+                        return;
+                    } catch (addError) {}
+                }
                 alert("Por favor, altere manualmente sua rede na carteira.");
             }
         }
@@ -1131,7 +1141,6 @@
                 const statusBadge = document.getElementById(`statusNet-${chainIdKey}`);
                 const btn = document.getElementById(`btnNet-${chainIdKey}`);
 
-                // Correção aplicada: Verifica se o card atual corresponde estritamente ao ID ativo ou ao modo Tron
                 const isCurrentActive = (isTronMode && chainIdKey === 'tron') || (!isTronMode && String(currentChainId) === chainIdKey);
 
                 if (isCurrentActive) {
