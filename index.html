@@ -54,7 +54,7 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <!-- Modal de Seleção de Carteiras com Ícones Oficiais SVG -->
+    <!-- Modal de Seleção de Carteiras com Identificação Visual Oficial -->
     <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-md px-4">
         <div class="modal-glass w-full max-w-lg rounded-[32px] p-6 md:p-8 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center mb-6">
@@ -1111,8 +1111,8 @@
                         } else {
                             const tempProvider = new ethers.JsonRpcProvider(net.rpc);
                             readContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
-                            jackpotRaw = await tempContract.jackpotAcumulado().catch(() => 0n);
-                            semanalRaw = await tempContract.poolSemanal().catch(() => 0n);
+                            jackpotRaw = await readContract.jackpotAcumulado().catch(() => 0n);
+                            semanalRaw = await readContract.poolSemanal().catch(() => 0n);
                         }
 
                         let jpFormatted = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals));
@@ -1307,7 +1307,6 @@
                 
                 let tx;
                 if (isTronMode) {
-                    // Valor exato de 5 USDT (5,000,000 base 6) aprovado automaticamente
                     tx = await usdtContract.approve(activeNet.contract, 5000000n);
                 } else {
                     tx = await usdtContract.approve(activeNet.contract, custoBilhete);
