@@ -763,7 +763,9 @@
             const net = NETWORKS[chainId] || NETWORKS[137];
             if (chainId === 'tron') {
                 try {
-                    const tw = new TronWeb({ fullHost: net.rpc });
+                    // Utiliza TronWeb via CDN ou injetado na página
+                    const hostUrl = net.rpc;
+                    const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
                     return {
                         jackpotAcumulado: async () => {
                             const contract = await tw.contract().at(net.contract);
@@ -991,16 +993,14 @@
         async function switchNetwork(targetChainId) {
             if (targetChainId === 'tron') {
                 isTronMode = true;
+                currentChainId = 'tron';
                 document.getElementById('networkWarningBanner').classList.add('hidden');
                 await connectTronWallet();
-                await carregarDadosPublicos();
                 return;
             }
 
-            // Se o usuário estava na Tron e clicou em uma rede EVM, reseta o modo Tron e conecta na EVM
-            if (isTronMode) {
-                isTronMode = false;
-            }
+            isTronMode = false;
+            currentChainId = targetChainId;
 
             try {
                 const hexChainId = '0x' + Number(targetChainId).toString(16);
@@ -1009,8 +1009,9 @@
                     params: [{ chainId: hexChainId }],
                 });
                 document.getElementById('networkWarningBanner').classList.add('hidden');
+                updateNetworkBadge(Number(targetChainId));
+                await carregarDadosPublicos();
             } catch (switchError) {
-                // Caso a rede não esteja cadastrada na carteira EVM, tenta adicionar automaticamente
                 if (switchError.code === 4902 || switchError.code === -32603) {
                     try {
                         const net = NETWORKS[targetChainId];
@@ -1025,6 +1026,8 @@
                             }]
                         });
                         document.getElementById('networkWarningBanner').classList.add('hidden');
+                        updateNetworkBadge(Number(targetChainId));
+                        await carregarDadosPublicos();
                         return;
                     } catch (addError) {}
                 }
@@ -1115,7 +1118,8 @@
                     let semanalRaw = 0n;
 
                     if (chainIdKey === 'tron') {
-                        const tw = new TronWeb({ fullHost: net.rpc });
+                        const hostUrl = net.rpc;
+                        const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
                         const contract = await tw.contract().at(net.contract);
                         jackpotRaw = BigInt((await contract.jackpotAcumulado().call()).toString());
                         semanalRaw = BigInt((await contract.poolSemanal().call()).toString());
