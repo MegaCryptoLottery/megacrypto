@@ -52,19 +52,6 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <!-- 
-      ========================================================================
-      DIÁRIO DE CONTROLE TÉCNICO (REGISTRO DO QUE FOI IMPLEMENTADO E FUNCIONA):
-      ========================================================================
-      1. SUPORTE MULTI-CHAIN INTEGRADO (Polygon, BSC, Arbitrum, Base, Optimism e Avalanche): 
-         Configuração completa de contratos, RPCs e explorers para todas as 6 redes.
-      2. RASTREIO DE APOSTAS MULTI-CHAIN (carregarMinhasApostas): 
-         Combina o array ativo com logs persistentes para exibição contínua.
-      3. NÚMEROS SORTEADOS REAIS (carregarHistoricoPublico): 
-         Decodificação exata da maskSorteada do evento SorteioRealizado via descompactarMascara().
-      ========================================================================
-    -->
-
     <aside aria-label="Alerta de Segurança" id="securityBanner" class="w-full bg-[#0a0f1d] border-b border-purple-500/30 px-3 py-1.5 text-[11px] flex items-center justify-center gap-2 shadow-sm text-center">
         <span class="inline-flex items-center gap-1.5 font-tech font-bold text-emerald-400">
             <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -113,7 +100,7 @@
         
         <div id="networkWarningBanner" class="hidden mb-6 glass rounded-xl p-4 border-amber-500/50 bg-amber-500/10 text-center shadow-lg animate-pulse">
             <h4 class="text-amber-400 font-tech text-xs font-bold mb-1">⚠️ REDE NÃO SUPORTADA</h4>
-            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo na Polygon, BSC, Arbitrum, Base, Optimism e Avalanche.</p>
+            <p class="text-gray-300 text-xs mb-3">O protocolo MEGACRYPTO está ativo na Polygon, BSC, Arbitrum, Base, Optimism, Avalanche e Tron.</p>
             <div class="flex flex-wrap justify-center gap-2">
                 <button onclick="switchNetwork(137)" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Polygon</button>
                 <button onclick="switchNetwork(56)" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">BSC</button>
@@ -121,6 +108,7 @@
                 <button onclick="switchNetwork(8453)" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Base</button>
                 <button onclick="switchNetwork(10)" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Optimism</button>
                 <button onclick="switchNetwork(43114)" class="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Avalanche</button>
+                <button onclick="switchNetwork('tron')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-all">Tron</button>
             </div>
         </div>
 
@@ -281,6 +269,27 @@
                     </button>
                 </div>
 
+                <!-- Card Tron -->
+                <div id="cardNet-tron" class="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-tech text-xs font-bold text-rose-300">Tron (TRC20)</span>
+                        <span id="statusNet-tron" class="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-gray-400 font-bold uppercase">Disponível</span>
+                    </div>
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-purple-400 uppercase font-tech font-bold">Jackpot (50%):</span>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="jpNet-tron">0.00</span></div>
+                        </div>
+                        <div class="bg-black/30 p-2.5 rounded-xl border border-white/5">
+                            <span class="text-[9px] text-pink-400 uppercase font-tech font-bold">Semanal (38%):</span>
+                            <div class="text-sm font-tech font-bold text-white">$ <span id="weeklyNet-tron">0.00</span></div>
+                        </div>
+                    </div>
+                    <button onclick="switchNetwork('tron')" id="btnNet-tron" class="w-full bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-rose-500/30">
+                        Conectar Tron
+                    </button>
+                </div>
+
             </div>
         </section>
 
@@ -414,10 +423,10 @@
             <div class="glass rounded-2xl p-6 border-l-2 border-purple-500">
                 <h4 data-i18n="howTitle" class="font-tech text-xs text-purple-400 mb-4 uppercase tracking-wider">Como Funciona</h4>
                 <ul class="space-y-3 text-[11px] text-gray-300 leading-relaxed">
-                    <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC, Arbitrum, Base, Optimism ou Avalanche (USDT).</span></li>
+                    <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron (USDT).</span></li>
                     <li><b>02.</b> <span data-i18n="step2">Escolha seus 15 números da sorte ou use a Surpresinha.</span></li>
                     <li><b>03.</b> <span data-i18n="step3">Aprove o contrato e confirme sua aposta de 5 USDT.</span></li>
-                    <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo via Chainlink VRF.</span></li>
+                    <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo via Chainlink VRF ou TVM.</span></li>
                 </ul>
             </div>
             <div class="glass rounded-2xl p-6 border-l-2 border-pink-500">
@@ -426,7 +435,7 @@
                     <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-purple-400 rounded-full"></div> <span data-i18n="rule1">50% para o Mega Jackpot (15 acertos).</span></li>
                     <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-pink-400 rounded-full"></div> <span data-i18n="rule2">38% para o Prêmio Semanal (Maior pontuador).</span></li>
                     <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-gray-400 rounded-full"></div> <span data-i18n="rule3">6% Fundo de Manutenção e Servidores.</span></li>
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-blue-400 rounded-full"></div> <span data-i18n="rule4">6% Apuração e Oráculos Chainlink VRF.</span></li>
+                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-blue-400 rounded-full"></div> <span data-i18n="rule4">6% Apuração e Oráculos / Entropia.</span></li>
                 </ul>
             </div>
         </section>
@@ -459,7 +468,7 @@
         <footer class="text-center border-t border-white/10 pt-8">
             <h5 data-i18n="legalTitle" class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
             <p data-i18n="legalText" class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
-                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism e Avalanche. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.
+                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos.
             </p>
         </footer>
     </main>
@@ -578,10 +587,19 @@
                 scanUrl: "https://snowtrace.io",
                 scanName: "Snowtrace",
                 rpc: "https://api.avax.network/ext/bc/C/rpc"
+            },
+            tron: {
+                name: "Tron",
+                contract: "TXW7hRQREVj8gSaj3CaPsVzj8VRcUxYqB4",
+                usdt: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                decimals: 6,
+                scanUrl: "https://tronscan.org",
+                scanName: "Tronscan",
+                rpc: "https://api.trongrid.io"
             }
         };
 
-        let currentChainId = 137;
+        let currentChainId = 137; // Pode ser número (EVMS) ou 'tron'
 
         const LOTTERY_ABI = [
             "function comprarBilhete(uint8[] calldata numeros) external",
@@ -616,13 +634,13 @@
                 quickPick: "Surpresinha", clearPick: "Limpar", cost: "Preço",
                 myBetsTitle: "MINHAS APOSTAS REALIZADAS", shareLabel: "Compartilhar:",
                 noBetsYet: "Nenhuma aposta registrada no momento.",
-                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon, BSC, Arbitrum, Base, Optimism ou Avalanche).",
+                howTitle: "Como Funciona", step1: "Conecte sua carteira (Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron).",
                 step2: "Escolha seus 15 números da sorte ou use a Surpresinha.", step3: "Aprove o contrato e confirme sua aposta de 5 USDT.",
-                step4: "Sorteio automático todo Domingo via Chainlink VRF.", rulesTitle: "Divisão Transparente (100%)",
+                step4: "Sorteio automático todo Domingo on-chain.", rulesTitle: "Divisão Transparente (100%)",
                 rule1: "50% para o Mega Jackpot (15 acertos).", rule2: "38% para o Prêmio Semanal (Maior pontuador).",
-                rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos Chainlink VRF.",
+                rule3: "6% Fundo de Manutenção e Servidores.", rule4: "6% Apuração e Oráculos / Entropia.",
                 historyTitle: "HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS", thWallet: "Carteira Vencedora", thType: "Tipo", thValue: "Prêmio",
-                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism e Avalanche. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos. Sorteios via Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos.",
                 btnApprove: "1. APROVAR USDT", btnBuy: "2. JOGAR AGORA", liveTicket: "Novo bilhete registrado:"
             },
             en: {
@@ -636,13 +654,13 @@
                 quickPick: "Quick Pick", clearPick: "Clear", cost: "Price",
                 myBetsTitle: "MY PLACED BETS", shareLabel: "Share:",
                 noBetsYet: "No bets registered right now.",
-                howTitle: "How It Works", step1: "Connect your wallet on Polygon, BSC, Arbitrum, Base, Optimism or Avalanche.",
+                howTitle: "How It Works", step1: "Connect your wallet on Polygon, BSC, Arbitrum, Base, Optimism, Avalanche or Tron.",
                 step2: "Choose your 15 lucky numbers or use Quick Pick.", step3: "Approve the contract and confirm your 5 USDT bet.",
-                step4: "Automated draw every Sunday via Chainlink VRF.", rulesTitle: "Transparent Split (100%)",
+                step4: "Automated draw every Sunday on-chain.", rulesTitle: "Transparent Split (100%)",
                 rule1: "50% to the Mega Jackpot (15 hits).", rule2: "38% to the Weekly Prize (Highest score).",
-                rule3: "6% Maintenance and Infrastructure.", rule4: "6% Oracle Verification (Chainlink VRF).",
+                rule3: "6% Maintenance and Infrastructure.", rule4: "6% Oracle / Entropy Verification.",
                 historyTitle: "WINNER HISTORY & DRAWN NUMBERS", thWallet: "Winning Wallet", thType: "Type", thValue: "Prize",
-                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon, BSC, Arbitrum One, Base, Optimism and Avalanche. 18+ only. Provably fair draws via Chainlink VRF.",
+                legalTitle: "Decentralized Protocol", legalText: "MEGACRYPTO operates on Polygon, BSC, Arbitrum One, Base, Optimism, Avalanche and Tron. 18+ only.",
                 btnApprove: "1. APPROVE USDT", btnBuy: "2. PLAY NOW", liveTicket: "New ticket confirmed:"
             },
             es: {
@@ -656,13 +674,13 @@
                 quickPick: "Al Azar", clearPick: "Limpiar", cost: "Precio",
                 myBetsTitle: "MIS APUESTAS REALIZADAS", shareLabel: "Compartir:",
                 noBetsYet: "No hay apuestas registradas en este momento.",
-                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC, Arbitrum, Base, Optimism o Avalanche.",
+                howTitle: "Cómo Funciona", step1: "Conecta tu cartera en Polygon, BSC, Arbitrum, Base, Optimism, Avalanche o Tron.",
                 step2: "Elige tus 15 números o usa la opción Al Azar.", step3: "Aprueba el contrato y confirma tu jugada de 5 USDT.",
-                step4: "Sorteio automático cada domingo por Chainlink VRF.", rulesTitle: "División Transparente (100%)",
+                step4: "Sorteio automático cada domingo on-chain.", rulesTitle: "División Transparente (100%)",
                 rule1: "50% al Mega Jackpot (15 aciertos).", rule2: "38% al Premio Semanal (Mayor puntaje).",
-                rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos Chainlink VRF.",
+                rule3: "6% Mantenimiento e infraestructura.", rule4: "6% Auditoría y Oráculos.",
                 historyTitle: "HISTORIAL DE GANADORES Y NÚMEROS SORTEADOS", thWallet: "Cartera Ganadora", thType: "Tipo", thValue: "Premio",
-                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC, Arbitrum One, Base, Optimism e Avalanche. +18. Sorteos auditados por Chainlink VRF.",
+                legalTitle: "Protocolo Descentralizado", legalText: "MEGACRYPTO opera en Polygon, BSC, Arbitrum One, Base, Optimism, Avalanche y Tron. +18.",
                 btnApprove: "1. APROBAR USDT", btnBuy: "2. JOGAR AHORA", liveTicket: "Nuevo billete registrado:"
             },
             zh: {
@@ -676,13 +694,13 @@
                 quickPick: "机选号码", clearPick: "清空", cost: "票价",
                 myBetsTitle: "我的已下注彩票", shareLabel: "分享:",
                 noBetsYet: "当前暂无投注记录。",
-                howTitle: "运作方式", step1: "在 Polygon、BSC、Arbitrum、Base、Optimism 或 Avalanche 连接您的钱包。",
+                howTitle: "运作方式", step1: "在 Polygon、BSC、Arbitrum、Base、Optimism、Avalanche 或 Tron 连接您的钱包。",
                 step2: "自选 15 个幸运号码或使用机选功能。", step3: "授权并确认 5 USDT 投注交易。",
-                step4: "每周日由 Chainlink VRF 自动完成公正开奖。", rulesTitle: "透明资金分配 (100%)",
+                step4: "每周日链上自动开奖。", rulesTitle: "透明资金分配 (100%)",
                 rule1: "50% 汇入超级大奖 (15个号码全中)。", rule2: "38% 汇入每周大奖 (最高分玩家平分)。",
-                rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于 Chainlink VRF 预言机开销。",
+                rule3: "6% 用于系统维护与服务器开销。", rule4: "6% 用于验证与预言机开销。",
                 historyTitle: "中奖历史及开出号码", thWallet: "中奖钱包", thType: "类型", thValue: "奖金",
-                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在 Polygon、BSC、Arbitrum One、Base、Optimism 和 Avalanche 网络上。仅限18岁以上。",
+                legalTitle: "去中心化协议", legalText: "MEGACRYPTO 运行在多链网络上。仅限18岁以上。",
                 btnApprove: "1. 授权 USDT", btnBuy: "2. 立即投注", liveTicket: "最新出票交易:"
             },
             fr: {
@@ -696,13 +714,13 @@
                 quickPick: "Aléatoire", clearPick: "Effacer", cost: "Prix",
                 myBetsTitle: "MES PARIS EFFECTUÉS", shareLabel: "Partager:",
                 noBetsYet: "Aucun pari enregistré.",
-                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon, BSC, Arbitrum, Base, Optimism ou Avalanche.",
+                howTitle: "Comment ça Marche", step1: "Connectez votre portefeuille sur Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron.",
                 step2: "Choisissez 15 numéros ou utilisez le choix aléatoire.", step3: "Approuvez le contrat et confirmez votre pari de 5 USDT.",
-                step4: "Tirage automatique chaque dimanche via Chainlink VRF.", rulesTitle: "Répartition Transparente (100%)",
+                step4: "Tirage automatique chaque dimanche on-chain.", rulesTitle: "Répartition Transparente (100%)",
                 rule1: "50% pour le Méga Jackpot (15 bons numéros).", rule2: "38% pour le Prix Hebdomadaire (Meilleur score).",
-                rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Frais d'oracles Chainlink VRF.",
+                rule3: "6% Frais de maintenance et serveurs.", rule4: "6% Oracles.",
                 historyTitle: "HISTORIQUE DES GAGNANTS ET NUMÉROS", thWallet: "Portefeuille", thType: "Type", thValue: "Prix",
-                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur Polygon, BSC, Arbitrum One, Base, Optimism et Avalanche. 18+.",
+                legalTitle: "Protocole Décentralisé", legalText: "MEGACRYPTO fonctionne sur plusieurs réseaux. 18+.",
                 btnApprove: "1. APPROUVER USDT", btnBuy: "2. JOUER", liveTicket: "Nouveau billet confirmé:"
             }
         };
@@ -739,22 +757,74 @@
 
         let provider, signer, userAddress;
         let lotteryContract, usdtContract;
+        let isTronMode = false;
 
-        async function getPublicContract(chainId = 137) {
+        async function getPublicContract(chainId) {
             const net = NETWORKS[chainId] || NETWORKS[137];
-            try {
-                const p = new ethers.JsonRpcProvider(net.rpc);
-                const c = new ethers.Contract(net.contract, LOTTERY_ABI, p);
-                await p.getBlockNumber();
-                return c;
-            } catch(e) {}
-            return new ethers.Contract(net.contract, LOTTERY_ABI, new ethers.JsonRpcProvider(net.rpc));
+            if (chainId === 'tron') {
+                // Instância de leitura pública via TronWeb para a Tron
+                try {
+                    const tw = new TronWeb({ fullHost: net.rpc });
+                    return {
+                        jackpotAcumulado: async () => {
+                            const contract = await tw.contract().at(net.contract);
+                            const res = await contract.jackpotAcumulado().call();
+                            return BigInt(res.toString());
+                        },
+                        poolSemanal: async () => {
+                            const contract = await tw.contract().at(net.contract);
+                            const res = await contract.poolSemanal().call();
+                            return BigInt(res.toString());
+                        },
+                        getHistoricoCount: async () => {
+                            const contract = await tw.contract().at(net.contract);
+                            const res = await contract.getHistoricoCount().call();
+                            return BigInt(res.toString());
+                        },
+                        ultimosGanhadores: async (i) => {
+                            const contract = await tw.contract().at(net.contract);
+                            const res = await contract.ultimosGanhadores(i).call();
+                            return {
+                                carteira: res.carteira || res[0],
+                                valor: BigInt((res.valor || res[1]).toString()),
+                                data: Number(res.data || res[2]),
+                                tipo: res.tipo || res[3]
+                            };
+                        },
+                        filters: { SorteioRealizado: () => ({}) },
+                        queryFilter: async () => []
+                    };
+                } catch(e) {
+                    return null;
+                }
+            } else {
+                try {
+                    const p = new ethers.JsonRpcProvider(net.rpc);
+                    const c = new ethers.Contract(net.contract, LOTTERY_ABI, p);
+                    await p.getBlockNumber();
+                    return c;
+                } catch(e) {}
+                return new ethers.Contract(net.contract, LOTTERY_ABI, new ethers.JsonRpcProvider(net.rpc));
+            }
         }
 
         async function connectWallet() {
             try {
+                // Verifica se o usuário prefere TronLink caso deseje conectar na Tron ou se window.tronWeb estiver disponível
+                const hasTronLink = window.tronWeb && window.tronWeb.defaultAddress && window.tronWeb.defaultAddress.base58;
+                
+                // Se o usuário estiver explicitamente no modo Tron ou acionar via seletor Tron, abre o fluxo TronLink
+                if (hasTronLink && (isTronMode || confirm("Deseja conectar com a carteira Tron (TronLink)? Clique em Cancelar para usar EVM (MetaMask)."))) {
+                    await connectTronWallet();
+                    return;
+                }
+
                 const ethProvider = window.ethereum || window.coinbaseWalletExtension;
                 if (!ethProvider) {
+                    if (hasTronLink) {
+                        await connectTronWallet();
+                        return;
+                    }
                     const rawUrl = window.location.href.replace(/^https?:\/\//, '');
                     const metamaskUrl = `https://metamask.app.link/dapp/${rawUrl}`;
                     if (window.Telegram?.WebApp?.openLink) {
@@ -765,6 +835,7 @@
                     return;
                 }
 
+                isTronMode = false;
                 provider = new ethers.BrowserProvider(ethProvider);
                 const network = await provider.getNetwork();
                 const chainId = Number(network.chainId);
@@ -826,9 +897,98 @@
             }
         }
 
-        async function switchNetwork(targetChainId) {
+        async function connectTronWallet() {
             try {
-                const hexChainId = '0x' + targetChainId.toString(16);
+                if (!window.tronWeb || !window.tronWeb.defaultAddress.base58) {
+                    alert("Por favor, abra a extensão TronLink ou acesse via navegador compatível com TronLink.");
+                    window.open("https://www.tronlink.org", "_blank");
+                    return;
+                }
+
+                isTronMode = true;
+                currentChainId = 'tron';
+                updateNetworkBadge('tron');
+
+                userAddress = window.tronWeb.defaultAddress.base58;
+                updateConnectedUI(userAddress);
+
+                const activeNet = NETWORKS['tron'];
+                
+                // Objeto de contrato compatível com TronWeb para transações
+                lotteryContract = {
+                    comprarBilhete: async (numeros) => {
+                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        return await contract.comprarBilhete(numeros).send({
+                            feeLimit: 100_000_000,
+                            callValue: 0,
+                            shouldPollResponse: true
+                        });
+                    },
+                    reclamarPremio: async () => {
+                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        return await contract.reclamarPremio().send({
+                            feeLimit: 100_000_000,
+                            shouldPollResponse: true
+                        });
+                    },
+                    premiosParaSacar: async (addr) => {
+                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const res = await contract.premiosParaSacar(addr).call();
+                        return BigInt(res.toString());
+                    },
+                    getApostasCount: async () => {
+                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const res = await contract.getApostasCount().call();
+                        return BigInt(res.toString());
+                    },
+                    apostasDaSemana: async (i) => {
+                        const contract = await window.tronWeb.contract().at(activeNet.contract);
+                        const res = await contract.apostasDaSemana(i).call();
+                        return {
+                            jogador: res.jogador || res[0],
+                            mask: BigInt((res.mask || res[1]).toString())
+                        };
+                    }
+                };
+
+                usdtContract = {
+                    approve: async (spender, amount) => {
+                        const contract = await window.tronWeb.contract().at(activeNet.usdt);
+                        return await contract.approve(spender, amount.toString()).send({
+                            feeLimit: 100_000_000,
+                            shouldPollResponse: true
+                        });
+                    },
+                    allowance: async (owner, spender) => {
+                        const contract = await window.tronWeb.contract().at(activeNet.usdt);
+                        const res = await contract.allowance(owner, spender).call();
+                        return BigInt(res.toString());
+                    }
+                };
+
+                await carregarMinhasApostas();
+                await verificarPremioDisponivel();
+                await carregarDadosPublicos();
+                SoundEngine.successTx();
+
+            } catch (err) {
+                console.error("Erro ao conectar TronLink:", err);
+                SoundEngine.errorSound();
+                alert("Erro ao conectar com a TronLink.");
+            }
+        }
+
+        async function switchNetwork(targetChainId) {
+            if (targetChainId === 'tron') {
+                isTronMode = true;
+                document.getElementById('networkWarningBanner').classList.add('hidden');
+                await connectTronWallet();
+                return;
+            }
+
+            try {
+                isTronMode = false;
+                const hexChainId = '0x' + Number(targetChainId).toString(16);
                 await window.ethereum.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: hexChainId }],
@@ -868,6 +1028,10 @@
                 netName.innerText = "Avalanche";
                 netDot.className = "h-2 w-2 rounded-full bg-orange-400 animate-pulse";
                 scanName.innerText = "Snowtrace";
+            } else if (chainId === 'tron') {
+                netName.innerText = "Tron";
+                netDot.className = "h-2 w-2 rounded-full bg-rose-400 animate-pulse";
+                scanName.innerText = "Tronscan";
             } else {
                 netName.innerText = "Polygon";
                 netDot.className = "h-2 w-2 rounded-full bg-purple-400 animate-pulse";
@@ -888,6 +1052,7 @@
             try {
                 const readLottery = await getPublicContract(currentChainId);
                 const activeNet = NETWORKS[currentChainId];
+                if (!readLottery) return;
                 
                 const [jackpotRaw, semanalRaw] = await Promise.all([
                     readLottery.jackpotAcumulado().catch(() => 0n),
@@ -908,36 +1073,42 @@
         async function atualizarCardsMultiChain() {
             let globalTotalSum = 0;
 
-            for (const [chainIdStr, net] of Object.entries(NETWORKS)) {
-                const chainId = Number(chainIdStr);
+            for (const [chainIdKey, net] of Object.entries(NETWORKS)) {
                 let jpFormatted = 0;
                 let weeklyFormatted = 0;
 
                 try {
-                    const tempProvider = new ethers.JsonRpcProvider(net.rpc);
-                    const tempContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
-                    
-                    const [jackpotRaw, semanalRaw] = await Promise.all([
-                        tempContract.jackpotAcumulado().catch(() => 0n),
-                        tempContract.poolSemanal().catch(() => 0n)
-                    ]);
+                    let jackpotRaw = 0n;
+                    let semanalRaw = 0n;
+
+                    if (chainIdKey === 'tron') {
+                        const tw = new TronWeb({ fullHost: net.rpc });
+                        const contract = await tw.contract().at(net.contract);
+                        jackpotRaw = BigInt((await contract.jackpotAcumulado().call()).toString());
+                        semanalRaw = BigInt((await contract.poolSemanal().call()).toString());
+                    } else {
+                        const tempProvider = new ethers.JsonRpcProvider(net.rpc);
+                        const tempContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
+                        jackpotRaw = await tempContract.jackpotAcumulado().catch(() => 0n);
+                        semanalRaw = await tempContract.poolSemanal().catch(() => 0n);
+                    }
                     
                     jpFormatted = parseFloat(ethers.formatUnits(jackpotRaw, net.decimals));
                     weeklyFormatted = parseFloat(ethers.formatUnits(semanalRaw, net.decimals));
 
-                    document.getElementById(`jpNet-${chainId}`).innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    document.getElementById(`weeklyNet-${chainId}`).innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById(`jpNet-${chainIdKey}`).innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById(`weeklyNet-${chainIdKey}`).innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                     globalTotalSum += jpFormatted + weeklyFormatted;
                 } catch (e) {
                     console.error(`Erro ao buscar dados da rede ${net.name}:`, e);
                 }
 
-                const card = document.getElementById(`cardNet-${chainId}`);
-                const statusBadge = document.getElementById(`statusNet-${chainId}`);
-                const btn = document.getElementById(`btnNet-${chainId}`);
+                const card = document.getElementById(`cardNet-${chainIdKey}`);
+                const statusBadge = document.getElementById(`statusNet-${chainIdKey}`);
+                const btn = document.getElementById(`btnNet-${chainIdKey}`);
 
-                if (chainId === currentChainId) {
+                if (chainIdKey === String(currentChainId)) {
                     card.className = "glass rounded-2xl p-4 border border-purple-500 bg-purple-500/10 flex flex-col justify-between transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]";
                     statusBadge.className = "text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase";
                     statusBadge.innerText = "Conectado Ativo";
@@ -950,16 +1121,18 @@
                     statusBadge.innerText = "Disponível";
                     btn.disabled = false;
                     btn.innerText = `Conectar ${net.name}`;
-                    if (chainId === 56) {
+                    if (chainIdKey === '56') {
                         btn.className = "w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-yellow-500/30";
-                    } else if (chainId === 42161) {
+                    } else if (chainIdKey === '42161') {
                         btn.className = "w-full bg-blue-600/30 hover:bg-blue-600 text-blue-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-blue-500/30";
-                    } else if (chainId === 8453) {
+                    } else if (chainIdKey === '8453') {
                         btn.className = "w-full bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-sky-500/30";
-                    } else if (chainId === 10) {
+                    } else if (chainIdKey === '10') {
                         btn.className = "w-full bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-red-500/30";
-                    } else if (chainId === 43114) {
+                    } else if (chainIdKey === '43114') {
                         btn.className = "w-full bg-orange-600/30 hover:bg-orange-600 text-orange-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-orange-500/30";
+                    } else if (chainIdKey === 'tron') {
+                        btn.className = "w-full bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-rose-500/30";
                     } else {
                         btn.className = "w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs py-2 rounded-xl transition-all border border-purple-500/30";
                     }
@@ -974,27 +1147,29 @@
 
         async function carregarHistoricoPublico(readLottery) {
             const tableBody = document.getElementById('historyBody');
-            if (!tableBody) return;
+            if (!tableBody || !readLottery) return;
 
             try {
                 let ganhadores = [];
                 let mascarasSorteadasLista = [];
 
-                try {
-                    const filterSorteio = readLottery.filters.SorteioRealizado();
-                    const eventosSorteio = await readLottery.queryFilter(filterSorteio, 0, 'latest');
-                    eventosSorteio.forEach(ev => {
-                        if (ev.args && ev.args.maskSorteada !== undefined) {
-                            mascarasSorteadasLista.push(BigInt(ev.args.maskSorteada));
-                        }
-                    });
-                } catch(e) {}
+                if (currentChainId !== 'tron') {
+                    try {
+                        const filterSorteio = readLottery.filters.SorteioRealizado();
+                        const eventosSorteio = await readLottery.queryFilter(filterSorteio, 0, 'latest');
+                        eventosSorteio.forEach(ev => {
+                            if (ev.args && ev.args.maskSorteada !== undefined) {
+                                mascarasSorteadasLista.push(BigInt(ev.args.maskSorteada));
+                            }
+                        });
+                    } catch(e) {}
+                }
 
                 const count = await readLottery.getHistoricoCount().catch(() => 0n);
                 for (let i = 0; i < Number(count); i++) {
                     try {
                         const g = await readLottery.ultimosGanhadores(i);
-                        if (g && g.carteira !== ethers.ZeroAddress) {
+                        if (g && g.carteira && g.carteira !== "T000000000000000000000000000000000" && g.carteira !== ethers.ZeroAddress) {
                             ganhadores.push({
                                 carteira: g.carteira,
                                 valor: g.valor,
@@ -1144,9 +1319,9 @@
         }
 
         document.getElementById('btnApprove').onclick = async () => {
-            if (!signer) {
+            if (!signer && !isTronMode) {
                 await connectWallet();
-                if (!signer) return;
+                if (!signer && !isTronMode) return;
             }
             const btnApprove = document.getElementById('btnApprove');
             const btnBuy = document.getElementById('btnBuy');
@@ -1158,8 +1333,14 @@
 
                 const activeNet = NETWORKS[currentChainId];
                 const custoBilhete = ethers.parseUnits("5", activeNet.decimals);
-                const tx = await usdtContract.approve(activeNet.contract, custoBilhete);
-                await tx.wait();
+                
+                let tx;
+                if (isTronMode) {
+                    tx = await usdtContract.approve(activeNet.contract, custoBilhete);
+                } else {
+                    tx = await usdtContract.approve(activeNet.contract, custoBilhete);
+                    await tx.wait();
+                }
 
                 SoundEngine.successTx();
                 btnApprove.innerText = "APPROVED ✓";
@@ -1179,7 +1360,7 @@
         };
 
         document.getElementById('btnBuy').onclick = async () => {
-            if (!signer) return;
+            if (!signer && !isTronMode) return;
             if (selectedNumbers.length !== 15) {
                 SoundEngine.errorSound();
                 alert("Escolha exatamente 15 números.");
@@ -1193,8 +1374,14 @@
                 SoundEngine.playTone(520, 'sine', 0.15, 0.08);
 
                 const numerosOrdenados = [...selectedNumbers].sort((a, b) => a - b);
-                const tx = await lotteryContract.comprarBilhete(numerosOrdenados, { gasLimit: 800000 });
-                await tx.wait();
+                
+                let tx;
+                if (isTronMode) {
+                    tx = await lotteryContract.comprarBilhete(numerosOrdenados);
+                } else {
+                    tx = await lotteryContract.comprarBilhete(numerosOrdenados, { gasLimit: 800000 });
+                    await tx.wait();
+                }
 
                 SoundEngine.successTx();
                 alert("Bilhete registrado com sucesso na blockchain! Boa sorte!");
@@ -1223,16 +1410,21 @@
         };
 
         document.getElementById('btnClaim').onclick = async () => {
-            if (!signer) {
+            if (!signer && !isTronMode) {
                 await connectWallet();
-                if (!signer) return;
+                if (!signer && !isTronMode) return;
             }
             const btnClaim = document.getElementById('btnClaim');
             try {
                 btnClaim.disabled = true;
                 btnClaim.innerText = "CLAIMING...";
-                const tx = await lotteryContract.reclamarPremio({ gasLimit: 300000 });
-                await tx.wait();
+                
+                if (isTronMode) {
+                    await lotteryContract.reclamarPremio();
+                } else {
+                    const tx = await lotteryContract.reclamarPremio({ gasLimit: 300000 });
+                    await tx.wait();
+                }
 
                 SoundEngine.winFanfare();
                 alert("Prêmio resgatado e transferido para sua carteira com sucesso!");
@@ -1253,16 +1445,6 @@
 
             try {
                 let mascarasDoUsuario = [];
-
-                try {
-                    const filter = lotteryContract.filters.BilheteComprado(userAddress);
-                    const eventosCompra = await lotteryContract.queryFilter(filter, 0, 'latest');
-                    for (const ev of eventosCompra) {
-                        if (ev.args) {
-                            // Rastreio persistente de eventos passados
-                        }
-                    }
-                } catch(e) {}
 
                 const totalApostas = await lotteryContract.getApostasCount().catch(() => 0n);
                 for (let i = 0; i < Number(totalApostas); i++) {
