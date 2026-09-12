@@ -54,7 +54,7 @@
 </head>
 <body class="bg-[#030303] text-gray-100 min-h-screen pb-16">
 
-    <!-- Modal de Seleção de Carteiras com Identificação Visual Oficial -->
+    <!-- Modal de Seleção de Carteiras Isolado -->
     <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-md px-4">
         <div class="modal-glass w-full max-w-lg rounded-[32px] p-6 md:p-8 shadow-2xl border border-white/10 relative animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center mb-6">
@@ -345,21 +345,22 @@
             </div>
         </section>
 
+        <!-- Seção de Jackpot e Prêmios Dinâmicos Baseados na Rede Conectada -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div class="glass rounded-[28px] p-6 text-center border-t border-purple-500/40 neon-glow-p flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="bg-purple-500/20 text-purple-400 text-[10px] font-tech font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">15 Acertos • 50%</span>
-                        <span class="text-[10px] text-gray-400 uppercase tracking-widest font-tech" data-i18n="jackpotRole">Acumulativo</span>
+                        <span id="activeNetLabelJP" class="text-[10px] text-purple-300 uppercase tracking-widest font-tech font-bold">Polygon</span>
                     </div>
-                    <h2 data-i18n="jackpotLabel" class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Mega Jackpot</h2>
+                    <h2 class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Mega Jackpot</h2>
                     <div class="text-4xl md:text-5xl font-tech font-black text-white tracking-tight my-2">
                         $ <span id="jackpotValue">0.00</span>
                     </div>
                 </div>
                 <div class="pt-3 border-t border-white/5 flex justify-center items-center gap-2 text-[10px] text-gray-400 font-medium">
                     <span class="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                    <span data-i18n="jackpotSub">Acumula se não houver 15 acertos</span>
+                    <span>Acumulado on-chain na rede atual</span>
                 </div>
             </div>
 
@@ -367,16 +368,16 @@
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="bg-pink-500/20 text-pink-400 text-[10px] font-tech font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Maior Pontuação • 38%</span>
-                        <span class="text-[10px] text-emerald-400 uppercase tracking-widest font-tech font-bold" data-i18n="weeklyRole">Garantido</span>
+                        <span id="activeNetLabelWK" class="text-[10px] text-pink-300 uppercase tracking-widest font-tech font-bold">Polygon</span>
                     </div>
-                    <h2 data-i18n="weeklyLabel" class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Prêmio da Rodada</h2>
+                    <h2 class="text-gray-400 font-tech text-xs tracking-wider uppercase mb-1">Prêmio da Rodada</h2>
                     <div class="text-4xl md:text-5xl font-tech font-black text-pink-400 tracking-tight my-2">
                         $ <span id="weeklyValue">0.00</span>
                     </div>
                 </div>
                 <div class="pt-3 border-t border-white/5 flex justify-center items-center gap-2 text-[10px] text-gray-400 font-medium">
                     <span class="h-1.5 w-1.5 bg-pink-500 rounded-full"></span>
-                    <span data-i18n="weeklySub">Pago todo Domingo ao melhor jogador</span>
+                    <span>Pago todo Domingo ao melhor jogador</span>
                 </div>
             </div>
         </section>
@@ -385,25 +386,13 @@
         <div id="winnerPanel" class="hidden glass rounded-2xl p-6 mb-8 border-green-500/40 bg-green-500/10 animate-pulse">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-center sm:text-left">
-                    <h3 class="text-lg font-tech font-bold text-green-400 flex items-center gap-2 justify-center sm:justify-start" data-i18n="winnerTitle">
+                    <h3 class="text-lg font-tech font-bold text-green-400 flex items-center gap-2 justify-center sm:justify-start">
                         🏆 VOCÊ GANHOU!
                     </h3>
-                    <p class="text-gray-300 text-xs" data-i18n="winnerSub">Seu prêmio está pronto para saque imediato em USDT.</p>
+                    <p class="text-gray-300 text-xs">Seu prêmio está pronto para saque imediato em USDT.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     <button id="btnClaim" class="flex-1 sm:flex-none bg-green-600 px-6 py-3 rounded-xl font-bold text-xs text-white hover:bg-green-700 shadow-lg transition-all">WITHDRAW</button>
-                    
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="shareSocial('telegram', true)" class="bg-[#229ed9]/20 hover:bg-[#229ed9]/40 border border-[#229ed9]/40 p-2.5 rounded-xl transition-all" title="Telegram">
-                            <svg class="w-4 h-4 fill-current text-[#229ed9]" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-                        </button>
-                        <button onclick="shareSocial('whatsapp', true)" class="bg-[#25D366]/20 hover:bg-[#25D366]/40 border border-[#25D366]/40 p-2.5 rounded-xl transition-all" title="WhatsApp">
-                            <svg class="w-4 h-4 fill-current text-[#25D366]" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm0 1.67c2.2 0 4.26.86 5.82 2.42a8.17 8.17 0 012.41 5.82c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.78 2.71 4.3 3.8.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6-.1.49-.3 1.47-1.2 1.68-1.68.21-.48.21-.89.15-.98-.06-.09-.23-.15-.48-.27z"/></svg>
-                        </button>
-                        <button onclick="shareSocial('x', true)" class="bg-white/10 hover:bg-white/20 border border-white/20 p-2.5 rounded-xl transition-all" title="X (Twitter)">
-                            <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -412,16 +401,16 @@
         <section class="glass rounded-[30px] p-6 md:p-8 mb-8 border-t border-white/10">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
                 <div>
-                    <h3 data-i18n="playTitle" class="text-lg font-tech font-bold text-white">FAÇA SUA JOGADA</h3>
-                    <p class="text-xs text-gray-400" data-i18n="selectTip">Selecione exatamente 15 números (1 a 25)</p>
+                    <h3 class="text-lg font-tech font-bold text-white">FAÇA SUA JOGADA</h3>
+                    <p class="text-xs text-gray-400">Selecione exatamente 15 números (1 a 25)</p>
                 </div>
                 
                 <div class="flex items-center gap-2">
                     <button id="btnSurpresinha" class="bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-medium text-purple-300 transition-all">
-                        🎲 <span data-i18n="quickPick">Surpresinha</span>
+                        🎲 Surpresinha
                     </button>
                     <button id="btnClear" class="bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">
-                        🗑️ <span data-i18n="clearPick">Limpar</span>
+                        🗑️ Limpar
                     </button>
                     <div class="text-xl font-tech text-purple-400 bg-black/40 px-3 py-1 rounded-lg border border-white/10 ml-2">
                         <span id="selCount">0</span>/15
@@ -433,79 +422,40 @@
             
             <div class="flex flex-col sm:flex-row gap-4 justify-between items-center pt-6 border-t border-white/10">
                 <div class="text-xs text-gray-400">
-                    <p><span data-i18n="cost">Custo</span>: <span id="ticketCostText" class="text-white font-bold text-sm">5.00 USDT</span></p>
+                    <p>Custo: <span class="text-white font-bold text-sm">5.00 USDT</span></p>
                 </div>
                 <div class="flex gap-3 w-full sm:w-auto">
-                    <button id="btnApprove" class="flex-1 sm:flex-none px-6 py-3.5 rounded-xl bg-white/10 font-bold text-xs text-gray-400 cursor-not-allowed opacity-50 transition-all" disabled data-i18n="btnApprove">1. APPROVE USDT</button>
-                    <button id="btnBuy" class="flex-1 sm:flex-none px-8 py-3.5 rounded-xl btn-grad font-bold text-xs opacity-50 text-white cursor-not-allowed transition-all" disabled data-i18n="btnBuy">2. JOGAR AGORA</button>
+                    <button id="btnApprove" class="flex-1 sm:flex-none px-6 py-3.5 rounded-xl bg-white/10 font-bold text-xs text-gray-400 cursor-not-allowed opacity-50 transition-all" disabled>1. APPROVE USDT</button>
+                    <button id="btnBuy" class="flex-1 sm:flex-none px-8 py-3.5 rounded-xl btn-grad font-bold text-xs opacity-50 text-white cursor-not-allowed transition-all" disabled>2. JOGAR AGORA</button>
                 </div>
             </div>
         </section>
 
         <!-- Minhas Apostas Realizadas -->
         <section class="mb-8 glass rounded-[30px] p-6 border-t border-white/10">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-                <div>
-                    <h3 class="text-sm font-tech font-bold flex items-center gap-2 text-white">
-                        <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
-                        <span data-i18n="myBetsTitle">MINHAS APOSTAS REALIZADAS</span>
-                    </h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5">Bilhetes ativos registrados on-chain.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] text-gray-400 font-tech uppercase tracking-wider" data-i18n="shareLabel">Compartilhar:</span>
-                    <button onclick="shareSocial('telegram', false)" class="bg-[#229ed9]/20 hover:bg-[#229ed9]/40 border border-[#229ed9]/40 p-2 rounded-lg transition-all" title="Telegram">
-                        <svg class="w-3.5 h-3.5 fill-current text-[#229ed9]" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-                    </button>
-                    <button onclick="shareSocial('whatsapp', false)" class="bg-[#25D366]/20 hover:bg-[#25D366]/40 border border-[#25D366]/40 p-2 rounded-lg transition-all" title="WhatsApp">
-                        <svg class="w-3.5 h-3.5 fill-current text-[#25D366]" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm0 1.67c2.2 0 4.26.86 5.82 2.42a8.17 8.17 0 012.41 5.82c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.78 2.71 4.3 3.8.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6-.1.49-.3 1.47-1.2 1.68-1.68.21-.48.21-.89.15-.98-.06-.09-.23-.15-.48-.27z"/></svg>
-                    </button>
-                    <button onclick="shareSocial('x', false)" class="bg-white/10 hover:bg-white/20 border border-white/20 p-2 rounded-lg transition-all" title="X (Twitter)">
-                        <svg class="w-3.5 h-3.5 fill-current text-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                    </button>
-                </div>
-            </div>
+            <h3 class="text-sm font-tech font-bold mb-4 flex items-center gap-2 text-white">
+                <span class="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></span>
+                MINHAS APOSTAS REALIZADAS
+            </h3>
             <div id="myBetsContainer" class="flex flex-col gap-3 max-h-56 overflow-y-auto">
-                <div class="text-xs text-gray-500 italic" data-i18n="noBetsYet">Conecte sua carteira para ver seus bilhetes ativos.</div>
+                <div class="text-xs text-gray-500 italic">Conecte sua carteira para ver seus bilhetes ativos.</div>
             </div>
         </section>
 
-        <!-- Regras e Divisão -->
-        <section class="grid md:grid-cols-2 gap-6 mb-8">
-            <div class="glass rounded-2xl p-6 border-l-2 border-purple-500">
-                <h4 data-i18n="howTitle" class="font-tech text-xs text-purple-400 mb-4 uppercase tracking-wider">Como Funciona</h4>
-                <ul class="space-y-3 text-[11px] text-gray-300 leading-relaxed">
-                    <li><b>01.</b> <span>Conecte sua carteira na Polygon, BSC, Arbitrum, Base, Optimism, Avalanche ou Tron (USDT).</span></li>
-                    <li><b>02.</b> <span data-i18n="step2">Escolha seus 15 números da sorte ou use a Surpresinha.</span></li>
-                    <li><b>03.</b> <span data-i18n="step3">Aprove o contrato e confirme sua aposta de 5 USDT.</span></li>
-                    <li><b>04.</b> <span data-i18n="step4">Sorteio automático todo Domingo on-chain.</span></li>
-                </ul>
-            </div>
-            <div class="glass rounded-2xl p-6 border-l-2 border-pink-500">
-                <h4 data-i18n="rulesTitle" class="font-tech text-xs text-pink-400 mb-4 uppercase tracking-wider">Divisão Transparente (100%)</h4>
-                <ul class="space-y-3 text-[11px] text-gray-300">
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-purple-400 rounded-full"></div> <span data-i18n="rule1">50% para o Mega Jackpot (15 acertos).</span></li>
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-pink-400 rounded-full"></div> <span data-i18n="rule2">38% para o Prêmio Semanal (Maior pontuador).</span></li>
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-gray-400 rounded-full"></div> <span data-i18n="rule3">6% Fundo de Manutenção e Servidores.</span></li>
-                    <li class="flex items-center gap-2"><div class="h-1.5 w-1.5 bg-blue-400 rounded-full"></div> <span data-i18n="rule4">6% Apuração e Oráculos / Entropia.</span></li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- Histórico On-Chain: Vencedores e Números Sorteados -->
+        <!-- Histórico On-Chain -->
         <section class="mb-12 glass rounded-[30px] p-6 border-t border-white/10">
             <h3 class="text-sm font-tech font-bold mb-6 flex items-center gap-2 text-white">
                 <span class="h-2 w-2 bg-green-500 rounded-full shadow-[0_0_8px_#22c55e]"></span>
-                <span data-i18n="historyTitle">HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS</span>
+                HISTÓRICO DE VENCEDORES E NÚMEROS SORTEADOS
             </h3>
             <div class="overflow-x-auto text-xs">
                 <table class="w-full text-left text-gray-300">
                     <thead class="text-[9px] text-gray-400 uppercase tracking-widest border-b border-white/10">
                         <tr>
-                            <th class="pb-3" data-i18n="thWallet">Carteira Vencedora</th>
-                            <th class="pb-3" data-i18n="thType">Tipo</th>
-                            <th class="pb-3">Dezenas Premiadas (15)</th>
-                            <th class="pb-3 text-right" data-i18n="thValue">Prêmio</th>
+                            <th class="pb-3">Carteira Vencedora</th>
+                            <th class="pb-3">Tipo</th>
+                            <th class="pb-3">Dezenas</th>
+                            <th class="pb-3 text-right">Prêmio</th>
                         </tr>
                     </thead>
                     <tbody id="historyBody">
@@ -518,9 +468,9 @@
         </section>
 
         <footer class="text-center border-t border-white/10 pt-8">
-            <h5 data-i18n="legalTitle" class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
-            <p data-i18n="legalText" class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
-                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Não possuímos custódia sobre fundos. Jogo de azar para maiores de 18 anos.
+            <h5 class="text-[9px] font-tech text-gray-400 mb-3 uppercase tracking-[0.4em]">Protocolo Descentralizado</h5>
+            <p class="text-[9px] text-gray-500 max-w-xl mx-auto italic leading-loose">
+                A MEGACRYPTO opera nas redes Polygon, BNB Smart Chain, Arbitrum One, Base, Optimism, Avalanche e Tron. Não possuímos custódia sobre fundos. +18.
             </p>
         </footer>
     </main>
@@ -592,25 +542,22 @@
                 usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
                 decimals: 6,
                 scanUrl: "https://polygonscan.com",
-                scanName: "Polygonscan",
                 rpc: "https://polygon-bor-rpc.publicnode.com"
             },
             56: {
-                name: "BNB Chain",
+                name: "BSC",
                 contract: "0xC190A715ab6D4B63fF59501460e9f27D16FfAC33",
                 usdt: "0x55d398326f99059fF775485246999027B3197955",
                 decimals: 18,
                 scanUrl: "https://bscscan.com",
-                scanName: "BscScan",
                 rpc: "https://bsc-dataseed.binance.org"
             },
             42161: {
-                name: "Arbitrum One",
+                name: "Arbitrum",
                 contract: "0x162F0B0E205719a25542142b65967D5e686068ee",
                 usdt: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
                 decimals: 6,
                 scanUrl: "https://arbiscan.io",
-                scanName: "Arbiscan",
                 rpc: "https://arb1.arbitrum.io/rpc"
             },
             8453: {
@@ -619,7 +566,6 @@
                 usdt: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
                 decimals: 6,
                 scanUrl: "https://basescan.org",
-                scanName: "Basescan",
                 rpc: "https://mainnet.base.org"
             },
             10: {
@@ -628,7 +574,6 @@
                 usdt: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
                 decimals: 6,
                 scanUrl: "https://optimistic.etherscan.io",
-                scanName: "Optimistic Etherscan",
                 rpc: "https://mainnet.optimism.io"
             },
             43114: {
@@ -637,7 +582,6 @@
                 usdt: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
                 decimals: 6,
                 scanUrl: "https://snowtrace.io",
-                scanName: "Snowtrace",
                 rpc: "https://api.avax.network/ext/bc/C/rpc"
             },
             tron: {
@@ -646,37 +590,15 @@
                 usdt: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
                 decimals: 6,
                 scanUrl: "https://tronscan.org",
-                scanName: "Tronscan",
                 rpc: "https://api.trongrid.io"
             }
         };
 
         let currentChainId = 137;
-
-        const LOTTERY_ABI = [
-            "function comprarBilhete(uint8[] calldata numeros) external",
-            "function jackpotAcumulado() external view returns (uint256)",
-            "function poolSemanal() external view returns (uint256)",
-            "function precoBilhete() external view returns (uint256)",
-            "function premiosParaSacar(address) external view returns (uint256)",
-            "function reclamarPremio() external",
-            "function getApostasCount() external view returns (uint256)",
-            "function apostasDaSemana(uint256) external view returns (address jogador, uint256 mask)",
-            "function getHistoricoCount() external view returns (uint256)",
-            "function ultimosGanhadores(uint256) external view returns (address carteira, uint256 valor, uint256 data, string tipo)",
-            "event SorteioRealizado(uint256 indexed requestId, uint256 maskSorteada)",
-            "event BilheteComprado(address indexed jogador, uint256 quantidadeApostas)"
-        ];
-
-        const ERC20_ABI = [
-            "function approve(address spender, uint256 amount) external returns (bool)",
-            "function allowance(address owner, address spender) external view returns (uint256)",
-            "function balanceOf(address account) external view returns (uint256)"
-        ];
-
-        function setLanguage(lang) {
-            localStorage.setItem('megacrypto_lang', lang);
-        }
+        let provider, signer, userAddress = null;
+        let lotteryContract = null, usdtContract = null;
+        let isTronMode = false;
+        let activeWalletName = "MetaMask";
 
         function verificarAntiPhishing() {
             const currentHost = window.location.hostname;
@@ -684,17 +606,11 @@
             if (badge) badge.innerText = currentHost || "megacryptolottery.github.io";
         }
 
-        let provider, signer, userAddress;
-        let lotteryContract, usdtContract;
-        let isTronMode = false;
-        let activeWalletName = "MetaMask";
-
         async function getPublicContract(chainId) {
             const net = NETWORKS[chainId] || NETWORKS[137];
             if (chainId === 'tron') {
                 try {
-                    const hostUrl = net.rpc;
-                    const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
+                    const tw = window.tronWeb || new TronWeb({ fullHost: net.rpc });
                     return {
                         jackpotAcumulado: async () => {
                             const contract = await tw.contract().at(net.contract);
@@ -720,9 +636,7 @@
                                 data: Number(res.data || res[2]),
                                 tipo: res.tipo || res[3]
                             };
-                        },
-                        filters: { SorteioRealizado: () => ({}) },
-                        queryFilter: async () => []
+                        }
                     };
                 } catch(e) {
                     return null;
@@ -730,11 +644,10 @@
             } else {
                 try {
                     const p = new ethers.JsonRpcProvider(net.rpc);
-                    const c = new ethers.Contract(net.contract, LOTTERY_ABI, p);
-                    await p.getBlockNumber();
-                    return c;
-                } catch(e) {}
-                return new ethers.Contract(net.contract, LOTTERY_ABI, new ethers.JsonRpcProvider(net.rpc));
+                    return new ethers.Contract(net.contract, LOTTERY_ABI, p);
+                } catch(e) {
+                    return null;
+                }
             }
         }
 
@@ -768,8 +681,11 @@
             toggleWalletModal(false);
             activeWalletName = walletLabel;
             if (type === 'tron') {
+                isTronMode = true;
+                currentChainId = 'tron';
                 await connectTronWallet();
             } else {
+                isTronMode = false;
                 await connectWallet(type);
             }
         }
@@ -782,15 +698,13 @@
                     return;
                 }
 
-                isTronMode = false;
                 provider = new ethers.BrowserProvider(ethProvider);
                 const network = await provider.getNetwork();
                 const chainId = Number(network.chainId);
 
                 if (!NETWORKS[chainId]) {
                     document.getElementById('networkWarningBanner').classList.remove('hidden');
-                    SoundEngine.errorSound();
-                    return; 
+                    return;
                 } else {
                     document.getElementById('networkWarningBanner').classList.add('hidden');
                 }
@@ -816,31 +730,24 @@
                     window._chainListenerAttached = true;
                     ethProvider.on('chainChanged', async (newChainIdHex) => {
                         const newChainId = Number(newChainIdHex);
-                        if (NETWORKS[newChainId]) {
-                            document.getElementById('networkWarningBanner').classList.add('hidden');
+                        if (NETWORKS[newChainId] && !isTronMode) {
                             currentChainId = newChainId;
                             updateNetworkBadge(newChainId);
-                            
                             provider = new ethers.BrowserProvider(ethProvider);
                             signer = await provider.getSigner();
                             userAddress = await signer.getAddress();
-                            
                             const activeNet = NETWORKS[newChainId];
                             lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
                             usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
-
                             updateConnectedUI(userAddress, activeWalletName);
                             await carregarMinhasApostas();
                             await verificarPremioDisponivel();
                             await carregarDadosPublicos();
-                        } else {
-                            document.getElementById('networkWarningBanner').classList.remove('hidden');
                         }
                     });
                 }
-
             } catch (error) {
-                console.log("Erro de conexão:", error);
+                console.error("Erro ao conectar EVM:", error);
                 SoundEngine.errorSound();
             }
         }
@@ -848,34 +755,21 @@
         async function connectTronWallet() {
             try {
                 const tronProvider = window.tron || window.tronLink;
-                
                 if (!tronProvider) {
-                    alert("A extensão TronLink não foi detectada. Por favor, instale ou abra a TronLink.");
+                    alert("A extensão TronLink não foi detectada.");
                     window.open("https://www.tronlink.org", "_blank");
                     return;
                 }
 
-                let accounts = [];
                 if (tronProvider.request) {
-                    try {
-                        accounts = await tronProvider.request({ method: "eth_requestAccounts" });
-                    } catch (e) {
-                        if (window.tronLink && window.tronLink.request) {
-                            await window.tronLink.request({ method: 'tron_requestAccounts' });
-                        }
-                    }
+                    await tronProvider.request({ method: "eth_requestAccounts" }).catch(() => {});
                 }
 
                 const activeTronWeb = window.tronWeb || (window.tronLink && window.tronLink.tronWeb);
-                
-                if (!activeTronWeb || !activeTronWeb.defaultAddress || !activeTronWeb.defaultAddress.base58) {
-                    userAddress = accounts[0] || (activeTronWeb && activeTronWeb.defaultAddress && activeTronWeb.defaultAddress.base58);
-                } else {
-                    userAddress = activeTronWeb.defaultAddress.base58;
-                }
+                userAddress = activeTronWeb && activeTronWeb.defaultAddress ? activeTronWeb.defaultAddress.base58 : null;
 
                 if (!userAddress) {
-                    alert("Não foi possível obter o endereço da TronLink. Certifique-se de que a carteira está desbloqueada.");
+                    alert("Desbloqueie sua TronLink.");
                     return;
                 }
 
@@ -886,7 +780,6 @@
                 updateConnectedUI(userAddress, "TronLink");
 
                 const activeNet = NETWORKS['tron'];
-                
                 lotteryContract = {
                     comprarBilhete: async (numeros) => {
                         const tw = window.tronWeb || window.tronLink.tronWeb;
@@ -936,12 +829,6 @@
                             feeLimit: 100_000_000,
                             shouldPollResponse: true
                         });
-                    },
-                    allowance: async (owner, spender) => {
-                        const tw = window.tronWeb || window.tronLink.tronWeb;
-                        const usdtTrc20 = await tw.contract().at(activeNet.usdt);
-                        const res = await usdtTrc20.allowance(owner, spender).call();
-                        return BigInt(res.toString());
                     }
                 };
 
@@ -949,11 +836,9 @@
                 await verificarPremioDisponivel();
                 await carregarDadosPublicos();
                 SoundEngine.successTx();
-
             } catch (err) {
-                console.error("Erro ao conectar TronLink:", err);
+                console.error("Erro TronLink:", err);
                 SoundEngine.errorSound();
-                alert("Erro ao conectar com a TronLink. Verifique se a extensão está desbloqueada.");
             }
         }
 
@@ -1010,20 +895,7 @@
                             }]
                         });
                         document.getElementById('networkWarningBanner').classList.add('hidden');
-                        
-                        provider = new ethers.BrowserProvider(window.ethereum);
-                        signer = await provider.getSigner();
-                        userAddress = await signer.getAddress();
-                        
-                        const activeNet = NETWORKS[targetChainId];
-                        lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
-                        usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
-
-                        updateConnectedUI(userAddress, activeWalletName);
-                        updateNetworkBadge(Number(targetChainId));
-                        await carregarMinhasApostas();
-                        await verificarPremioDisponivel();
-                        await carregarDadosPublicos();
+                        await switchNetwork(targetChainId);
                         return;
                     } catch (addError) {}
                 }
@@ -1040,35 +912,9 @@
             badge.classList.remove('hidden');
             badge.classList.add('flex');
             
-            if (chainId === 56 || chainId === '56') {
-                netName.innerText = "BSC";
-                netDot.className = "h-2 w-2 rounded-full bg-yellow-400 animate-pulse";
-                scanName.innerText = "BscScan";
-            } else if (chainId === 42161 || chainId === '42161') {
-                netName.innerText = "Arbitrum";
-                netDot.className = "h-2 w-2 rounded-full bg-blue-400 animate-pulse";
-                scanName.innerText = "Arbiscan";
-            } else if (chainId === 8453 || chainId === '8453') {
-                netName.innerText = "Base";
-                netDot.className = "h-2 w-2 rounded-full bg-sky-400 animate-pulse";
-                scanName.innerText = "Basescan";
-            } else if (chainId === 10 || chainId === '10') {
-                netName.innerText = "Optimism";
-                netDot.className = "h-2 w-2 rounded-full bg-red-400 animate-pulse";
-                scanName.innerText = "Optimistic Etherscan";
-            } else if (chainId === 43114 || chainId === '43114') {
-                netName.innerText = "Avalanche";
-                netDot.className = "h-2 w-2 rounded-full bg-orange-400 animate-pulse";
-                scanName.innerText = "Snowtrace";
-            } else if (chainId === 'tron') {
-                netName.innerText = "Tron";
-                netDot.className = "h-2 w-2 rounded-full bg-rose-400 animate-pulse";
-                scanName.innerText = "Tronscan";
-            } else {
-                netName.innerText = "Polygon";
-                netDot.className = "h-2 w-2 rounded-full bg-purple-400 animate-pulse";
-                scanName.innerText = "Polygonscan";
-            }
+            const netObj = NETWORKS[chainId] || NETWORKS[137];
+            netName.innerText = netObj.name;
+            scanName.innerText = netObj.scanName || "Explorer";
         }
 
         function updateConnectedUI(addr, walletName = "Wallet") {
@@ -1083,34 +929,19 @@
             try {
                 let globalTotalSum = 0;
                 let historicoGeral = [];
+                const activeNetKey = isTronMode ? 'tron' : currentChainId;
+                const activeNetObj = NETWORKS[activeNetKey] || NETWORKS[137];
+
+                document.getElementById('activeNetLabelJP').innerText = activeNetObj.name;
+                document.getElementById('activeNetLabelWK').innerText = activeNetObj.name;
 
                 for (const [chainIdKey, net] of Object.entries(NETWORKS)) {
                     try {
                         let jackpotRaw = 0n;
                         let semanalRaw = 0n;
-                        let readContract = null;
+                        let readContract = await getPublicContract(chainIdKey);
 
-                        if (chainIdKey === 'tron') {
-                            const hostUrl = net.rpc;
-                            const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
-                            const contract = await tw.contract().at(net.contract);
-                            jackpotRaw = BigInt((await contract.jackpotAcumulado().call()).toString());
-                            semanalRaw = BigInt((await contract.poolSemanal().call()).toString());
-                            readContract = {
-                                getHistoricoCount: async () => BigInt((await contract.getHistoricoCount().call()).toString()),
-                                ultimosGanhadores: async (i) => {
-                                    const res = await contract.ultimosGanhadores(i).call();
-                                    return {
-                                        carteira: res.carteira || res[0],
-                                        valor: BigInt((res.valor || res[1]).toString()),
-                                        data: Number(res.data || res[2]),
-                                        tipo: res.tipo || res[3]
-                                    };
-                                }
-                            };
-                        } else {
-                            const tempProvider = new ethers.JsonRpcProvider(net.rpc);
-                            readContract = new ethers.Contract(net.contract, LOTTERY_ABI, tempProvider);
+                        if (readContract) {
                             jackpotRaw = await readContract.jackpotAcumulado().catch(() => 0n);
                             semanalRaw = await readContract.poolSemanal().catch(() => 0n);
                         }
@@ -1122,6 +953,12 @@
                         document.getElementById(`weeklyNet-${chainIdKey}`).innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                         globalTotalSum += jpFormatted + weeklyFormatted;
+
+                        // Se for a rede atualmente ativa, atualiza os cards principais da DApp
+                        if (String(chainIdKey) === String(activeNetKey)) {
+                            document.getElementById('jackpotValue').innerText = jpFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            document.getElementById('weeklyValue').innerText = weeklyFormatted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        }
 
                         if (readContract && readContract.getHistoricoCount) {
                             const hCount = await readContract.getHistoricoCount().catch(() => 0n);
@@ -1137,9 +974,7 @@
                                 }
                             }
                         }
-                    } catch (e) {
-                        console.error(`Erro ao carregar dados da rede ${net.name}:`, e);
-                    }
+                    } catch (e) {}
                 }
 
                 document.getElementById('globalTotalValue').innerText = globalTotalSum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1147,7 +982,7 @@
                 atualizarCardsStatusRedes();
 
             } catch (err) {
-                console.error("Erro geral ao carregar dados públicos:", err);
+                console.error("Erro ao carregar dados públicos:", err);
             }
         }
 
@@ -1158,7 +993,7 @@
             if (historico.length === 0) {
                 tableBody.innerHTML = `
                     <tr class="border-b border-white/10">
-                        <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum vencedor registrado globalmente no momento.</td>
+                        <td class="py-4 text-gray-500 italic text-center" colspan="4">Nenhum vencedor registrado globalmente.</td>
                     </tr>
                 `;
                 return;
@@ -1174,7 +1009,7 @@
                                 ${carteiraFmt} ↗
                             </a>
                         </td>
-                        <td class="py-3"><span class="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded text-[9px] font-bold">${item.type || 'JACKPOT'} (${item.netName})</span></td>
+                        <td class="py-3"><span class="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded text-[9px] font-bold">${item.tipo || 'JACKPOT'} (${item.netName})</span></td>
                         <td class="py-3 text-gray-300 font-mono text-[11px]">Sorteio On-Chain</td>
                         <td class="py-3 text-right font-bold text-white">$${valorFmt} USDT</td>
                     </tr>
@@ -1307,6 +1142,7 @@
                 
                 let tx;
                 if (isTronMode) {
+                    // Valor exato de 5 USDT injetado automaticamente sem input manual
                     tx = await usdtContract.approve(activeNet.contract, 5000000n);
                 } else {
                     tx = await usdtContract.approve(activeNet.contract, custoBilhete);
@@ -1324,8 +1160,7 @@
                 console.error("Erro no Approve:", err);
                 SoundEngine.errorSound();
                 alert("Erro ao aprovar USDT. Verifique se há saldo suficiente.");
-                const lang = localStorage.getItem('megacrypto_lang') || 'pt';
-                btnApprove.innerText = translations[lang].btnApprove;
+                btnApprove.innerText = "1. APPROVE USDT";
                 btnApprove.disabled = false;
             }
         };
@@ -1361,12 +1196,11 @@
                 initGrid();
                 updateUI();
                 
-                const lang = localStorage.getItem('megacrypto_lang') || 'pt';
-                btnBuy.innerText = translations[lang].btnBuy;
+                btnBuy.innerText = "2. JOGAR AGORA";
                 btnBuy.disabled = true;
                 btnBuy.classList.add('opacity-50', 'cursor-not-allowed');
                 
-                document.getElementById('btnApprove').innerText = translations[lang].btnApprove;
+                document.getElementById('btnApprove').innerText = "1. APPROVE USDT";
                 
                 await carregarDadosPublicos();
                 await carregarMinhasApostas();
@@ -1374,8 +1208,7 @@
                 console.error("Erro na Compra:", err);
                 SoundEngine.errorSound();
                 alert("Erro ao registrar aposta: " + (err.reason || err.message));
-                const lang = localStorage.getItem('megacrypto_lang') || 'pt';
-                btnBuy.innerText = translations[lang].btnBuy;
+                btnBuy.innerText = "2. JOGAR AGORA";
                 btnBuy.disabled = false;
             }
         };
@@ -1416,8 +1249,8 @@
 
             try {
                 let mascarasDoUsuario = [];
-
                 const totalApostas = await lotteryContract.getApostasCount().catch(() => 0n);
+                
                 for (let i = 0; i < Number(totalApostas); i++) {
                     try {
                         const aposta = await lotteryContract.apostasDaSemana(i);
@@ -1431,8 +1264,7 @@
                 }
 
                 if (mascarasDoUsuario.length === 0) {
-                    const lang = localStorage.getItem('megacrypto_lang') || 'pt';
-                    container.innerHTML = `<div class="text-xs text-gray-500 italic">${translations[lang].noBetsYet}</div>`;
+                    container.innerHTML = `<div class="text-xs text-gray-500 italic">Nenhuma aposta registrada no momento.</div>`;
                     return;
                 }
 
@@ -1495,47 +1327,13 @@
         }
 
         function shareSocial(network, isWinner = false) {
-            const lang = localStorage.getItem('megacrypto_lang') || 'pt';
-            
-            let textoMsg = "";
-            if (isWinner) {
-                textoMsg = lang === 'pt' 
-                    ? "🏆 Ganhei na MEGACRYPTO Lottery! Sorteio 100% on-chain. Confira:"
-                    : "🏆 I just won on MEGACRYPTO Lottery! 100% on-chain. Check it out:";
-            } else {
-                textoMsg = lang === 'pt'
-                    ? "🎰 Registrei meus bilhetes na MEGACRYPTO Lottery. Participe:"
-                    : "🎰 Placed my bets on MEGACRYPTO Lottery. Join now:";
-            }
-
             const pageUrl = window.location.href;
-            let shareUrl = "";
-
-            if (network === 'telegram') {
-                if (window.Telegram?.WebApp?.openTelegramLink) {
-                    window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(textoMsg)}`);
-                    return;
-                }
-                shareUrl = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(textoMsg)}`;
-            } else if (network === 'whatsapp') {
-                shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoMsg + " " + pageUrl)}`;
-            } else if (network === 'x') {
-                shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(textoMsg)}&url=${encodeURIComponent(pageUrl)}`;
-            }
-
-            const link = document.createElement('a');
-            link.href = shareUrl;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const textoMsg = isWinner ? "🏆 Ganhei na MEGACRYPTO Lottery! Confira:" : "🎰 Participe da MEGACRYPTO Lottery:";
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(textoMsg)}`;
+            window.open(shareUrl, '_blank');
         }
 
         window.onload = () => {
-            const savedLang = localStorage.getItem('megacrypto_lang') || 'pt';
-            setLanguage(savedLang);
-            document.getElementById('langSelector').value = savedLang;
             verificarAntiPhishing();
             initGrid();
             iniciarRelogio();
