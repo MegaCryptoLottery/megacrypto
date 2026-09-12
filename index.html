@@ -763,7 +763,6 @@
             const net = NETWORKS[chainId] || NETWORKS[137];
             if (chainId === 'tron') {
                 try {
-                    // Utiliza TronWeb via CDN ou injetado na página
                     const hostUrl = net.rpc;
                     const tw = window.tronWeb || new TronWeb({ fullHost: hostUrl });
                     return {
@@ -999,8 +998,14 @@
                 return;
             }
 
+            // Transição direta de Tron para EVM sem prompts desnecessários
             isTronMode = false;
             currentChainId = targetChainId;
+
+            if (!window.ethereum) {
+                alert("Extensão EVM (MetaMask) não detectada.");
+                return;
+            }
 
             try {
                 const hexChainId = '0x' + Number(targetChainId).toString(16);
@@ -1009,7 +1014,19 @@
                     params: [{ chainId: hexChainId }],
                 });
                 document.getElementById('networkWarningBanner').classList.add('hidden');
+                
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                const activeNet = NETWORKS[targetChainId];
+                lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
+                usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
+
+                updateConnectedUI(userAddress);
                 updateNetworkBadge(Number(targetChainId));
+                await carregarMinhasApostas();
+                await verificarPremioDisponivel();
                 await carregarDadosPublicos();
             } catch (switchError) {
                 if (switchError.code === 4902 || switchError.code === -32603) {
@@ -1026,7 +1043,19 @@
                             }]
                         });
                         document.getElementById('networkWarningBanner').classList.add('hidden');
+                        
+                        provider = new ethers.BrowserProvider(window.ethereum);
+                        signer = await provider.getSigner();
+                        userAddress = await signer.getAddress();
+                        
+                        const activeNet = NETWORKS[targetChainId];
+                        lotteryContract = new ethers.Contract(activeNet.contract, LOTTERY_ABI, signer);
+                        usdtContract = new ethers.Contract(activeNet.usdt, ERC20_ABI, signer);
+
+                        updateConnectedUI(userAddress);
                         updateNetworkBadge(Number(targetChainId));
+                        await carregarMinhasApostas();
+                        await verificarPremioDisponivel();
                         await carregarDadosPublicos();
                         return;
                     } catch (addError) {}
@@ -1044,23 +1073,23 @@
             badge.classList.remove('hidden');
             badge.classList.add('flex');
             
-            if (chainId === 56) {
+            if (chainId === 56 || chainId === '56') {
                 netName.innerText = "BSC";
                 netDot.className = "h-2 w-2 rounded-full bg-yellow-400 animate-pulse";
                 scanName.innerText = "BscScan";
-            } else if (chainId === 42161) {
+            } else if (chainId === 42161 || chainId === '42161') {
                 netName.innerText = "Arbitrum";
                 netDot.className = "h-2 w-2 rounded-full bg-blue-400 animate-pulse";
                 scanName.innerText = "Arbiscan";
-            } else if (chainId === 8453) {
+            } else if (chainId === 8453 || chainId === '8453') {
                 netName.innerText = "Base";
                 netDot.className = "h-2 w-2 rounded-full bg-sky-400 animate-pulse";
                 scanName.innerText = "Basescan";
-            } else if (chainId === 10) {
+            } else if (chainId === 10 || chainId === '10') {
                 netName.innerText = "Optimism";
                 netDot.className = "h-2 w-2 rounded-full bg-red-400 animate-pulse";
                 scanName.innerText = "Optimistic Etherscan";
-            } else if (chainId === 43114) {
+            } else if (chainId === 43114 || chainId === '43114') {
                 netName.innerText = "Avalanche";
                 netDot.className = "h-2 w-2 rounded-full bg-orange-400 animate-pulse";
                 scanName.innerText = "Snowtrace";
@@ -1079,6 +1108,7 @@
 
         function updateConnectedUI(addr) {
             const btn = document.getElementById('connectBtn');
+            if (!addr) return;
             btn.innerText = addr.slice(0,6) + "..." + addr.slice(-4);
             btn.classList.remove('btn-grad');
             btn.classList.add('bg-green-600');
